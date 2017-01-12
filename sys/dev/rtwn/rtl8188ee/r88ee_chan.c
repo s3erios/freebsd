@@ -14,6 +14,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+// From here: https://github.com/lwfinger/rtlwifi_new/blob/dfd58dae0d52f9d2fa6569be51dd739d8d4eafd4/rtl8188ee/hw.c#L2222
 void
 r88ee_set_chan(struct rtwn_softc *sc, struct ieee80211_channel *c)
 {
@@ -47,7 +48,5 @@ r88ee_set_chan(struct rtwn_softc *sc, struct ieee80211_channel *c)
 			rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_ACM_CTRL, &e_aci);
 	}
 
-	
-*/
 	
 }
