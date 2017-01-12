@@ -33,7 +33,8 @@ r88ee_set_chan(struct rtwn_softc *sc, struct ieee80211_channel *c)
 	pci_write8_async which is a pointer to pci.h which calls
 */
 /******* USE BELOW, ITS THE CONCLUSION **********/
-	writeb( &mac->slot_time, pci_mem_start + addr) 
+//	writeb( &mac->slot_time, pci_mem_start + addr) // This is Linux code 
+	rtwn_pci_write_1(sc, &mac->slot_time, pci_mem_addr + addr) // This is FreeBSD
 
 			       AC_MAX = 4; // Defined as 4 in 
 	// Defined here: https://github.com/lwfinger/rtlwifi_new/blob/d1a04f5bd9281b9c5f0425b0c6a0d1b59f1cdcca/wifi.h#L107
