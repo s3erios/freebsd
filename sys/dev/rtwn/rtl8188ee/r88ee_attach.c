@@ -3,7 +3,7 @@
 /*-
  * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
  * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -46,72 +46,43 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/if_rtwnreg.h>
 #include <dev/rtwn/if_rtwnvar.h>
-#include <dev/rtwn/if_rtwn_ridx.h>
 
 #include <dev/rtwn/rtl8188ee/r88ee.h>
-#include <dev/rtwn/rtl8188ee/r88ee_rx_desc.h>
+#include <dev/rtwn/rtl8188ee/r88ee_reg.h>
+#include <dev/rtwn/rtl8188ee/r88ee_var.h>
 
 
-int8_t
-r88ee_get_rssi_cck(struct rtwn_softc *sc, void *physt)
+void
+r88ee_detach_private(struct rtwn_softc *sc)
 {
 #if 0
-	static const int8_t cckoff[] = { 16, -12, -26, -46 };
-	struct r88ee_rx_cck *cck = (struct r88ee_rx_cck *)physt;
-	uint8_t rpt;
-	int8_t rssi;
+	struct r88ee_softc *rs = sc->sc_priv;
 
-	if (sc->sc_flags & RTWN_FLAG_CCK_HIPWR) {
-		rpt = (cck->agc_rpt >> 5) & 0x03;
-		rssi = (cck->agc_rpt & 0x1f) << 1;
-	} else {
-		rpt = (cck->agc_rpt >> 6) & 0x03;
-		rssi = cck->agc_rpt & 0x3e;
+	free(rs, M_RTWN_PRIV);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+void
+r88ee_read_chipid_vendor(struct rtwn_softc *sc, uint32_t reg_sys_cfg)
+{
+# if 0
+	struct r88ee_softc *rs = sc->sc_priv;
+
+	if (reg_sys_cfg & R92C_SYS_CFG_TYPE_92C) {
+		rs->chip |= R92C_CHIP_92C;
+		/* Check if it is a castrated 8192C. */
+		if (MS(rtwn_read_4(sc, R92C_HPON_FSM),
+		    R92C_HPON_FSM_CHIP_BONDING_ID) ==
+		    R92C_HPON_FSM_CHIP_BONDING_ID_92C_1T2R)
+			rs->chip |= R92C_CHIP_92C_1T2R;
 	}
-	rssi = cckoff[rpt] - rssi;
-
-	return (rssi);
+	if (reg_sys_cfg & R92C_SYS_CFG_VENDOR_UMC) {
+		if (MS(reg_sys_cfg, R92C_SYS_CFG_CHIP_VER_RTL) == 0)
+			rs->chip |= R92C_CHIP_UMC_A_CUT;
+	}
 #else
 	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
-#endif
-}
-
-int8_t
-r88ee_get_rssi_ofdm(struct rtwn_softc *sc, void *physt)
-{
-#if 0
-	struct r88ee_rx_phystat *phy = (struct r88ee_rx_phystat *)physt;
-	int rssi;
-
-	/* Get average RSSI. */
-	rssi = ((phy->pwdb_all >> 1) & 0x7f) - 110;
-
-	return (rssi);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
-#endif
-}
-
-uint8_t
-r88ee_rx_radiotap_flags(const void *buf)
-{
-#if 0
-	const struct r88ee_rx_stat *stat = buf;
-	uint8_t flags, rate;
-
-	if (!(stat->rxdw3 & htole32(R92C_RXDW3_SPLCP)))
-		return (0);
-
-	rate = MS(le32toh(stat->rxdw3), R92C_RXDW3_RATE);
-	if (RTWN_RATE_IS_CCK(rate))
-		flags = IEEE80211_RADIOTAP_F_SHORTPRE;
-	else
-		flags = IEEE80211_RADIOTAP_F_SHORTGI;
-	return (flags);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
 #endif
 }

@@ -46,72 +46,57 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/if_rtwnreg.h>
 #include <dev/rtwn/if_rtwnvar.h>
-#include <dev/rtwn/if_rtwn_ridx.h>
 
 #include <dev/rtwn/rtl8188ee/r88ee.h>
-#include <dev/rtwn/rtl8188ee/r88ee_rx_desc.h>
+#include <dev/rtwn/rtl8188ee/r88ee_reg.h>
+#include <dev/rtwn/rtl8188ee/r88ee_var.h>
+#include <dev/rtwn/rtl8188ee/r88ee_rom_defs.h>
 
 
-int8_t
-r88ee_get_rssi_cck(struct rtwn_softc *sc, void *physt)
+uint32_t
+r88ee_rf_read(struct rtwn_softc *sc, int chain, uint8_t addr)
 {
 #if 0
-	static const int8_t cckoff[] = { 16, -12, -26, -46 };
-	struct r88ee_rx_cck *cck = (struct r88ee_rx_cck *)physt;
-	uint8_t rpt;
-	int8_t rssi;
+	struct r88ee_softc *rs = sc->sc_priv;
+	uint32_t reg[R92C_MAX_CHAINS], val;
 
-	if (sc->sc_flags & RTWN_FLAG_CCK_HIPWR) {
-		rpt = (cck->agc_rpt >> 5) & 0x03;
-		rssi = (cck->agc_rpt & 0x1f) << 1;
-	} else {
-		rpt = (cck->agc_rpt >> 6) & 0x03;
-		rssi = cck->agc_rpt & 0x3e;
-	}
-	rssi = cckoff[rpt] - rssi;
+	reg[0] = rtwn_bb_read(sc, R92C_HSSI_PARAM2(0));
+	if (chain != 0)
+		reg[chain] = rtwn_bb_read(sc, R92C_HSSI_PARAM2(chain));
 
-	return (rssi);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
-#endif
-}
+	rtwn_bb_write(sc, R92C_HSSI_PARAM2(0),
+	    reg[0] & ~R92C_HSSI_PARAM2_READ_EDGE);
+	rtwn_delay(sc, rs->rf_read_delay[0]);
 
-int8_t
-r88ee_get_rssi_ofdm(struct rtwn_softc *sc, void *physt)
-{
-#if 0
-	struct r88ee_rx_phystat *phy = (struct r88ee_rx_phystat *)physt;
-	int rssi;
+	rtwn_bb_write(sc, R92C_HSSI_PARAM2(chain),
+	    RW(reg[chain], R92C_HSSI_PARAM2_READ_ADDR, addr) |
+	    R92C_HSSI_PARAM2_READ_EDGE);
+	rtwn_delay(sc, rs->rf_read_delay[1]);
 
-	/* Get average RSSI. */
-	rssi = ((phy->pwdb_all >> 1) & 0x7f) - 110;
+	rtwn_bb_write(sc, R92C_HSSI_PARAM2(0),
+	    reg[0] | R92C_HSSI_PARAM2_READ_EDGE);
+	rtwn_delay(sc, rs->rf_read_delay[2]);
 
-	return (rssi);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
-#endif
-}
-
-uint8_t
-r88ee_rx_radiotap_flags(const void *buf)
-{
-#if 0
-	const struct r88ee_rx_stat *stat = buf;
-	uint8_t flags, rate;
-
-	if (!(stat->rxdw3 & htole32(R92C_RXDW3_SPLCP)))
-		return (0);
-
-	rate = MS(le32toh(stat->rxdw3), R92C_RXDW3_RATE);
-	if (RTWN_RATE_IS_CCK(rate))
-		flags = IEEE80211_RADIOTAP_F_SHORTPRE;
+	if (rtwn_bb_read(sc, R92C_HSSI_PARAM1(chain)) & R92C_HSSI_PARAM1_PI)
+		val = rtwn_bb_read(sc, R92C_HSPI_READBACK(chain));
 	else
-		flags = IEEE80211_RADIOTAP_F_SHORTGI;
-	return (flags);
+		val = rtwn_bb_read(sc, R92C_LSSI_READBACK(chain));
+	return (MS(val, R92C_LSSI_READBACK_DATA));
 #else
 	device_printf(sc->sc_dev, "Unimplemented\n");
 	return 0;
+#endif
+}
+
+void
+r88ee_rf_write(struct rtwn_softc *sc, int chain, uint8_t addr,
+    uint32_t val)
+{
+#if 0
+	rtwn_bb_write(sc, R92C_LSSI_PARAM(chain),
+	    SM(R92C_LSSI_PARAM_ADDR, addr) |
+	    SM(R92C_LSSI_PARAM_DATA, val));
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
 #endif
 }
