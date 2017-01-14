@@ -562,7 +562,7 @@ r88ee_handle_c2h_report(void *arg)
 
 	rtwn_cmd_sleepable(sc, NULL, 0, r88ee_handle_c2h_task);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 #endif
 }
 

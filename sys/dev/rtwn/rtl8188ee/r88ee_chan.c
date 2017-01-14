@@ -80,6 +80,7 @@ r88ee_get_power_group(struct rtwn_softc *sc, struct ieee80211_channel *c)
 	return (group);
 #else
 	device_printf(sc->sc_dev, "Unimplemented\n");
+	return 0;
 #endif
 }
 
@@ -367,7 +368,7 @@ r88ee_scan_start(struct ieee80211com *ic)
 
 	rs->rs_scan_start(ic);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 #endif
 }
 
@@ -385,6 +386,6 @@ r88ee_scan_end(struct ieee80211com *ic)
 
 	rs->rs_scan_end(ic);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 #endif
 }

@@ -36,6 +36,11 @@ SRCS	+= r12a_beacon.c r12a_calib.c r12a_caps.c r12a_chan.c r12a_fw.c \
 SRCS	+= r21a_beacon.c r21a_calib.c r21a_chan.c r21a_fw.c r21a_init.c \
 	   r21a_led.c r21a_rom.c r21a_rx.c r21a.h r21a_priv.h r21a_reg.h
 
+.PATH:     $(.CURDIR)/../../dev/rtwn/rtl8188ee
+SRCS	+= r88ee_attach.c r88ee_beacon.c r88ee_calib.c r88ee_chan.c \
+	   r88ee_fw.c r88ee_init.c r88ee_rf.c r88ee_rom.c r88ee_rx.c \
+	   r88ee_tx.c
+
 opt_rtwn.h:
 	@echo "#define RTWN_DEBUG 1" > ${.TARGET}
 .if ${MK_SOURCELESS_UCODE} == "no"

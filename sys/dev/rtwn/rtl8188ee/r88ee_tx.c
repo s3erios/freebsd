@@ -218,7 +218,7 @@ r88ee_tx_enable_ampdu(void *buf, int enable)
 	else
 		txd->txdw1 |= htole32(R92C_TXDW1_AGGBK);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 #endif
 }
 
@@ -230,7 +230,7 @@ r88ee_tx_setup_hwseq(void *buf)
 
 	txd->txdw4 |= htole32(R92C_TXDW4_HWSEQ_EN);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 #endif
 }
 
@@ -242,7 +242,7 @@ r88ee_tx_setup_macid(void *buf, int id)
 
 	txd->txdw1 |= htole32(SM(R92C_TXDW1_MACID, id));
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 #endif
 }
 
@@ -480,6 +480,7 @@ r88ee_tx_radiotap_flags(const void *buf)
 		flags |= IEEE80211_RADIOTAP_F_SHORTGI;
 	return (flags);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
+	return 0;
 #endif
 }
