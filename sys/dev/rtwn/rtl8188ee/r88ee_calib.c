@@ -121,5 +121,6 @@ r88ee_temp_read(struct rtwn_softc *sc)
 	    R92C_RF_T_METER_VAL));
 #else
 	device_printf(sc->sc_dev, "Unimplemented\n");
+	return 0;
 #endif
 }

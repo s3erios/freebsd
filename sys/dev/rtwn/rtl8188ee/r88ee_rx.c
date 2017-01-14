@@ -111,7 +111,7 @@ r88ee_rx_radiotap_flags(const void *buf)
 		flags = IEEE80211_RADIOTAP_F_SHORTGI;
 	return (flags);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("Unimplemented\n");
 	return 0;
 #endif
 }
