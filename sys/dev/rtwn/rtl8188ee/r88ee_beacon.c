@@ -1,8 +1,4 @@
-/*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
-
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
  * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -44,74 +40,54 @@ __FBSDID("$FreeBSD$");
 #include <net80211/ieee80211_var.h>
 #include <net80211/ieee80211_radiotap.h>
 
-#include <dev/rtwn/if_rtwnreg.h>
 #include <dev/rtwn/if_rtwnvar.h>
+#include <dev/rtwn/if_rtwnreg.h>
+
 #include <dev/rtwn/if_rtwn_ridx.h>
 
 #include <dev/rtwn/rtl8188ee/r88ee.h>
-#include <dev/rtwn/rtl8188ee/r88ee_rx_desc.h>
+#include <dev/rtwn/rtl8188ee/r88ee_var.h>
+#include <dev/rtwn/rtl8188ee/r88ee_reg.h>
+#include <dev/rtwn/rtl8188ee/r88ee_tx_desc.h>
 
 
-int8_t
-r88ee_get_rssi_cck(struct rtwn_softc *sc, void *physt)
+void
+r88ee_beacon_init(struct rtwn_softc *sc, void *buf, int id)
 {
 #if 0
-	static const int8_t cckoff[] = { 16, -12, -26, -46 };
-	struct r88ee_rx_cck *cck = (struct r88ee_rx_cck *)physt;
-	uint8_t rpt;
-	int8_t rssi;
+	struct r88ee_tx_desc *txd = (struct r88ee_tx_desc *)buf;
 
-	if (sc->sc_flags & RTWN_FLAG_CCK_HIPWR) {
-		rpt = (cck->agc_rpt >> 5) & 0x03;
-		rssi = (cck->agc_rpt & 0x1f) << 1;
+	/*
+	 * NB: there is no need to setup HWSEQ_EN bit;
+	 * QSEL_BEACON already implies it.
+	 */
+	txd->flags0 |= R92C_FLAGS0_BMCAST | R92C_FLAGS0_FSG | R92C_FLAGS0_LSG;
+	txd->txdw1 |= htole32(
+	    SM(R92C_TXDW1_QSEL, R92C_TXDW1_QSEL_BEACON) |
+	    SM(R92C_TXDW1_RAID, R92C_RAID_11B));
+
+	rtwn_r88ee_tx_setup_macid(sc, buf, id);
+	txd->txdw4 |= htole32(R92C_TXDW4_DRVRATE);
+	txd->txdw4 |= htole32(SM(R92C_TXDW4_SEQ_SEL, id));
+	txd->txdw4 |= htole32(SM(R92C_TXDW4_PORT_ID, id));
+	txd->txdw5 |= htole32(SM(R92C_TXDW5_DATARATE, RTWN_RIDX_CCK1));
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+void
+r88ee_beacon_enable(struct rtwn_softc *sc, int id, int enable)
+{
+#if 0
+	if (enable) {
+		rtwn_setbits_1(sc, R92C_BCN_CTRL(id),
+		    0, R92C_BCN_CTRL_EN_BCN);
 	} else {
-		rpt = (cck->agc_rpt >> 6) & 0x03;
-		rssi = cck->agc_rpt & 0x3e;
+		rtwn_setbits_1(sc, R92C_BCN_CTRL(id),
+		    R92C_BCN_CTRL_EN_BCN, 0);
 	}
-	rssi = cckoff[rpt] - rssi;
-
-	return (rssi);
 #else
 	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
-#endif
-}
-
-int8_t
-r88ee_get_rssi_ofdm(struct rtwn_softc *sc, void *physt)
-{
-#if 0
-	struct r88ee_rx_phystat *phy = (struct r88ee_rx_phystat *)physt;
-	int rssi;
-
-	/* Get average RSSI. */
-	rssi = ((phy->pwdb_all >> 1) & 0x7f) - 110;
-
-	return (rssi);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
-#endif
-}
-
-uint8_t
-r88ee_rx_radiotap_flags(const void *buf)
-{
-#if 0
-	const struct r88ee_rx_stat *stat = buf;
-	uint8_t flags, rate;
-
-	if (!(stat->rxdw3 & htole32(R92C_RXDW3_SPLCP)))
-		return (0);
-
-	rate = MS(le32toh(stat->rxdw3), R92C_RXDW3_RATE);
-	if (RTWN_RATE_IS_CCK(rate))
-		flags = IEEE80211_RADIOTAP_F_SHORTPRE;
-	else
-		flags = IEEE80211_RADIOTAP_F_SHORTGI;
-	return (flags);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return 0;
 #endif
 }

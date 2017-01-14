@@ -1,5 +1,9 @@
+/*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
+
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -14,40 +18,373 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-// From here: https://github.com/lwfinger/rtlwifi_new/blob/dfd58dae0d52f9d2fa6569be51dd739d8d4eafd4/rtl8188ee/hw.c#L2222
+#include <sys/cdefs.h>
+__FBSDID("$FreeBSD$");
+
+#include "opt_wlan.h"
+
+#include <sys/param.h>
+#include <sys/lock.h>
+#include <sys/mutex.h>
+#include <sys/mbuf.h>
+#include <sys/kernel.h>
+#include <sys/socket.h>
+#include <sys/systm.h>
+#include <sys/malloc.h>
+#include <sys/queue.h>
+#include <sys/taskqueue.h>
+#include <sys/bus.h>
+#include <sys/endian.h>
+#include <sys/linker.h>
+
+#include <net/if.h>
+#include <net/ethernet.h>
+#include <net/if_media.h>
+
+#include <net80211/ieee80211_var.h>
+#include <net80211/ieee80211_radiotap.h>
+
+#include <dev/rtwn/if_rtwnreg.h>
+#include <dev/rtwn/if_rtwnvar.h>
+
+#include <dev/rtwn/if_rtwn_debug.h>
+#include <dev/rtwn/if_rtwn_ridx.h>
+
+#include <dev/rtwn/rtl8188ee/r88ee.h>
+#include <dev/rtwn/rtl8188ee/r88ee_priv.h>
+#include <dev/rtwn/rtl8188ee/r88ee_reg.h>
+#include <dev/rtwn/rtl8188ee/r88ee_var.h>
+
+
+static int
+r88ee_get_power_group(struct rtwn_softc *sc, struct ieee80211_channel *c)
+{
+#if 0
+	uint8_t chan;
+	int group;
+
+	chan = rtwn_chan2centieee(c);
+	if (IEEE80211_IS_CHAN_2GHZ(c)) {
+		if (chan <= 3)			group = 0;
+		else if (chan <= 9)		group = 1;
+		else if (chan <= 14)		group = 2;
+		else {
+			KASSERT(0, ("wrong 2GHz channel %d!\n", chan));
+			return (-1);
+		}
+	} else {
+		KASSERT(0, ("wrong channel band (flags %08X)\n", c->ic_flags));
+		return (-1);
+	}
+
+	return (group);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+/* XXX recheck */
+void
+r88ee_get_txpower(struct rtwn_softc *sc, int chain,
+    struct ieee80211_channel *c, uint16_t power[RTWN_RIDX_COUNT])
+{
+#if 0
+	struct r88ee_softc *rs = sc->sc_priv;
+	struct rtwn_r88ee_txpwr *rt = rs->rs_txpwr;
+	const struct rtwn_r88ee_txagc *base = rs->rs_txagc;
+	uint8_t ofdmpow, htpow, diff, max;
+	int max_mcs, ridx, group;
+
+	/* Determine channel group. */
+	group = r88ee_get_power_group(sc, c);
+	if (group == -1) {	/* shouldn't happen */
+		device_printf(sc->sc_dev, "%s: incorrect channel\n", __func__);
+		return;
+	}
+
+	/* XXX net80211 regulatory */
+
+	max_mcs = RTWN_RIDX_MCS(sc->ntxchains * 8 - 1);
+	KASSERT(max_mcs <= RTWN_RIDX_COUNT, ("increase ridx limit\n"));
+
+	memset(power, 0, max_mcs * sizeof(power[0]));
+	if (rs->regulatory == 0) {
+		for (ridx = RTWN_RIDX_CCK1; ridx <= RTWN_RIDX_CCK11; ridx++)
+			power[ridx] = base[chain].pwr[0][ridx];
+	}
+	for (ridx = RTWN_RIDX_OFDM6; ridx < RTWN_RIDX_COUNT; ridx++) {
+		if (rs->regulatory == 3) {
+			power[ridx] = base[chain].pwr[0][ridx];
+			/* Apply vendor limits. */
+			if (IEEE80211_IS_CHAN_HT40(c))
+				max = rt->ht40_max_pwr[chain][group];
+			else
+				max = rt->ht20_max_pwr[chain][group];
+			if (power[ridx] > max)
+				power[ridx] = max;
+		} else if (rs->regulatory == 1) {
+			if (!IEEE80211_IS_CHAN_HT40(c))
+				power[ridx] = base[chain].pwr[group][ridx];
+		} else if (rs->regulatory != 2)
+			power[ridx] = base[chain].pwr[0][ridx];
+	}
+
+	/* Compute per-CCK rate Tx power. */
+	for (ridx = RTWN_RIDX_CCK1; ridx <= RTWN_RIDX_CCK11; ridx++)
+		power[ridx] += rt->cck_tx_pwr[chain][group];
+
+	htpow = rt->ht40_1s_tx_pwr[chain][group];
+	if (sc->ntxchains > 1) {
+		/* Apply reduction for 2 spatial streams. */
+		diff = rt->ht40_2s_tx_pwr_diff[chain][group];
+		htpow = (htpow > diff) ? htpow - diff : 0;
+	}
+
+	/* Compute per-OFDM rate Tx power. */
+	diff = rt->ofdm_tx_pwr_diff[chain][group];
+	ofdmpow = htpow + diff;	/* HT->OFDM correction. */
+	for (ridx = RTWN_RIDX_OFDM6; ridx <= RTWN_RIDX_OFDM54; ridx++)
+		power[ridx] += ofdmpow;
+
+	/* Compute per-MCS Tx power. */
+	if (!IEEE80211_IS_CHAN_HT40(c)) {
+		diff = rt->ht20_tx_pwr_diff[chain][group];
+		htpow += diff;	/* HT40->HT20 correction. */
+	}
+	for (ridx = RTWN_RIDX_MCS(0); ridx <= max_mcs; ridx++)
+		power[ridx] += htpow;
+
+	/* Apply max limit. */
+	for (ridx = RTWN_RIDX_CCK1; ridx <= max_mcs; ridx++) {
+		if (power[ridx] > R92C_MAX_TX_PWR)
+			power[ridx] = R92C_MAX_TX_PWR;
+	}
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+static void
+r88ee_write_txpower(struct rtwn_softc *sc, int chain,
+    uint16_t power[RTWN_RIDX_COUNT])
+{
+#if 0
+	uint32_t reg;
+
+	/* Write per-CCK rate Tx power. */
+	if (chain == 0) {
+		reg = rtwn_bb_read(sc, R92C_TXAGC_A_CCK1_MCS32);
+		reg = RW(reg, R92C_TXAGC_A_CCK1,  power[RTWN_RIDX_CCK1]);
+		rtwn_bb_write(sc, R92C_TXAGC_A_CCK1_MCS32, reg);
+		reg = rtwn_bb_read(sc, R92C_TXAGC_B_CCK11_A_CCK2_11);
+		reg = RW(reg, R92C_TXAGC_A_CCK2,  power[RTWN_RIDX_CCK2]);
+		reg = RW(reg, R92C_TXAGC_A_CCK55, power[RTWN_RIDX_CCK55]);
+		reg = RW(reg, R92C_TXAGC_A_CCK11, power[RTWN_RIDX_CCK11]);
+		rtwn_bb_write(sc, R92C_TXAGC_B_CCK11_A_CCK2_11, reg);
+	} else {
+		reg = rtwn_bb_read(sc, R92C_TXAGC_B_CCK1_55_MCS32);
+		reg = RW(reg, R92C_TXAGC_B_CCK1,  power[RTWN_RIDX_CCK1]);
+		reg = RW(reg, R92C_TXAGC_B_CCK2,  power[RTWN_RIDX_CCK2]);
+		reg = RW(reg, R92C_TXAGC_B_CCK55, power[RTWN_RIDX_CCK55]);
+		rtwn_bb_write(sc, R92C_TXAGC_B_CCK1_55_MCS32, reg);
+		reg = rtwn_bb_read(sc, R92C_TXAGC_B_CCK11_A_CCK2_11);
+		reg = RW(reg, R92C_TXAGC_B_CCK11, power[RTWN_RIDX_CCK11]);
+		rtwn_bb_write(sc, R92C_TXAGC_B_CCK11_A_CCK2_11, reg);
+	}
+	/* Write per-OFDM rate Tx power. */
+	rtwn_bb_write(sc, R92C_TXAGC_RATE18_06(chain),
+	    SM(R92C_TXAGC_RATE06, power[RTWN_RIDX_OFDM6]) |
+	    SM(R92C_TXAGC_RATE09, power[RTWN_RIDX_OFDM9]) |
+	    SM(R92C_TXAGC_RATE12, power[RTWN_RIDX_OFDM12]) |
+	    SM(R92C_TXAGC_RATE18, power[RTWN_RIDX_OFDM18]));
+	rtwn_bb_write(sc, R92C_TXAGC_RATE54_24(chain),
+	    SM(R92C_TXAGC_RATE24, power[RTWN_RIDX_OFDM24]) |
+	    SM(R92C_TXAGC_RATE36, power[RTWN_RIDX_OFDM36]) |
+	    SM(R92C_TXAGC_RATE48, power[RTWN_RIDX_OFDM48]) |
+	    SM(R92C_TXAGC_RATE54, power[RTWN_RIDX_OFDM54]));
+	/* Write per-MCS Tx power. */
+	rtwn_bb_write(sc, R92C_TXAGC_MCS03_MCS00(chain),
+	    SM(R92C_TXAGC_MCS00,  power[RTWN_RIDX_MCS(0)]) |
+	    SM(R92C_TXAGC_MCS01,  power[RTWN_RIDX_MCS(1)]) |
+	    SM(R92C_TXAGC_MCS02,  power[RTWN_RIDX_MCS(2)]) |
+	    SM(R92C_TXAGC_MCS03,  power[RTWN_RIDX_MCS(3)]));
+	rtwn_bb_write(sc, R92C_TXAGC_MCS07_MCS04(chain),
+	    SM(R92C_TXAGC_MCS04,  power[RTWN_RIDX_MCS(4)]) |
+	    SM(R92C_TXAGC_MCS05,  power[RTWN_RIDX_MCS(5)]) |
+	    SM(R92C_TXAGC_MCS06,  power[RTWN_RIDX_MCS(6)]) |
+	    SM(R92C_TXAGC_MCS07,  power[RTWN_RIDX_MCS(7)]));
+	if (sc->ntxchains >= 2) {
+		rtwn_bb_write(sc, R92C_TXAGC_MCS11_MCS08(chain),
+		    SM(R92C_TXAGC_MCS08,  power[RTWN_RIDX_MCS(8)]) |
+		    SM(R92C_TXAGC_MCS09,  power[RTWN_RIDX_MCS(9)]) |
+		    SM(R92C_TXAGC_MCS10,  power[RTWN_RIDX_MCS(10)]) |
+		    SM(R92C_TXAGC_MCS11,  power[RTWN_RIDX_MCS(11)]));
+		rtwn_bb_write(sc, R92C_TXAGC_MCS15_MCS12(chain),
+		    SM(R92C_TXAGC_MCS12,  power[RTWN_RIDX_MCS(12)]) |
+		    SM(R92C_TXAGC_MCS13,  power[RTWN_RIDX_MCS(13)]) |
+		    SM(R92C_TXAGC_MCS14,  power[RTWN_RIDX_MCS(14)]) |
+		    SM(R92C_TXAGC_MCS15,  power[RTWN_RIDX_MCS(15)]));
+	}
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+static void
+r88ee_set_txpower(struct rtwn_softc *sc, struct ieee80211_channel *c)
+{
+#if 0
+	uint16_t power[RTWN_RIDX_COUNT];
+	int i;
+
+	for (i = 0; i < sc->ntxchains; i++) {
+		/* Compute per-rate Tx power values. */
+		rtwn_r88ee_get_txpower(sc, i, c, power);
+#ifdef RTWN_DEBUG
+		if (sc->sc_debug & RTWN_DEBUG_TXPWR) {
+			int ridx;
+
+			/* Dump per-rate Tx power values. */
+			printf("Tx power for chain %d:\n", i);
+			for (ridx = RTWN_RIDX_CCK1;
+			     ridx < RTWN_RIDX_COUNT;
+			     ridx++)
+				printf("Rate %d = %u\n", ridx, power[ridx]);
+		}
+#endif
+		/* Write per-rate Tx power values to hardware. */
+		r88ee_write_txpower(sc, i, power);
+	}
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+static void
+r88ee_set_bw40(struct rtwn_softc *sc, uint8_t chan, int prichlo)
+{
+#if 0
+	struct r88ee_softc *rs = sc->sc_priv;
+
+	rtwn_setbits_1(sc, R92C_BWOPMODE, R92C_BWOPMODE_20MHZ, 0);
+	rtwn_setbits_1(sc, R92C_RRSR + 2, 0x6f, (prichlo ? 1 : 2) << 5);
+
+	rtwn_bb_setbits(sc, R92C_FPGA0_RFMOD, 0, R92C_RFMOD_40MHZ);
+	rtwn_bb_setbits(sc, R92C_FPGA1_RFMOD, 0, R92C_RFMOD_40MHZ);
+
+	/* Set CCK side band. */
+	rtwn_bb_setbits(sc, R92C_CCK0_SYSTEM, 0x10,
+	    (prichlo ? 0 : 1) << 4);
+
+	rtwn_bb_setbits(sc, R92C_OFDM1_LSTF, 0x0c00,
+	    (prichlo ? 1 : 2) << 10);
+
+	rtwn_bb_setbits(sc, R92C_FPGA0_ANAPARAM2,
+	    R92C_FPGA0_ANAPARAM2_CBW20, 0);
+
+	rtwn_bb_setbits(sc, 0x818, 0x0c000000, (prichlo ? 2 : 1) << 26);
+
+	/* Select 40MHz bandwidth. */
+	rtwn_rf_write(sc, 0, R92C_RF_CHNLBW,
+	    (rs->rf_chnlbw[0] & ~0xfff) | chan);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+void
+r88ee_set_bw20(struct rtwn_softc *sc, uint8_t chan)
+{
+#if 0
+	struct r88ee_softc *rs = sc->sc_priv;
+
+	rtwn_setbits_1(sc, R92C_BWOPMODE, 0, R92C_BWOPMODE_20MHZ);
+
+	rtwn_bb_setbits(sc, R92C_FPGA0_RFMOD, R92C_RFMOD_40MHZ, 0);
+	rtwn_bb_setbits(sc, R92C_FPGA1_RFMOD, R92C_RFMOD_40MHZ, 0);
+
+	rtwn_bb_setbits(sc, R92C_FPGA0_ANAPARAM2, 0,
+	    R92C_FPGA0_ANAPARAM2_CBW20);
+
+	/* Select 20MHz bandwidth. */
+	rtwn_rf_write(sc, 0, R92C_RF_CHNLBW,
+	    (rs->rf_chnlbw[0] & ~0xfff) | chan | R92C_RF_CHNLBW_BW20);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
 void
 r88ee_set_chan(struct rtwn_softc *sc, struct ieee80211_channel *c)
 {
-	struct r92c_soft *rs = sc->sc_priv;
+#if 0
+	struct r88ee_softc *rs = sc->sc_priv;
 	u_int chan;
+	int i;
 
 	chan = rtwn_chan2centieee(c);
 
-	r99ee_set_txpower(sc, c);
+	/* Set Tx power for this new channel. */
+	r88ee_set_txpower(sc, c);
 
-/*	//rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_SLOT_TIME, &mac->slot_time);
-	rtl88ee_set_hw_reg(hw, HW_VAR_SLOT_TIME, val)
-	rtl_write_byte(rtlpriv, REG_SLOT, val[0]);
-				0x051B, &mac->slot_time[0]
-	rtl_write_byte in wifi.h which calls
-	pci_write8_async which is a pointer to pci.h which calls
-*/
-/******* USE BELOW, ITS THE CONCLUSION **********/
-//	writeb( &mac->slot_time, pci_mem_start + addr) // This is Linux code 
-	rtwn_pci_write_1(sc, &mac->slot_time, pci_mem_addr + addr) // This is FreeBSD
-
-			       AC_MAX = 4; // Defined as 4 in 
-	// Defined here: https://github.com/lwfinger/rtlwifi_new/blob/d1a04f5bd9281b9c5f0425b0c6a0d1b59f1cdcca/wifi.h#L107
-	for (e_aci = 0; e_aci < AC_MAX; e_aci++) {
-		rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_AC_PARAM, &e_aci);
-		// Below is the expansion of above
-		rtlpriv->dm.current_turbo_edca = false;
-		rtlpriv->dm.is_any_nonbepkts = false;
-		rtlpriv->dm.is_cur_rdlstate = false;
-
-		if (rtlpci->acm_method != EACMWAY2_SW)
-			rtlpriv->cfg->ops->set_hw_reg(hw, HW_VAR_ACM_CTRL, &e_aci);
+	for (i = 0; i < sc->nrxchains; i++) {
+		rtwn_rf_write(sc, i, R92C_RF_CHNLBW,
+		    RW(rs->rf_chnlbw[i], R92C_RF_CHNLBW_CHNL, chan));
 	}
+	if (IEEE80211_IS_CHAN_HT40(c))
+		r88ee_set_bw40(sc, chan, IEEE80211_IS_CHAN_HT40U(c));
+	else
+		rtwn_r88ee_set_bw20(sc, chan);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
 
-	
+void
+r88ee_set_gain(struct rtwn_softc *sc, uint8_t gain)
+{
+#if 0
+	rtwn_bb_setbits(sc, R92C_OFDM0_AGCCORE1(0),
+	    R92C_OFDM0_AGCCORE1_GAIN_M, gain);
+	rtwn_bb_setbits(sc, R92C_OFDM0_AGCCORE1(1),
+	    R92C_OFDM0_AGCCORE1_GAIN_M, gain);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+void
+r88ee_scan_start(struct ieee80211com *ic)
+{
+#if 0
+	struct rtwn_softc *sc = ic->ic_softc;
+	struct r88ee_softc *rs = sc->sc_priv;
+
+	RTWN_LOCK(sc);
+	/* Set gain for scanning. */
+	rtwn_r88ee_set_gain(sc, 0x20);
+	RTWN_UNLOCK(sc);
+
+	rs->rs_scan_start(ic);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
+}
+
+void
+r88ee_scan_end(struct ieee80211com *ic)
+{
+#if 0
+	struct rtwn_softc *sc = ic->ic_softc;
+	struct r88ee_softc *rs = sc->sc_priv;
+
+	RTWN_LOCK(sc);
+	/* Set gain under link. */
+	rtwn_r88ee_set_gain(sc, 0x32);
+	RTWN_UNLOCK(sc);
+
+	rs->rs_scan_end(ic);
+#else
+	device_printf(sc->sc_dev, "Unimplemented\n");
+#endif
 }
