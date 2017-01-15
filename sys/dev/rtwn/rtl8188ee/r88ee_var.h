@@ -28,9 +28,10 @@ struct r88ee_softc {
 #define R92C_FLAG_ASSOCIATED	0x01
 
 	uint8_t		chip;
-#define R92C_CHIP_92C		0x01
-#define R92C_CHIP_92C_1T2R	0x02
-#define R92C_CHIP_UMC_A_CUT	0x04
+// One of these two needs to be removed, not sure which
+#define R88EE_CHIP_8723         0x0
+#define R88EE_CHIP_92D          0x1
+
 
 #ifndef RTWN_WITHOUT_UCODE
 	struct callout	rs_c2h_report;

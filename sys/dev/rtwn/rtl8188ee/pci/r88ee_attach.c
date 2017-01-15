@@ -1,9 +1,5 @@
-/*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
-
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
- * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -164,7 +160,6 @@ r88eee_adj_devcaps(struct rtwn_softc *sc)
 void
 r88eee_attach(struct rtwn_pci_softc *pc)
 {
-#if 0
 	struct rtwn_softc *sc		= &pc->pc_sc;
 
 	/* PCIe part. */
@@ -246,38 +241,35 @@ r88eee_attach(struct rtwn_pci_softc *pc)
 	sc->agc_size			= nitems(rtl8188eee_agc);
 	sc->rf_prog			= &rtl8188ee_rf[0];
 
-	sc->page_count			= R92CE_TX_PAGE_COUNT;
-	sc->pktbuf_count		= R92C_TXPKTBUF_COUNT;
+	sc->page_count			= R88EE_TX_PAGE_COUNT;
+	sc->pktbuf_count		= R88EE_TXPKTBUF_COUNT;
 
 	sc->ackto			= 0x40;
-	sc->npubqpages			= R92CE_PUBQ_NPAGES;
-	sc->nhqpages			= R92CE_HPQ_NPAGES;
+	sc->npubqpages			= R88EE_PUBQ_NPAGES;
+	sc->nhqpages			= R88EE_HPQ_NPAGES;
 	sc->nnqpages			= 0;
-	sc->nlqpages			= R92CE_LPQ_NPAGES;
-	sc->page_size			= R92C_TX_PAGE_SIZE;
+	sc->nlqpages			= R88EE_LPQ_NPAGES;
+	sc->page_size			= R88EE_TX_PAGE_SIZE;
 
 	sc->txdesc_len			= sizeof(struct r88eee_tx_desc);
-	sc->efuse_maxlen		= R92C_EFUSE_MAX_LEN;
-	sc->efuse_maplen		= R92C_EFUSE_MAP_LEN;
-	sc->rx_dma_size			= R92C_RX_DMA_BUFFER_SIZE;
+	sc->efuse_maxlen		= R88EE_EFUSE_MAX_LEN;
+	sc->efuse_maplen		= R88EE_EFUSE_MAP_LEN;
+	sc->rx_dma_size			= R88EE_RX_DMA_BUFFER_SIZE;
 
-	sc->macid_limit			= R92C_MACID_MAX + 1;
-	sc->cam_entry_limit		= R92C_CAM_ENTRY_COUNT;
-	sc->fwsize_limit		= R92C_MAX_FW_SIZE;
-	sc->temp_delta			= R92C_CALIB_THRESHOLD;
+	sc->macid_limit			= R88EE_MACID_MAX + 1;
+	sc->cam_entry_limit		= R88EE_CAM_ENTRY_COUNT;
+	sc->fwsize_limit		= R88EE_MAX_FW_SIZE;
+	sc->temp_delta			= R88EE_CALIB_THRESHOLD;
 
-	sc->bcn_status_reg[0]		= R92C_TDECTRL;
+	sc->bcn_status_reg[0]		= R88EE_TDECTRL;
 	/*
 	 * TODO: some additional setup is required
 	 * to maintain few beacons at the same time.
 	 *
 	 * XXX BCNQ1 mechanism is not needed here; move it to the USB module.
 	 */
-	sc->bcn_status_reg[1]		= R92C_TDECTRL;
+	sc->bcn_status_reg[1]		= R88EE_TDECTRL;
 	sc->rcr				= 0;
 
 	r88eee_attach_private(sc);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-#endif
 }
