@@ -1,9 +1,5 @@
-/*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
-
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -55,34 +51,35 @@ __FBSDID("$FreeBSD$");
 void
 r88ee_detach_private(struct rtwn_softc *sc)
 {
-#if 0
 	struct r88ee_softc *rs = sc->sc_priv;
 
 	free(rs, M_RTWN_PRIV);
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-#endif
 }
+
+/*
+ * This function receives the value reg_sys_cfg. This is an unsigned
+ * 32-bit integer read from the rtl card which indicates its version
+ * information.
+ * It reads the 23'd bit to determine whether its a TEST chip or
+ * normal chip.
+ * In the Linux driver, the read section is done by the driver itself
+ * whereas this is abstracted out due to the similarities in rtl
+ * drivers.
+*/
 
 void
 r88ee_read_chipid_vendor(struct rtwn_softc *sc, uint32_t reg_sys_cfg)
 {
-# if 0
 	struct r88ee_softc *rs = sc->sc_priv;
 
-	if (reg_sys_cfg & R92C_SYS_CFG_TYPE_92C) {
-		rs->chip |= R92C_CHIP_92C;
-		/* Check if it is a castrated 8192C. */
-		if (MS(rtwn_read_4(sc, R92C_HPON_FSM),
-		    R92C_HPON_FSM_CHIP_BONDING_ID) ==
-		    R92C_HPON_FSM_CHIP_BONDING_ID_92C_1T2R)
-			rs->chip |= R92C_CHIP_92C_1T2R;
+	if (reg_sys_cfg & 0x800000) { // BIT(23)
+		rs->chip = R88EE_CHIP_8723; // VERSION_TEST_CHIP_88E
 	}
-	if (reg_sys_cfg & R92C_SYS_CFG_VENDOR_UMC) {
-		if (MS(reg_sys_cfg, R92C_SYS_CFG_CHIP_VER_RTL) == 0)
-			rs->chip |= R92C_CHIP_UMC_A_CUT;
+	else {
+		rs->chip = R88EE_CHIP_92D;
 	}
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-#endif
+
 }
+
+
+
