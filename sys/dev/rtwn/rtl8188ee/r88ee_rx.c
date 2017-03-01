@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_rx.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -72,7 +70,7 @@ r88ee_get_rssi_cck(struct rtwn_softc *sc, void *physt)
 
 	return (rssi);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }
@@ -89,7 +87,7 @@ r88ee_get_rssi_ofdm(struct rtwn_softc *sc, void *physt)
 
 	return (rssi);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }
@@ -101,17 +99,17 @@ r88ee_rx_radiotap_flags(const void *buf)
 	const struct r88ee_rx_stat *stat = buf;
 	uint8_t flags, rate;
 
-	if (!(stat->rxdw3 & htole32(R92C_RXDW3_SPLCP)))
+	if (!(stat->rxdw3 & htole32(R88EE_RXDW3_SPLCP)))
 		return (0);
 
-	rate = MS(le32toh(stat->rxdw3), R92C_RXDW3_RATE);
+	rate = MS(le32toh(stat->rxdw3), R88EE_RXDW3_RATE);
 	if (RTWN_RATE_IS_CCK(rate))
 		flags = IEEE80211_RADIOTAP_F_SHORTPRE;
 	else
 		flags = IEEE80211_RADIOTAP_F_SHORTGI;
 	return (flags);
 #else
-	printf("Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }

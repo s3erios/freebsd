@@ -19,7 +19,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_init.c 311347 2017-01-05 02:04:53Z kevlo $");
 
 #include "opt_wlan.h"
 
@@ -69,18 +69,18 @@ r88ee_check_condition(struct rtwn_softc *sc, const uint8_t cond[])
 	    "%s: condition byte 0: %02X; chip %02X, board %02X\n",
 	    __func__, cond[0], rs->chip, rs->board_type);
 
-	if (!(rs->chip & R92C_CHIP_92C)) {
-		if (rs->board_type == R92C_BOARD_TYPE_HIGHPA)
-			mask = R92C_COND_RTL8188RU;
-		else if (rs->board_type == R92C_BOARD_TYPE_MINICARD)
-			mask = R92C_COND_RTL8188CE;
+	if (!(rs->chip & R88EE_CHIP_92C)) {
+		if (rs->board_type == R88EE_BOARD_TYPE_HIGHPA)
+			mask = R88EE_COND_RTL8188RU;
+		else if (rs->board_type == R88EE_BOARD_TYPE_MINICARD)
+			mask = R88EE_COND_RTL8188CE;
 		else
-			mask = R92C_COND_RTL8188CU;
+			mask = R88EE_COND_RTL8188CU;
 	} else {
-		if (rs->board_type == R92C_BOARD_TYPE_MINICARD)
-			mask = R92C_COND_RTL8192CE;
+		if (rs->board_type == R88EE_BOARD_TYPE_MINICARD)
+			mask = R88EE_COND_RTL8188EEE;
 		else
-			mask = R92C_COND_RTL8192CU;
+			mask = R88EE_COND_RTL8188EEU;
 	}
 
 	for (i = 0; i < RTWN_MAX_CONDITIONS && cond[i] != 0; i++)
@@ -89,8 +89,8 @@ r88ee_check_condition(struct rtwn_softc *sc, const uint8_t cond[])
 
 	return (0);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return (0);
+	printf("RTL8188EE:%s not implemented\n", __func__);
+	return 0;
 #endif
 }
 
@@ -98,10 +98,10 @@ int
 r88ee_set_page_size(struct rtwn_softc *sc)
 {
 #if 0
-	return (rtwn_write_1(sc, R92C_PBP, SM(R92C_PBP_PSRX, R92C_PBP_128) |
-	    SM(R92C_PBP_PSTX, R92C_PBP_128)) == 0);
+	return (rtwn_write_1(sc, R88EE_PBP, SM(R88EE_PBP_PSRX, R88EE_PBP_128) |
+	    SM(R88EE_PBP_PSTX, R88EE_PBP_128)) == 0);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }
@@ -134,14 +134,14 @@ r88ee_init_bb_common(struct rtwn_softc *sc)
 		}
 	}
 
-	if (rs->chip & R92C_CHIP_92C_1T2R) {
-		/* 8192C 1T only configuration. */
-		rtwn_bb_setbits(sc, R92C_FPGA0_TXINFO, 0x03, 0x02);
-		rtwn_bb_setbits(sc, R92C_FPGA1_TXINFO, 0x300033, 0x200022);
-		rtwn_bb_setbits(sc, R92C_CCK0_AFESETTING, 0xff000000,
+	if (rs->chip & R88EE_CHIP_92C_1T2R) {
+		/* 8188EE 1T only configuration. */
+		rtwn_bb_setbits(sc, R88EE_FPGA0_TXINFO, 0x03, 0x02);
+		rtwn_bb_setbits(sc, R88EE_FPGA1_TXINFO, 0x300033, 0x200022);
+		rtwn_bb_setbits(sc, R88EE_CCK0_AFESETTING, 0xff000000,
 		    0x45000000);
-		rtwn_bb_setbits(sc, R92C_OFDM0_TRXPATHENA, 0xff, 0x23);
-		rtwn_bb_setbits(sc, R92C_OFDM0_AGCPARAM1, 0x30, 0x10);
+		rtwn_bb_setbits(sc, R88EE_OFDM0_TRXPATHENA, 0xff, 0x23);
+		rtwn_bb_setbits(sc, R88EE_OFDM0_AGCPARAM1, 0x30, 0x10);
 
 		rtwn_bb_setbits(sc, 0xe74, 0x0c000000, 0x08000000);
 		rtwn_bb_setbits(sc, 0xe78, 0x0c000000, 0x08000000);
@@ -165,16 +165,16 @@ r88ee_init_bb_common(struct rtwn_softc *sc)
 			RTWN_DPRINTF(sc, RTWN_DEBUG_RESET,
 			    "AGC: val 0x%08x\n", agc_prog->val[j]);
 
-			rtwn_bb_write(sc, R92C_OFDM0_AGCRSSITABLE,
+			rtwn_bb_write(sc, R88EE_OFDM0_AGCRSSITABLE,
 			    agc_prog->val[j]);
 			rtwn_delay(sc, 1);
 		}
 	}
 
-	if (rtwn_bb_read(sc, R92C_HSSI_PARAM2(0)) & R92C_HSSI_PARAM2_CCK_HIPWR)
+	if (rtwn_bb_read(sc, R88EE_HSSI_PARAM2(0)) & R88EE_HSSI_PARAM2_CCK_HIPWR)
 		sc->sc_flags |= RTWN_FLAG_CCK_HIPWR;
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -220,6 +220,7 @@ r88ee_init_rf_chain(struct rtwn_softc *sc,
 
 	return (i);
 #else
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }
@@ -236,48 +237,48 @@ r88ee_init_rf(struct rtwn_softc *sc)
 		/* Save RF_ENV control type. */
 		idx = chain / 2;
 		off = (chain % 2) * 16;
-		reg = rtwn_bb_read(sc, R92C_FPGA0_RFIFACESW(idx));
+		reg = rtwn_bb_read(sc, R88EE_FPGA0_RFIFACESW(idx));
 		type = (reg >> off) & 0x10;
 
 		/* Set RF_ENV enable. */
-		rtwn_bb_setbits(sc, R92C_FPGA0_RFIFACEOE(chain),
+		rtwn_bb_setbits(sc, R88EE_FPGA0_RFIFACEOE(chain),
 		    0, 0x100000);
 		rtwn_delay(sc, 1);
 		/* Set RF_ENV output high. */
-		rtwn_bb_setbits(sc, R92C_FPGA0_RFIFACEOE(chain),
+		rtwn_bb_setbits(sc, R88EE_FPGA0_RFIFACEOE(chain),
 		    0, 0x10);
 		rtwn_delay(sc, 1);
 		/* Set address and data lengths of RF registers. */
-		rtwn_bb_setbits(sc, R92C_HSSI_PARAM2(chain),
-		    R92C_HSSI_PARAM2_ADDR_LENGTH, 0);
+		rtwn_bb_setbits(sc, R88EE_HSSI_PARAM2(chain),
+		    R88EE_HSSI_PARAM2_ADDR_LENGTH, 0);
 		rtwn_delay(sc, 1);
-		rtwn_bb_setbits(sc, R92C_HSSI_PARAM2(chain),
-		    R92C_HSSI_PARAM2_DATA_LENGTH, 0);
+		rtwn_bb_setbits(sc, R88EE_HSSI_PARAM2(chain),
+		    R88EE_HSSI_PARAM2_DATA_LENGTH, 0);
 		rtwn_delay(sc, 1);
 
 		/* Write RF initialization values for this chain. */
 		i += r88ee_init_rf_chain(sc, &sc->rf_prog[i], chain);
 
 		/* Restore RF_ENV control type. */
-		rtwn_bb_setbits(sc, R92C_FPGA0_RFIFACESW(idx),
+		rtwn_bb_setbits(sc, R88EE_FPGA0_RFIFACESW(idx),
 		    0x10 << off, type << off);
 
 		/* Cache RF register CHNLBW. */
 		rs->rf_chnlbw[chain] = rtwn_rf_read(sc, chain,
-		    R92C_RF_CHNLBW);
+		    R88EE_RF_CHNLBW);
 	}
 
-	if ((rs->chip & (R92C_CHIP_UMC_A_CUT | R92C_CHIP_92C)) ==
-	    R92C_CHIP_UMC_A_CUT) {
-		rtwn_rf_write(sc, 0, R92C_RF_RX_G1, 0x30255);
-		rtwn_rf_write(sc, 0, R92C_RF_RX_G2, 0x50a00);
+	if ((rs->chip & (R88EE_CHIP_UMC_A_CUT | R88EE_CHIP_92C)) ==
+	    R88EE_CHIP_UMC_A_CUT) {
+		rtwn_rf_write(sc, 0, R88EE_RF_RX_G1, 0x30255);
+		rtwn_rf_write(sc, 0, R88EE_RF_RX_G2, 0x50a00);
 	}
 
 	/* Turn CCK and OFDM blocks on. */
-	rtwn_bb_setbits(sc, R92C_FPGA0_RFMOD, 0, R92C_RFMOD_CCK_EN);
-	rtwn_bb_setbits(sc, R92C_FPGA0_RFMOD, 0, R92C_RFMOD_OFDM_EN);
+	rtwn_bb_setbits(sc, R88EE_FPGA0_RFMOD, 0, R88EE_RFMOD_CCK_EN);
+	rtwn_bb_setbits(sc, R88EE_FPGA0_RFMOD, 0, R88EE_RFMOD_OFDM_EN);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -286,17 +287,17 @@ r88ee_init_edca(struct rtwn_softc *sc)
 {
 #if 0
 	/* SIFS */
-	rtwn_write_2(sc, R92C_SPEC_SIFS, 0x100a);
-	rtwn_write_2(sc, R92C_MAC_SPEC_SIFS, 0x100a);
-	rtwn_write_2(sc, R92C_SIFS_CCK, 0x100a);
-	rtwn_write_2(sc, R92C_SIFS_OFDM, 0x100a);
+	rtwn_write_2(sc, R88EE_SPEC_SIFS, 0x100a);
+	rtwn_write_2(sc, R88EE_MAC_SPEC_SIFS, 0x100a);
+	rtwn_write_2(sc, R88EE_SIFS_CCK, 0x100a);
+	rtwn_write_2(sc, R88EE_SIFS_OFDM, 0x100a);
 	/* TXOP */
-	rtwn_write_4(sc, R92C_EDCA_BE_PARAM, 0x005ea42b);
-	rtwn_write_4(sc, R92C_EDCA_BK_PARAM, 0x0000a44f);
-	rtwn_write_4(sc, R92C_EDCA_VI_PARAM, 0x005ea324);
-	rtwn_write_4(sc, R92C_EDCA_VO_PARAM, 0x002fa226);
+	rtwn_write_4(sc, R88EE_EDCA_BE_PARAM, 0x005ea42b);
+	rtwn_write_4(sc, R88EE_EDCA_BK_PARAM, 0x0000a44f);
+	rtwn_write_4(sc, R88EE_EDCA_VI_PARAM, 0x005ea324);
+	rtwn_write_4(sc, R88EE_EDCA_VO_PARAM, 0x002fa226);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -305,11 +306,11 @@ r88ee_init_ampdu(struct rtwn_softc *sc)
 {
 #if 0
 	/* Setup AMPDU aggregation. */
-	rtwn_write_4(sc, R92C_AGGLEN_LMT, 0x99997631);	/* MCS7~0 */
-	rtwn_write_1(sc, R92C_AGGR_BREAK_TIME, 0x16);
-	rtwn_write_2(sc, R92C_MAX_AGGR_NUM, 0x0708);
+	rtwn_write_4(sc, R88EE_AGGLEN_LMT, 0x99997631);	/* MCS7~0 */
+	rtwn_write_1(sc, R88EE_AGGR_BREAK_TIME, 0x16);
+	rtwn_write_2(sc, R88EE_MAX_AGGR_NUM, 0x0708);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -322,12 +323,12 @@ r88ee_init_antsel(struct rtwn_softc *sc)
 	if (sc->ntxchains != 1 || sc->nrxchains != 1)
 		return;
 
-	rtwn_setbits_1(sc, R92C_LEDCFG2, 0, 0x80);
-	rtwn_bb_setbits(sc, R92C_FPGA0_RFPARAM(0), 0, 0x2000);
-	reg = rtwn_bb_read(sc, R92C_FPGA0_RFIFACEOE(0));
-	sc->sc_ant = MS(reg, R92C_FPGA0_RFIFACEOE0_ANT);	/* XXX */
+	rtwn_setbits_1(sc, R88EE_LEDCFG2, 0, 0x80);
+	rtwn_bb_setbits(sc, R88EE_FPGA0_RFPARAM(0), 0, 0x2000);
+	reg = rtwn_bb_read(sc, R88EE_FPGA0_RFIFACEOE(0));
+	sc->sc_ant = MS(reg, R88EE_FPGA0_RFIFACEOE0_ANT);	/* XXX */
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -341,14 +342,14 @@ r88ee_pa_bias_init(struct rtwn_softc *sc)
 	for (i = 0; i < sc->nrxchains; i++) {
 		if (rs->pa_setting & (1 << i))
 			continue;
-		r88ee_rf_write(sc, i, R92C_RF_IPA, 0x0f406);
-		r88ee_rf_write(sc, i, R92C_RF_IPA, 0x4f406);
-		r88ee_rf_write(sc, i, R92C_RF_IPA, 0x8f406);
-		r88ee_rf_write(sc, i, R92C_RF_IPA, 0xcf406);
+		r88ee_rf_write(sc, i, R88EE_RF_IPA, 0x0f406);
+		r88ee_rf_write(sc, i, R88EE_RF_IPA, 0x4f406);
+		r88ee_rf_write(sc, i, R88EE_RF_IPA, 0x8f406);
+		r88ee_rf_write(sc, i, R88EE_RF_IPA, 0xcf406);
 	}
 	if (!(rs->pa_setting & 0x10))
 		rtwn_setbits_1(sc, 0x16, 0xf0, 0x90);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }

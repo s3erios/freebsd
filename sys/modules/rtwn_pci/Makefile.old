@@ -1,4 +1,4 @@
-# $FreeBSD: head/sys/modules/rtwn_pci/Makefile 307529 2016-10-17 20:38:24Z avos $
+# $FreeBSD$
 
 .PATH: ${.CURDIR}/../../dev/rtwn/pci
 
@@ -21,7 +21,6 @@ SRCS	+= r92ce_attach.c r92ce_calib.c r92ce_fw.c r92ce_init.c r92ce_led.c \
 SRCS    += r88eee_attach.c r88eee_calib.c r88eee_fw.c r88eee_init.c r88eee_led.c \
 	   r88eee_rx.c r88eee_tx.c \
            r88eee.h r88eee_priv.h r88eee_reg.h r88eee_rx_desc.h r88eee_tx_desc.h
-
 
 opt_rtwn.h:
 	@echo "#define RTWN_DEBUG 1" > ${.TARGET}

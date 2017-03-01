@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_rf.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -58,32 +56,32 @@ r88ee_rf_read(struct rtwn_softc *sc, int chain, uint8_t addr)
 {
 #if 0
 	struct r88ee_softc *rs = sc->sc_priv;
-	uint32_t reg[R92C_MAX_CHAINS], val;
+	uint32_t reg[R88EE_MAX_CHAINS], val;
 
-	reg[0] = rtwn_bb_read(sc, R92C_HSSI_PARAM2(0));
+	reg[0] = rtwn_bb_read(sc, R88EE_HSSI_PARAM2(0));
 	if (chain != 0)
-		reg[chain] = rtwn_bb_read(sc, R92C_HSSI_PARAM2(chain));
+		reg[chain] = rtwn_bb_read(sc, R88EE_HSSI_PARAM2(chain));
 
-	rtwn_bb_write(sc, R92C_HSSI_PARAM2(0),
-	    reg[0] & ~R92C_HSSI_PARAM2_READ_EDGE);
+	rtwn_bb_write(sc, R88EE_HSSI_PARAM2(0),
+	    reg[0] & ~R88EE_HSSI_PARAM2_READ_EDGE);
 	rtwn_delay(sc, rs->rf_read_delay[0]);
 
-	rtwn_bb_write(sc, R92C_HSSI_PARAM2(chain),
-	    RW(reg[chain], R92C_HSSI_PARAM2_READ_ADDR, addr) |
-	    R92C_HSSI_PARAM2_READ_EDGE);
+	rtwn_bb_write(sc, R88EE_HSSI_PARAM2(chain),
+	    RW(reg[chain], R88EE_HSSI_PARAM2_READ_ADDR, addr) |
+	    R88EE_HSSI_PARAM2_READ_EDGE);
 	rtwn_delay(sc, rs->rf_read_delay[1]);
 
-	rtwn_bb_write(sc, R92C_HSSI_PARAM2(0),
-	    reg[0] | R92C_HSSI_PARAM2_READ_EDGE);
+	rtwn_bb_write(sc, R88EE_HSSI_PARAM2(0),
+	    reg[0] | R88EE_HSSI_PARAM2_READ_EDGE);
 	rtwn_delay(sc, rs->rf_read_delay[2]);
 
-	if (rtwn_bb_read(sc, R92C_HSSI_PARAM1(chain)) & R92C_HSSI_PARAM1_PI)
-		val = rtwn_bb_read(sc, R92C_HSPI_READBACK(chain));
+	if (rtwn_bb_read(sc, R88EE_HSSI_PARAM1(chain)) & R88EE_HSSI_PARAM1_PI)
+		val = rtwn_bb_read(sc, R88EE_HSPI_READBACK(chain));
 	else
-		val = rtwn_bb_read(sc, R92C_LSSI_READBACK(chain));
-	return (MS(val, R92C_LSSI_READBACK_DATA));
+		val = rtwn_bb_read(sc, R88EE_LSSI_READBACK(chain));
+	return (MS(val, R88EE_LSSI_READBACK_DATA));
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }
@@ -93,10 +91,10 @@ r88ee_rf_write(struct rtwn_softc *sc, int chain, uint8_t addr,
     uint32_t val)
 {
 #if 0
-	rtwn_bb_write(sc, R92C_LSSI_PARAM(chain),
-	    SM(R92C_LSSI_PARAM_ADDR, addr) |
-	    SM(R92C_LSSI_PARAM_DATA, val));
+	rtwn_bb_write(sc, R88EE_LSSI_PARAM(chain),
+	    SM(R88EE_LSSI_PARAM_ADDR, addr) |
+	    SM(R88EE_LSSI_PARAM_DATA, val));
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }

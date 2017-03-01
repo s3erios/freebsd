@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_tx.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -60,11 +58,11 @@ r88ee_tx_get_sco(struct rtwn_softc *sc, struct ieee80211_channel *c)
 {
 #if 0
 	if (IEEE80211_IS_CHAN_HT40U(c))
-		return (R92C_TXDW4_SCO_SCA);
+		return (R88EE_TXDW4_SCO_SCA);
 	else
-		return (R92C_TXDW4_SCO_SCB);
+		return (R88EE_TXDW4_SCO_SCB);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }
@@ -80,11 +78,11 @@ r88ee_tx_set_ht40(struct rtwn_softc *sc, void *buf, struct ieee80211_node *ni)
 		int extc_offset;
 
 		extc_offset = r88ee_tx_get_sco(sc, ni->ni_chan);
-		txd->txdw4 |= htole32(R92C_TXDW4_DATA_BW40);
-		txd->txdw4 |= htole32(SM(R92C_TXDW4_DATA_SCO, extc_offset));
+		txd->txdw4 |= htole32(R88EE_TXDW4_DATA_BW40);
+		txd->txdw4 |= htole32(SM(R88EE_TXDW4_DATA_SCO, extc_offset));
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -98,10 +96,10 @@ r88ee_tx_protection(struct rtwn_softc *sc, struct r88ee_tx_desc *txd,
 
 	switch (mode) {
 	case IEEE80211_PROT_CTSONLY:
-		txd->txdw4 |= htole32(R92C_TXDW4_CTS2SELF);
+		txd->txdw4 |= htole32(R88EE_TXDW4_CTS2SELF);
 		break;
 	case IEEE80211_PROT_RTSCTS:
-		txd->txdw4 |= htole32(R92C_TXDW4_RTSEN);
+		txd->txdw4 |= htole32(R88EE_TXDW4_RTSEN);
 		break;
 	default:
 		break;
@@ -115,16 +113,16 @@ r88ee_tx_protection(struct rtwn_softc *sc, struct r88ee_tx_desc *txd,
 			rate = ieee80211_ctl_rate(ic->ic_rt, ridx2rate[ridx]);
 		ridx = rate2ridx(rate);
 
-		txd->txdw4 |= htole32(SM(R92C_TXDW4_RTSRATE, ridx));
+		txd->txdw4 |= htole32(SM(R88EE_TXDW4_RTSRATE, ridx));
 		/* RTS rate fallback limit (max). */
-		txd->txdw5 |= htole32(SM(R92C_TXDW5_RTSRATE_FB_LMT, 0xf));
+		txd->txdw5 |= htole32(SM(R88EE_TXDW5_RTSRATE_FB_LMT, 0xf));
 
 		if (RTWN_RATE_IS_CCK(ridx) && ridx != RTWN_RIDX_CCK1 &&
 		    (ic->ic_flags & IEEE80211_F_SHPREAMBLE))
-			txd->txdw4 |= htole32(R92C_TXDW4_RTS_SHORT);
+			txd->txdw4 |= htole32(R88EE_TXDW4_RTS_SHORT);
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -161,28 +159,28 @@ r88ee_tx_raid(struct rtwn_softc *sc, struct r88ee_tx_desc *txd,
 
 	switch (mode) {
 	case IEEE80211_MODE_11B:
-		raid = R92C_RAID_11B;
+		raid = R88EE_RAID_11B;
 		break;
 	case IEEE80211_MODE_11G:
 		if (vap->iv_flags & IEEE80211_F_PUREG)
-			raid = R92C_RAID_11G;
+			raid = R88EE_RAID_11G;
 		else
-			raid = R92C_RAID_11BG;
+			raid = R88EE_RAID_11BG;
 		break;
 	case IEEE80211_MODE_11NG:
 		if (vap->iv_flags_ht & IEEE80211_FHT_PUREN)
-			raid = R92C_RAID_11N;
+			raid = R88EE_RAID_11N;
 		else
-			raid = R92C_RAID_11BGN;
+			raid = R88EE_RAID_11BGN;
 		break;
 	default:
 		device_printf(sc->sc_dev, "unknown mode(2) %d!\n", mode);
 		return;
 	}
 
-	txd->txdw1 |= htole32(SM(R92C_TXDW1_RAID, raid));
+	txd->txdw1 |= htole32(SM(R88EE_TXDW1_RAID, raid));
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -196,14 +194,14 @@ r88ee_tx_set_sgi(struct rtwn_softc *sc, void *buf, struct ieee80211_node *ni)
 
 	if ((vap->iv_flags_ht & IEEE80211_FHT_SHORTGI20) &&	/* HT20 */
 	    (ni->ni_htcap & IEEE80211_HTCAP_SHORTGI20))
-		txd->txdw5 |= htole32(R92C_TXDW5_SGI);
+		txd->txdw5 |= htole32(R88EE_TXDW5_SGI);
 	else if (ni->ni_chan != IEEE80211_CHAN_ANYC &&		/* HT40 */
 	    IEEE80211_IS_CHAN_HT40(ni->ni_chan) &&
 	    (ni->ni_htcap & IEEE80211_HTCAP_SHORTGI40) &&
 	    (vap->iv_flags_ht & IEEE80211_FHT_SHORTGI40))
-		txd->txdw5 |= htole32(R92C_TXDW5_SGI);
+		txd->txdw5 |= htole32(R88EE_TXDW5_SGI);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -214,11 +212,11 @@ r88ee_tx_enable_ampdu(void *buf, int enable)
 	struct r88ee_tx_desc *txd = (struct r88ee_tx_desc *)buf;
 
 	if (enable)
-		txd->txdw1 |= htole32(R92C_TXDW1_AGGEN);
+		txd->txdw1 |= htole32(R88EE_TXDW1_AGGEN);
 	else
-		txd->txdw1 |= htole32(R92C_TXDW1_AGGBK);
+		txd->txdw1 |= htole32(R88EE_TXDW1_AGGBK);
 #else
-	printf("Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -228,9 +226,9 @@ r88ee_tx_setup_hwseq(void *buf)
 #if 0
 	struct r88ee_tx_desc *txd = (struct r88ee_tx_desc *)buf;
 
-	txd->txdw4 |= htole32(R92C_TXDW4_HWSEQ_EN);
+	txd->txdw4 |= htole32(R88EE_TXDW4_HWSEQ_EN);
 #else
-	printf("Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -240,9 +238,9 @@ r88ee_tx_setup_macid(void *buf, int id)
 #if 0
 	struct r88ee_tx_desc *txd = (struct r88ee_tx_desc *)buf;
 
-	txd->txdw1 |= htole32(SM(R92C_TXDW1_MACID, id));
+	txd->txdw1 |= htole32(SM(R88EE_TXDW1_MACID, id));
 #else
-	printf("Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -279,16 +277,16 @@ r88ee_fill_tx_desc(struct rtwn_softc *sc, struct ieee80211_node *ni,
 
 	/* Fill Tx descriptor. */
 	txd = (struct r88ee_tx_desc *)buf;
-	txd->flags0 |= R92C_FLAGS0_LSG | R92C_FLAGS0_FSG;
+	txd->flags0 |= R88EE_FLAGS0_LSG | R88EE_FLAGS0_FSG;
 	if (ismcast)
-		txd->flags0 |= R92C_FLAGS0_BMCAST;
+		txd->flags0 |= R88EE_FLAGS0_BMCAST;
 
 	if (!ismcast) {
 		/* Unicast frame, check if an ACK is expected. */
 		if (!qos || (qos & IEEE80211_QOS_ACKPOLICY) !=
 		    IEEE80211_QOS_ACKPOLICY_NOACK) {
-			txd->txdw5 |= htole32(R92C_TXDW5_RTY_LMT_ENA);
-			txd->txdw5 |= htole32(SM(R92C_TXDW5_RTY_LMT,
+			txd->txdw5 |= htole32(R88EE_TXDW5_RTY_LMT_ENA);
+			txd->txdw5 |= htole32(SM(R88EE_TXDW5_RTY_LMT,
 			    maxretry));
 		}
 
@@ -301,13 +299,13 @@ r88ee_fill_tx_desc(struct rtwn_softc *sc, struct ieee80211_node *ni,
 			rtwn_r88ee_tx_enable_ampdu(sc, buf,
 			    (m->m_flags & M_AMPDU_MPDU) != 0);
 			if (m->m_flags & M_AMPDU_MPDU) {
-				txd->txdw2 |= htole32(SM(R92C_TXDW2_AMPDU_DEN,
+				txd->txdw2 |= htole32(SM(R88EE_TXDW2_AMPDU_DEN,
 				    vap->iv_ampdu_density));
-				txd->txdw6 |= htole32(SM(R92C_TXDW6_MAX_AGG,
+				txd->txdw6 |= htole32(SM(R88EE_TXDW6_MAX_AGG,
 				    0x1f));	/* XXX */
 			}
 			if (sc->sc_ratectl == RTWN_RATECTL_NET80211) {
-				txd->txdw2 |= htole32(R92C_TXDW2_CCX_RPT);
+				txd->txdw2 |= htole32(R88EE_TXDW2_CCX_RPT);
 				sc->sc_tx_n_active++;
 #ifndef RTWN_WITHOUT_UCODE
 				rs->rs_c2h_pending++;
@@ -316,7 +314,7 @@ r88ee_fill_tx_desc(struct rtwn_softc *sc, struct ieee80211_node *ni,
 
 			if (RTWN_RATE_IS_CCK(ridx) && ridx != RTWN_RIDX_CCK1 &&
 			    (ic->ic_flags & IEEE80211_F_SHPREAMBLE))
-				txd->txdw4 |= htole32(R92C_TXDW4_DATA_SHPRE);
+				txd->txdw4 |= htole32(R88EE_TXDW4_DATA_SHPRE);
 
 			prot = IEEE80211_PROT_NONE;
 			if (ridx >= RTWN_RIDX_MCS(0)) {
@@ -337,29 +335,29 @@ r88ee_fill_tx_desc(struct rtwn_softc *sc, struct ieee80211_node *ni,
 			if (prot != IEEE80211_PROT_NONE)
 				r88ee_tx_protection(sc, txd, prot, ridx);
 		} else	/* IEEE80211_FC0_TYPE_MGT */
-			qsel = R92C_TXDW1_QSEL_MGNT;
+			qsel = R88EE_TXDW1_QSEL_MGNT;
 	} else {
 		macid = RTWN_MACID_BC;
-		qsel = R92C_TXDW1_QSEL_MGNT;
+		qsel = R88EE_TXDW1_QSEL_MGNT;
 	}
 
-	txd->txdw1 |= htole32(SM(R92C_TXDW1_QSEL, qsel));
+	txd->txdw1 |= htole32(SM(R88EE_TXDW1_QSEL, qsel));
 
 	rtwn_r88ee_tx_setup_macid(sc, txd, macid);
-	txd->txdw5 |= htole32(SM(R92C_TXDW5_DATARATE, ridx));
+	txd->txdw5 |= htole32(SM(R88EE_TXDW5_DATARATE, ridx));
 	/* Data rate fallback limit (max). */
-	txd->txdw5 |= htole32(SM(R92C_TXDW5_DATARATE_FB_LMT, 0x1f));
-	txd->txdw4 |= htole32(SM(R92C_TXDW4_PORT_ID, uvp->id));
+	txd->txdw5 |= htole32(SM(R88EE_TXDW5_DATARATE_FB_LMT, 0x1f));
+	txd->txdw4 |= htole32(SM(R88EE_TXDW4_PORT_ID, uvp->id));
 	r88ee_tx_raid(sc, txd, ni, ismcast);
 
 	/* Force this rate if needed. */
 	if (sc->sc_ratectl != RTWN_RATECTL_FW)
-		txd->txdw4 |= htole32(R92C_TXDW4_DRVRATE);
+		txd->txdw4 |= htole32(R88EE_TXDW4_DRVRATE);
 
 	if (!hasqos) {
 		/* Use HW sequence numbering for non-QoS frames. */
 		rtwn_r88ee_tx_setup_hwseq(sc, txd);
-		txd->txdw4 |= htole32(SM(R92C_TXDW4_SEQ_SEL, uvp->id));
+		txd->txdw4 |= htole32(SM(R88EE_TXDW4_SEQ_SEL, uvp->id));
 	} else {
 		uint16_t seqno;
 
@@ -375,7 +373,7 @@ r88ee_fill_tx_desc(struct rtwn_softc *sc, struct ieee80211_node *ni,
 		txd->txdseq = htole16(seqno);
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -399,13 +397,13 @@ r88ee_fill_tx_desc_raw(struct rtwn_softc *sc, struct ieee80211_node *ni,
 
 	/* Fill Tx descriptor. */
 	txd = (struct r88ee_tx_desc *)buf;
-	txd->flags0 |= R92C_FLAGS0_LSG | R92C_FLAGS0_FSG;
+	txd->flags0 |= R88EE_FLAGS0_LSG | R88EE_FLAGS0_FSG;
 	if (ismcast)
-		txd->flags0 |= R92C_FLAGS0_BMCAST;
+		txd->flags0 |= R88EE_FLAGS0_BMCAST;
 
 	if ((params->ibp_flags & IEEE80211_BPF_NOACK) == 0) {
-		txd->txdw5 |= htole32(R92C_TXDW5_RTY_LMT_ENA);
-		txd->txdw5 |= htole32(SM(R92C_TXDW5_RTY_LMT,
+		txd->txdw5 |= htole32(R88EE_TXDW5_RTY_LMT_ENA);
+		txd->txdw5 |= htole32(SM(R88EE_TXDW5_RTY_LMT,
 		    params->ibp_try0));
 	}
 	if (params->ibp_flags & IEEE80211_BPF_RTS)
@@ -414,25 +412,25 @@ r88ee_fill_tx_desc_raw(struct rtwn_softc *sc, struct ieee80211_node *ni,
 		r88ee_tx_protection(sc, txd, IEEE80211_PROT_CTSONLY, ridx);
 
 	rtwn_r88ee_tx_setup_macid(sc, txd, RTWN_MACID_BC);
-	txd->txdw1 |= htole32(SM(R92C_TXDW1_QSEL, R92C_TXDW1_QSEL_MGNT));
+	txd->txdw1 |= htole32(SM(R88EE_TXDW1_QSEL, R88EE_TXDW1_QSEL_MGNT));
 
 	/* Set TX rate index. */
-	txd->txdw5 |= htole32(SM(R92C_TXDW5_DATARATE, ridx));
-	txd->txdw5 |= htole32(SM(R92C_TXDW5_DATARATE_FB_LMT, 0x1f));
-	txd->txdw4 |= htole32(SM(R92C_TXDW4_PORT_ID, uvp->id));
-	txd->txdw4 |= htole32(R92C_TXDW4_DRVRATE);
+	txd->txdw5 |= htole32(SM(R88EE_TXDW5_DATARATE, ridx));
+	txd->txdw5 |= htole32(SM(R88EE_TXDW5_DATARATE_FB_LMT, 0x1f));
+	txd->txdw4 |= htole32(SM(R88EE_TXDW4_PORT_ID, uvp->id));
+	txd->txdw4 |= htole32(R88EE_TXDW4_DRVRATE);
 	r88ee_tx_raid(sc, txd, ni, ismcast);
 
 	if (!IEEE80211_QOS_HAS_SEQ(wh)) {
 		/* Use HW sequence numbering for non-QoS frames. */
 		rtwn_r88ee_tx_setup_hwseq(sc, txd);
-		txd->txdw4 |= htole32(SM(R92C_TXDW4_SEQ_SEL, uvp->id));
+		txd->txdw4 |= htole32(SM(R88EE_TXDW4_SEQ_SEL, uvp->id));
 	} else {
 		/* Set sequence number. */
 		txd->txdseq |= htole16(M_SEQNO_GET(m) % IEEE80211_SEQ_RANGE);
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -443,26 +441,26 @@ r88ee_fill_tx_desc_null(struct rtwn_softc *sc, void *buf, int is11b,
 #if 0
 	struct r88ee_tx_desc *txd = (struct r88ee_tx_desc *)buf;
 
-	txd->flags0 = R92C_FLAGS0_FSG | R92C_FLAGS0_LSG | R92C_FLAGS0_OWN;
+	txd->flags0 = R88EE_FLAGS0_FSG | R88EE_FLAGS0_LSG | R88EE_FLAGS0_OWN;
 	txd->txdw1 = htole32(
-	    SM(R92C_TXDW1_QSEL, R92C_TXDW1_QSEL_MGNT));
+	    SM(R88EE_TXDW1_QSEL, R88EE_TXDW1_QSEL_MGNT));
 
-	txd->txdw4 = htole32(R92C_TXDW4_DRVRATE);
-	txd->txdw4 |= htole32(SM(R92C_TXDW4_PORT_ID, id));
+	txd->txdw4 = htole32(R88EE_TXDW4_DRVRATE);
+	txd->txdw4 |= htole32(SM(R88EE_TXDW4_PORT_ID, id));
 	if (is11b) {
-		txd->txdw5 = htole32(SM(R92C_TXDW5_DATARATE,
+		txd->txdw5 = htole32(SM(R88EE_TXDW5_DATARATE,
 		    RTWN_RIDX_CCK1));
 	} else {
-		txd->txdw5 = htole32(SM(R92C_TXDW5_DATARATE,
+		txd->txdw5 = htole32(SM(R88EE_TXDW5_DATARATE,
 		    RTWN_RIDX_OFDM6));
 	}
 
 	if (!qos) {
 		rtwn_r88ee_tx_setup_hwseq(sc, txd);
-		txd->txdw4 |= htole32(SM(R92C_TXDW4_SEQ_SEL, id));
+		txd->txdw4 |= htole32(SM(R88EE_TXDW4_SEQ_SEL, id));
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -474,13 +472,13 @@ r88ee_tx_radiotap_flags(const void *buf)
 	uint8_t flags;
 
 	flags = 0;
-	if (txd->txdw4 & htole32(R92C_TXDW4_DATA_SHPRE))
+	if (txd->txdw4 & htole32(R88EE_TXDW4_DATA_SHPRE))
 		flags |= IEEE80211_RADIOTAP_F_SHORTPRE;
-	if (txd->txdw5 & htole32(R92C_TXDW5_SGI))
+	if (txd->txdw5 & htole32(R88EE_TXDW5_SGI))
 		flags |= IEEE80211_RADIOTAP_F_SHORTGI;
 	return (flags);
 #else
-	printf("Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }

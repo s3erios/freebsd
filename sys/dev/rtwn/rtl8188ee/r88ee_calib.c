@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_calib.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -54,6 +52,7 @@ __FBSDID("$FreeBSD$");
 void
 r88ee_iq_calib(struct rtwn_softc *sc)
 {
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	/* XXX TODO */
 }
 
@@ -65,24 +64,24 @@ r88ee_lc_calib(struct rtwn_softc *sc)
 	uint8_t txmode;
 	int i;
 
-	txmode = rtwn_read_1(sc, R92C_OFDM1_LSTF + 3);
+	txmode = rtwn_read_1(sc, R88EE_OFDM1_LSTF + 3);
 	if ((txmode & 0x70) != 0) {
 		/* Disable all continuous Tx. */
-		rtwn_write_1(sc, R92C_OFDM1_LSTF + 3, txmode & ~0x70);
+		rtwn_write_1(sc, R88EE_OFDM1_LSTF + 3, txmode & ~0x70);
 
 		/* Set RF mode to standby mode. */
 		for (i = 0; i < sc->nrxchains; i++) {
-			rf_ac[i] = rtwn_rf_read(sc, i, R92C_RF_AC);
-			rtwn_rf_write(sc, i, R92C_RF_AC,
-			    RW(rf_ac[i], R92C_RF_AC_MODE,
-				R92C_RF_AC_MODE_STANDBY));
+			rf_ac[i] = rtwn_rf_read(sc, i, R88EE_RF_AC);
+			rtwn_rf_write(sc, i, R88EE_RF_AC,
+			    RW(rf_ac[i], R88EE_RF_AC_MODE,
+				R88EE_RF_AC_MODE_STANDBY));
 		}
 	} else {
 		/* Block all Tx queues. */
-		rtwn_write_1(sc, R92C_TXPAUSE, R92C_TX_QUEUE_ALL);
+		rtwn_write_1(sc, R88EE_TXPAUSE, R88EE_TX_QUEUE_ALL);
 	}
 	/* Start calibration. */
-	rtwn_rf_setbits(sc, 0, R92C_RF_CHNLBW, 0, R92C_RF_CHNLBW_LCSTART);
+	rtwn_rf_setbits(sc, 0, R88EE_RF_CHNLBW, 0, R88EE_RF_CHNLBW_LCSTART);
 
 	/* Give calibration the time to complete. */
 	rtwn_delay(sc, 100000);	/* 100ms */
@@ -90,16 +89,16 @@ r88ee_lc_calib(struct rtwn_softc *sc)
 	/* Restore configuration. */
 	if ((txmode & 0x70) != 0) {
 		/* Restore Tx mode. */
-		rtwn_write_1(sc, R92C_OFDM1_LSTF + 3, txmode);
+		rtwn_write_1(sc, R88EE_OFDM1_LSTF + 3, txmode);
 		/* Restore RF mode. */
 		for (i = 0; i < sc->nrxchains; i++)
-			rtwn_rf_write(sc, i, R92C_RF_AC, rf_ac[i]);
+			rtwn_rf_write(sc, i, R88EE_RF_AC, rf_ac[i]);
 	} else {
 		/* Unblock all Tx queues. */
-		rtwn_write_1(sc, R92C_TXPAUSE, 0x00);
+		rtwn_write_1(sc, R88EE_TXPAUSE, 0x00);
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -107,9 +106,9 @@ void
 r88ee_temp_measure(struct rtwn_softc *sc)
 {
 #if 0
-	rtwn_rf_write(sc, 0, R92C_RF_T_METER, R92C_RF_T_METER_START);
+	rtwn_rf_write(sc, 0, R88EE_RF_T_METER, R88EE_RF_T_METER_START);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -117,10 +116,10 @@ uint8_t
 r88ee_temp_read(struct rtwn_softc *sc)
 {
 #if 0
-	return (MS(rtwn_rf_read(sc, 0, R92C_RF_T_METER),
-	    R92C_RF_T_METER_VAL));
+	return (MS(rtwn_rf_read(sc, 0, R88EE_RF_T_METER),
+	    R88EE_RF_T_METER_VAL));
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 	return 0;
 #endif
 }

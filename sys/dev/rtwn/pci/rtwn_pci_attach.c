@@ -609,6 +609,8 @@ rtwn_pci_attach(device_t dev)
 	uint32_t lcsr;
 	int cap_off, i, error, rid;
 
+	printf("1\n");
+
 	ident = rtwn_pci_probe_sub(dev);
 	if (ident == NULL)
 		return (ENXIO);
@@ -623,6 +625,8 @@ rtwn_pci_attach(device_t dev)
 		return (error);
 	}
 
+	printf("2\n");
+
 	/* Enable bus-mastering. */
 	pci_enable_busmaster(dev);
 
@@ -635,6 +639,8 @@ rtwn_pci_attach(device_t dev)
 	}
 	pc->pc_st = rman_get_bustag(pc->mem);
 	pc->pc_sh = rman_get_bushandle(pc->mem);
+
+	printf("3\n");
 
 	/* Install interrupt handler. */
 	rid = 1;
@@ -649,6 +655,8 @@ rtwn_pci_attach(device_t dev)
 		goto detach;
 	}
 
+	printf("4\n");
+
 	/* Disable PCIe Active State Power Management (ASPM). */
 	lcsr = pci_read_config(dev, cap_off + PCIER_LINK_CTL, 4);
 	lcsr &= ~PCIEM_LINK_CTL_ASPMC;
@@ -657,12 +665,18 @@ rtwn_pci_attach(device_t dev)
 	sc->sc_dev = dev;
 	ic->ic_name = device_get_nameunit(dev);
 
+	printf("5\n");
+
 	/* Need to be initialized early. */
 	rtwn_sysctlattach(sc);
 	mtx_init(&sc->sc_mtx, ic->ic_name, MTX_NETWORK_LOCK, MTX_DEF);
 
+	printf("6\n");
+
 	rtwn_pci_attach_methods(sc);
+	printf("7\n");
 	rtwn_pci_attach_private(pc, ident->chip);
+	printf("8\n");
 
 	/* Allocate Tx/Rx buffers. */
 	error = rtwn_pci_alloc_rx_list(sc);
@@ -683,13 +697,16 @@ rtwn_pci_attach(device_t dev)
 	}
 
 	/* Generic attach. */
+	printf("9\n");
 	error = rtwn_attach(sc);
+	printf("10\n");
 	if (error != 0)
 		goto detach;
 
 	/*
 	 * Hook our interrupt after all initialization is complete.
 	 */
+	printf("11\n");
 	error = bus_setup_intr(dev, pc->irq, INTR_TYPE_NET | INTR_MPSAFE,
 	    NULL, rtwn_pci_intr, sc, &pc->pc_ih);
 	if (error != 0) {
@@ -698,9 +715,11 @@ rtwn_pci_attach(device_t dev)
 		goto detach;
 	}
 
+	printf("Normal end\n");
 	return (0);
 
 detach:
+	printf("Detachment Failure\n");
 	rtwn_pci_detach(dev);		/* failure */
 	return (ENXIO);
 }
