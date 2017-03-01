@@ -28,28 +28,27 @@
 
 struct r88ee_rom {
 	uint16_t	id;				/* Offset: 0, Must be 0x8129 */
-//	uint8_t		cck_tx_pwr[2];			/* Offset: 2, This is a guess!!!!!! */
-//	uint8_t		ht40_tx_pwr[1];			/* Offset: 4, Guess based on r80e */
-//	uint8_t		tx_pwr_diff;			/* Offset: 5, 3rd guess */
+	uint8_t		cck_tx_pwr[2];			/* Offset: 2, This is a guess!!!!!! */
+	uint8_t		ht40_tx_pwr[1];			/* Offset: 4, Guess based on r80e */
+	uint8_t		tx_pwr_diff;			/* Offset: 5, 3rd guess */
 	
-	uint8_t		unknown_1[23];
+	uint8_t		unknown_1[19];
 	uint8_t		macaddr[IEEE80211_ADDR_LEN];	/* Offset: 22+28 so 6 bytes, Begins with 00:E0:4C in little endian */
 	uint8_t		test;
+	uint8_t		unknown_4[96];
 
-//	uint8_t		unknown_2[28];			/* Offset: 28 */
+//	uint8_t		cck_tx_pwr[2][14];		/* Offset: 32 */ // The define's need 
 
-	uint8_t		cck_tx_pwr[2][14];		/* Offset: 32 */ // The define's need 
-
-	uint8_t		unknown_3[133];			/* Offset: 56 */
+//	uint8_t		unknown_3[133];			/* Offset: 56 */
 
 	// Ofsets come from here:
 	// https://github.com/lwfinger/rtlwifi_new/blob/b6a14442fea8e059662a52534692a50c63634c4e/rtl8188ee/reg.h#L704
-	uint8_t		rf_opt1;			/* Offset: 193 */ // Comes from 0xC1 from Linux's 
-	uint8_t		rf_opt2;			/* Offset: 194 */
-	uint8_t		rf_opt3;			/* Offset: 195 */
-	uint8_t		rf_opt4;			/* Offset: 196 */
+//	uint8_t		rf_opt1;			/* Offset: 193 */ // Comes from 0xC1 from Linux's 
+//	uint8_t		rf_opt2;			/* Offset: 194 */
+//	uint8_t		rf_opt3;			/* Offset: 195 */
+//	uint8_t		rf_opt4;			/* Offset: 196 */
 
-	uint8_t		unknown_4[315]; // This length is whatever minus 512
+//	uint8_t		unknown_4[315]; // This length is whatever minus 512
 };
 
 /*

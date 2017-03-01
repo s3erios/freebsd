@@ -23,8 +23,8 @@
 #define R88EE_MAX_CHAINS		2 // 4 // Done, taken from Linux's MAX_RF_PATH
 #define R88EE_GROUP_2G			3 // 6 // Done, taken from Linux's MAX_CHNL_GROUP_24G
 
-#define R88EE_EFUSE_MAX_LEN		512
-#define R88EE_EFUSE_MAP_LEN		512 // Originally 128 
+#define R88EE_EFUSE_MAX_LEN		128	
+#define R88EE_EFUSE_MAP_LEN		128 // Originally 128 
 
 /*
  * Some generic rom parsing macros.
