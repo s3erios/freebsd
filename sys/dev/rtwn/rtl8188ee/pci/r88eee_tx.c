@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
- * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_tx.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -61,13 +59,13 @@ void
 r88eee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
     uint32_t next_desc_addr)
 {
-#if 0
+#if 1
 	struct r88eee_tx_desc *txd = desc;
 
 	/* setup tx desc */
 	txd->nextdescaddr = htole32(next_desc_addr);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -83,7 +81,7 @@ r88eee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
 	bus_space_barrier(pc->pc_st, pc->pc_sh, 0, pc->pc_mapsize,
 	    BUS_SPACE_BARRIER_WRITE);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -100,7 +98,7 @@ r88eee_copy_tx_desc(void *dest, const void *src)
 	else
 		memset(dest, 0, len);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -126,6 +124,6 @@ r88eee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 	    le32toh(txd->reserved[2]), le32toh(txd->reserved[3]));
 #endif
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }

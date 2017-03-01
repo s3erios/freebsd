@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,23 +14,22 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * $OpenBSD: if_urtwnreg.h,v 1.3 2010/11/16 18:02:59 damien Exp $
- * $FreeBSD$
+ * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_var.h 307529 2016-10-17 20:38:24Z avos $
  */
 
-#ifndef R92C_VAR_H
-#define R92C_VAR_H
+#ifndef R88EE_VAR_H
+#define R88EE_VAR_H
 
 #include <dev/rtwn/rtl8188ee/r88ee_rom_defs.h>
 
 struct r88ee_softc {
 	uint8_t		rs_flags;
-#define R92C_FLAG_ASSOCIATED	0x01
+#define R88EE_FLAG_ASSOCIATED	0x01
 
 	uint8_t		chip;
-// One of these two needs to be removed, not sure which
-#define R88EE_CHIP_8723         0x0
-#define R88EE_CHIP_92D          0x1
-
+#define R88EE_CHIP_92C		0x01
+#define R88EE_CHIP_92C_1T2R	0x02
+#define R88EE_CHIP_UMC_A_CUT	0x04
 
 #ifndef RTWN_WITHOUT_UCODE
 	struct callout	rs_c2h_report;
@@ -39,7 +37,7 @@ struct r88ee_softc {
 	int		rs_c2h_pending;
 	int		rs_c2h_paused;
 #endif
-#define R92C_TX_PAUSED_THRESHOLD	20
+#define R88EE_TX_PAUSED_THRESHOLD	20
 
 	void		*rs_txpwr;
 	const void	*rs_txagc;
@@ -62,23 +60,23 @@ struct r88ee_softc {
 	void		(*rs_set_name)(struct rtwn_softc *);
 
 	int		rf_read_delay[3];
-	uint32_t	rf_chnlbw[R92C_MAX_CHAINS];
+	uint32_t	rf_chnlbw[R88EE_MAX_CHAINS];
 };
-#define R92C_SOFTC(_sc)	((struct r88ee_softc *)((_sc)->sc_priv))
+#define R88EE_SOFTC(_sc)	((struct r88ee_softc *)((_sc)->sc_priv))
 
 #define rtwn_r88ee_set_bw20(_sc, _chan) \
-	((R92C_SOFTC(_sc)->rs_set_bw20)((_sc), (_chan)))
+	((R88EE_SOFTC(_sc)->rs_set_bw20)((_sc), (_chan)))
 #define rtwn_r88ee_get_txpower(_sc, _chain, _c, _power) \
-	((R92C_SOFTC(_sc)->rs_get_txpower)((_sc), (_chain), (_c), (_power)))
+	((R88EE_SOFTC(_sc)->rs_get_txpower)((_sc), (_chain), (_c), (_power)))
 #define rtwn_r88ee_set_gain(_sc, _gain) \
-	((R92C_SOFTC(_sc)->rs_set_gain)((_sc), (_gain)))
+	((R88EE_SOFTC(_sc)->rs_set_gain)((_sc), (_gain)))
 #define rtwn_r88ee_tx_enable_ampdu(_sc, _buf, _enable) \
-	((R92C_SOFTC(_sc)->rs_tx_enable_ampdu)((_buf), (_enable)))
+	((R88EE_SOFTC(_sc)->rs_tx_enable_ampdu)((_buf), (_enable)))
 #define rtwn_r88ee_tx_setup_hwseq(_sc, _buf) \
-	((R92C_SOFTC(_sc)->rs_tx_setup_hwseq)((_buf)))
+	((R88EE_SOFTC(_sc)->rs_tx_setup_hwseq)((_buf)))
 #define rtwn_r88ee_tx_setup_macid(_sc, _buf, _id) \
-	((R92C_SOFTC(_sc)->rs_tx_setup_macid)((_buf), (_id)))
+	((R88EE_SOFTC(_sc)->rs_tx_setup_macid)((_buf), (_id)))
 #define rtwn_r88ee_set_name(_sc) \
-	((R92C_SOFTC(_sc)->rs_set_name)((_sc)))
+	((R88EE_SOFTC(_sc)->rs_set_name)((_sc)))
 
-#endif	/* R92C_VAR_H */
+#endif	/* R88EE_VAR_H */

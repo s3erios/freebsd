@@ -1,6 +1,5 @@
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,26 +14,28 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  * $OpenBSD: if_urtwnreg.h,v 1.3 2010/11/16 18:02:59 damien Exp $
- * $FreeBSD$
+ * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee.h 310305 2016-12-20 01:13:11Z kevlo $
  */
 
-#ifndef RTL8192C_H
-#define RTL8192C_H
+#ifndef RTL8188EE_H
+#define RTL8188EE_H
+
+#include <dev/rtwn/if_rtwnvar.h>
+#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
 
 /*
  * Global definitions.
  */
-#define R92C_TXPKTBUF_COUNT	256
+#define R88EE_TXPKTBUF_COUNT		256
 
-#define R92C_TX_PAGE_SIZE	128
-#define R92C_RX_DMA_BUFFER_SIZE	0x2800
+#define R88EE_TX_PAGE_SIZE		128
+#define R88EE_RX_DMA_BUFFER_SIZE	0x2800
 
-#define R92C_MAX_FW_SIZE	0x4000
-#define R92C_MACID_MAX		31
-#define R92C_CAM_ENTRY_COUNT	32
+#define R88EE_MAX_FW_SIZE		0x4000
+#define R88EE_MACID_MAX			31
+#define R88EE_CAM_ENTRY_COUNT		32
 
-#define R92C_CALIB_THRESHOLD	2
-
+#define R88EE_CALIB_THRESHOLD		2
 
 /*
  * Function declarations.
@@ -111,4 +112,4 @@ void	r88ee_fill_tx_desc_raw(struct rtwn_softc *, struct ieee80211_node *,
 void	r88ee_fill_tx_desc_null(struct rtwn_softc *, void *, int, int, int);
 uint8_t	r88ee_tx_radiotap_flags(const void *);
 
-#endif	/* RTL8192C_H */
+#endif	/* RTL8188EE_H */

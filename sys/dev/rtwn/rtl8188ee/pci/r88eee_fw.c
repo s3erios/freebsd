@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
- * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_fw.c 308380 2016-11-06 17:24:16Z avos $");
 
 #include "opt_wlan.h"
 
@@ -53,18 +51,26 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
 #include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_reg.h>
 
+
+#ifndef RTWN_WITHOUT_UCODE
 void
-r88eee_set_led(struct rtwn_softc *sc, int led, int on)
+r88eee_fw_reset(struct rtwn_softc *sc, int reason)
 {
-#if
-	if (led == RTWN_LED_LINK) {
-		rtwn_setbits_1(sc, R92C_LEDCFG2, 0x0f,
-		    on ? R92C_LEDCFG2_EN : R92C_LEDCFG2_DIS);
-		sc->ledlink = on;	/* Save LED state. */
-	}
+#if 0
+	if (reason == RTWN_FW_RESET_CHECKSUM)
+		return;
+
+	r88ee_fw_reset(sc, reason);
+
+	/*
+	 * We must sleep for one second to let the firmware settle.
+	 * Accessing registers too early will hang the whole system.
+	 */
+	if (reason == RTWN_FW_RESET_DOWNLOAD)
+		rtwn_delay(sc, 1000 * 1000);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
+#endif

@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_rtwnreg.h,v 1.3 2015/06/14 08:02:47 stsp Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
- * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,23 +15,24 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
- * $FreeBSD$
+ * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee.h 307529 2016-10-17 20:38:24Z avos $
  */
 
-#ifndef RTL8192CE_H
-#define RTL8192CE_H
+#ifndef RTL8188EEE_H
+#define RTL8188EEE_H
 
+#include <sys/bus_dma.h>
 #include <dev/rtwn/rtl8188ee/r88ee.h>
-
+#include <dev/rtwn/pci/rtwn_pci_var.h>
 
 /*
  * Global definitions.
  */
-#define R92CE_PUBQ_NPAGES	176
-#define R92CE_HPQ_NPAGES	41
-#define R92CE_LPQ_NPAGES	28
-#define R92CE_TX_PAGE_COUNT	\
-	(R92CE_PUBQ_NPAGES + R92CE_HPQ_NPAGES + R92CE_LPQ_NPAGES)
+#define R88EEE_PUBQ_NPAGES	176
+#define R88EEE_HPQ_NPAGES	41
+#define R88EEE_LPQ_NPAGES	28
+#define R88EEE_TX_PAGE_COUNT	\
+	(R88EEE_PUBQ_NPAGES + R88EEE_HPQ_NPAGES + R88EEE_LPQ_NPAGES)
 
 
 /*
@@ -71,4 +70,4 @@ void	r88eee_tx_postsetup(struct rtwn_pci_softc *, void *,
 void	r88eee_copy_tx_desc(void *, const void *);
 void	r88eee_dump_tx_desc(struct rtwn_softc *, const void *);
 
-#endif	/* RTL8192CE_H */
+#endif	/* RTL8188EEE_H */

@@ -1,9 +1,7 @@
 /*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
 
 /*-
- * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
- * Copyright (c) 2014 Kevin Lo <kevlo@FreeBSD.org>
- * Copyright (c) 2015-2016 Andriy Voskoboinyk <avos@FreeBSD.org>
+ * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com> 
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtlrtl8188ee/r88ee_fw.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -82,7 +80,7 @@ r88ee_fw_cmd(struct rtwn_softc *sc, uint8_t id, const void *buf, int len)
 
 	/* Wait for current FW box to be empty. */
 	for (ntries = 0; ntries < 50; ntries++) {
-		if (!(rtwn_read_1(sc, R92C_HMETFR) & (1 << sc->fwcur)))
+		if (!(rtwn_read_1(sc, R88EE_HMETFR) & (1 << sc->fwcur)))
 			break;
 		rtwn_delay(sc, 2000);
 	}
@@ -95,7 +93,7 @@ r88ee_fw_cmd(struct rtwn_softc *sc, uint8_t id, const void *buf, int len)
 	cmd.id = id;
 	if (len > 3) {
 		/* Ext command: [id : byte2 : byte3 : byte4 : byte0 : byte1] */
-		cmd.id |= R92C_CMD_FLAG_EXT;
+		cmd.id |= R88EE_CMD_FLAG_EXT;
 		memcpy(cmd.msg, (const uint8_t *)buf + 2, len - 2);
 		memcpy(cmd.msg + 3, buf, 2);
 	} else
@@ -103,21 +101,23 @@ r88ee_fw_cmd(struct rtwn_softc *sc, uint8_t id, const void *buf, int len)
 
 	/* Write the first word last since that will trigger the FW. */
 	if (len > 3) {
-		error = rtwn_write_2(sc, R92C_HMEBOX_EXT(sc->fwcur),
+		error = rtwn_write_2(sc, R88EE_HMEBOX_EXT(sc->fwcur),
 		    *(uint16_t *)((uint8_t *)&cmd + 4));
 		if (error != 0)
 			return (error);
 	}
-	error = rtwn_write_4(sc, R92C_HMEBOX(sc->fwcur),
+	error = rtwn_write_4(sc, R88EE_HMEBOX(sc->fwcur),
 	    *(uint32_t *)&cmd);
 	if (error != 0)
 		return (error);
 
-	sc->fwcur = (sc->fwcur + 1) % R92C_H2C_NBOX;
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-#endif
+	sc->fwcur = (sc->fwcur + 1) % R88EE_H2C_NBOX;
+
 	return (0);
+#else
+	printf("RTL8188EE:%s not implemented\n", __func__);
+	return 0;
+#endif
 }
 
 void
@@ -130,20 +130,20 @@ r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 		return;
 
 	/* Tell 8051 to reset itself. */
-	rtwn_write_1(sc, R92C_HMETFR + 3, 0x20);
+	rtwn_write_1(sc, R88EE_HMETFR + 3, 0x20);
 
 	/* Wait until 8051 resets by itself. */
 	for (ntries = 0; ntries < 100; ntries++) {
-		if ((rtwn_read_2(sc, R92C_SYS_FUNC_EN) &
-		    R92C_SYS_FUNC_EN_CPUEN) == 0)
+		if ((rtwn_read_2(sc, R88EE_SYS_FUNC_EN) &
+		    R88EE_SYS_FUNC_EN_CPUEN) == 0)
 			return;
 		rtwn_delay(sc, 50);
 	}
 	/* Force 8051 reset. */
-	rtwn_setbits_1_shift(sc, R92C_SYS_FUNC_EN,
-	    R92C_SYS_FUNC_EN_CPUEN, 0, 1);
+	rtwn_setbits_1_shift(sc, R88EE_SYS_FUNC_EN,
+	    R88EE_SYS_FUNC_EN_CPUEN, 0, 1);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -153,21 +153,21 @@ r88ee_fw_download_enable(struct rtwn_softc *sc, int enable)
 #if 0
 	if (enable) {
 		/* 8051 enable. */
-		rtwn_setbits_1_shift(sc, R92C_SYS_FUNC_EN, 0,
-		    R92C_SYS_FUNC_EN_CPUEN, 1);
+		rtwn_setbits_1_shift(sc, R88EE_SYS_FUNC_EN, 0,
+		    R88EE_SYS_FUNC_EN_CPUEN, 1);
 		/* MCU firmware download enable. */
-		rtwn_setbits_1(sc, R92C_MCUFWDL, 0, R92C_MCUFWDL_EN);
+		rtwn_setbits_1(sc, R88EE_MCUFWDL, 0, R88EE_MCUFWDL_EN);
 		/* 8051 reset. */
-		rtwn_setbits_1_shift(sc, R92C_MCUFWDL, R92C_MCUFWDL_ROM_DLEN,
+		rtwn_setbits_1_shift(sc, R88EE_MCUFWDL, R88EE_MCUFWDL_ROM_DLEN,
 		    0, 2);
 	} else {
 		/* MCU download disable. */
-		rtwn_setbits_1(sc, R92C_MCUFWDL, R92C_MCUFWDL_EN, 0);
+		rtwn_setbits_1(sc, R88EE_MCUFWDL, R88EE_MCUFWDL_EN, 0);
 		/* Reserved for f/w extension. */
-		rtwn_write_1(sc, R92C_MCUFWDL + 1, 0);
+		rtwn_write_1(sc, R88EE_MCUFWDL + 1, 0);
 	}
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 #endif
@@ -190,18 +190,18 @@ r88ee_send_ra_cmd(struct rtwn_softc *sc, int macid, uint32_t rates,
 #ifdef RTWN_TODO
 	/* NB: group addressed frames are done at 11bg rates for now */
 	if (ic->ic_curmode == IEEE80211_MODE_11B)
-		mode = R92C_RAID_11B;
+		mode = R88EE_RAID_11B;
 	else
-		mode = R92C_RAID_11BG;
+		mode = R88EE_RAID_11BG;
 	/* XXX misleading 'mode' value here for unicast frames */
 	RTWN_DPRINTF(sc, RTWN_DEBUG_RA,
 	    "%s: mode 0x%x, rates 0x%08x, basicrates 0x%08x\n", __func__,
 	    mode, rates, basicrates);
 
 	/* Set rates mask for group addressed frames. */
-	cmd.macid = RTWN_MACID_BC | R92C_CMD_MACID_VALID;
+	cmd.macid = RTWN_MACID_BC | R88EE_CMD_MACID_VALID;
 	cmd.mask = htole32(mode << 28 | basicrates);
-	error = rtwn_fw_cmd(sc, R92C_CMD_MACID_CONFIG, &cmd, sizeof(cmd));
+	error = rtwn_fw_cmd(sc, R88EE_CMD_MACID_CONFIG, &cmd, sizeof(cmd));
 	if (error != 0) {
 		device_printf(sc->sc_dev,
 		    "could not set RA mask for broadcast station\n");
@@ -211,14 +211,14 @@ r88ee_send_ra_cmd(struct rtwn_softc *sc, int macid, uint32_t rates,
 
 	/* Set rates mask for unicast frames. */
 	if (maxrate >= RTWN_RIDX_MCS(0))
-		mode = R92C_RAID_11GN;
+		mode = R88EE_RAID_11GN;
 	else if (maxrate >= RTWN_RIDX_OFDM6)
-		mode = R92C_RAID_11BG;
+		mode = R88EE_RAID_11BG;
 	else
-		mode = R92C_RAID_11B;
-	cmd.macid = macid | R92C_CMD_MACID_VALID;
+		mode = R88EE_RAID_11B;
+	cmd.macid = macid | R88EE_CMD_MACID_VALID;
 	cmd.mask = htole32(mode << 28 | rates);
-	error = r88ee_fw_cmd(sc, R92C_CMD_MACID_CONFIG, &cmd, sizeof(cmd));
+	error = r88ee_fw_cmd(sc, R88EE_CMD_MACID_CONFIG, &cmd, sizeof(cmd));
 	if (error != 0) {
 		device_printf(sc->sc_dev,
 		    "%s: could not set RA mask for %d station\n",
@@ -226,10 +226,11 @@ r88ee_send_ra_cmd(struct rtwn_softc *sc, int macid, uint32_t rates,
 		return (error);
 	}
 
-#else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-#endif
 	return (0);
+#else
+	printf("RTL8188EE:%s not implemented\n", __func__);
+	return 0;
+#endif 
 }
 #endif
 
@@ -265,11 +266,11 @@ r88ee_init_ra(struct rtwn_softc *sc, int macid)
 	}
 #endif
 
-	rtwn_write_1(sc, R92C_INIDATA_RATE_SEL(macid), maxrate);
+	rtwn_write_1(sc, R88EE_INIDATA_RATE_SEL(macid), maxrate);
 
 	ieee80211_free_node(ni);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -287,18 +288,18 @@ r88ee_joinbss_rpt(struct rtwn_softc *sc, int macid)
 
 	vap = &sc->vaps[0]->vap;
 	if ((vap->iv_state == IEEE80211_S_RUN) ^
-	    !(rs->rs_flags & R92C_FLAG_ASSOCIATED))
+	    !(rs->rs_flags & R88EE_FLAG_ASSOCIATED))
 		goto end;
 
-	if (rs->rs_flags & R92C_FLAG_ASSOCIATED) {
-		cmd.mstatus = R92C_MSTATUS_DISASSOC;
-		rs->rs_flags &= ~R92C_FLAG_ASSOCIATED;
+	if (rs->rs_flags & R88EE_FLAG_ASSOCIATED) {
+		cmd.mstatus = R88EE_MSTATUS_DISASSOC;
+		rs->rs_flags &= ~R88EE_FLAG_ASSOCIATED;
 	} else {
-		cmd.mstatus = R92C_MSTATUS_ASSOC;
-		rs->rs_flags |= R92C_FLAG_ASSOCIATED;
+		cmd.mstatus = R88EE_MSTATUS_ASSOC;
+		rs->rs_flags |= R88EE_FLAG_ASSOCIATED;
 	}
 
-	if (r88ee_fw_cmd(sc, R92C_CMD_JOINBSS_RPT, &cmd, sizeof(cmd)) != 0) {
+	if (r88ee_fw_cmd(sc, R88EE_CMD_JOINBSS_RPT, &cmd, sizeof(cmd)) != 0) {
 		device_printf(sc->sc_dev, "%s: cannot change media status!\n",
 		    __func__);
 	}
@@ -310,7 +311,7 @@ end:
 	if (macid & RTWN_MACID_VALID)
 		r88ee_init_ra(sc, macid & ~RTWN_MACID_VALID);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -326,10 +327,10 @@ r88ee_set_rsvd_page(struct rtwn_softc *sc, int probe_resp, int null,
 	rsvd.ps_poll = 0;
 	rsvd.null_data = null;
 
-	return (r88ee_fw_cmd(sc, R92C_CMD_RSVD_PAGE, &rsvd, sizeof(rsvd)));
+	return (r88ee_fw_cmd(sc, R88EE_CMD_RSVD_PAGE, &rsvd, sizeof(rsvd)));
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return (0);
+	printf("RTL8188EE:%s not implemented\n", __func__);
+	return 0;
 #endif
 }
 
@@ -345,12 +346,12 @@ r88ee_set_pwrmode(struct rtwn_softc *sc, struct ieee80211vap *vap,
 
 	if (off && vap->iv_state == IEEE80211_S_RUN &&
 	    (vap->iv_flags & IEEE80211_F_PMGTON))
-		mode.mode = R92C_PWRMODE_MIN;
+		mode.mode = R88EE_PWRMODE_MIN;
 	else
-		mode.mode = R92C_PWRMODE_CAM;
-	mode.smart_ps = R92C_PWRMODE_SMARTPS_NULLDATA;
+		mode.mode = R88EE_PWRMODE_CAM;
+	mode.smart_ps = R88EE_PWRMODE_SMARTPS_NULLDATA;
 	mode.bcn_pass = 1;	/* XXX */
-	error = r88ee_fw_cmd(sc, R92C_CMD_SET_PWRMODE, &mode, sizeof(mode));
+	error = r88ee_fw_cmd(sc, R88EE_CMD_SET_PWRMODE, &mode, sizeof(mode));
 	if (error != 0) {
 		device_printf(sc->sc_dev,
 		    "%s: CMD_SET_PWRMODE was not sent, error %d\n",
@@ -359,8 +360,8 @@ r88ee_set_pwrmode(struct rtwn_softc *sc, struct ieee80211vap *vap,
 
 	return (error);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
-	return (0);
+	printf("RTL8188EE:%s not implemented\n", __func__);
+	return 0;
 #endif
 }
 
@@ -390,12 +391,12 @@ r88ee_set_rssi(struct rtwn_softc *sc)
 		    __func__, i, rn->avg_pwdb);
 
 		RTWN_NT_UNLOCK(sc);
-		r88ee_fw_cmd(sc, R92C_CMD_RSSI_SETTING, &cmd, sizeof(cmd));
+		r88ee_fw_cmd(sc, R88EE_CMD_RSSI_SETTING, &cmd, sizeof(cmd));
 		RTWN_NT_LOCK(sc);
 	}
 	RTWN_NT_UNLOCK(sc);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -433,7 +434,7 @@ r88ee_ratectl_tx_complete(struct rtwn_softc *sc, uint8_t *buf, int len)
 	    rpt->queue_time_high, rpt->rptb4, rpt->rptb5, rpt->rptb6,
 	    rpt->rptb7);
 
-	macid = MS(rpt->rptb5, R92C_RPTB5_MACID);
+	macid = MS(rpt->rptb5, R88EE_RPTB5_MACID);
 	if (macid > sc->macid_limit) {
 		device_printf(sc->sc_dev,
 		    "macid %u is too big; increase MACID_MAX limit\n",
@@ -441,31 +442,31 @@ r88ee_ratectl_tx_complete(struct rtwn_softc *sc, uint8_t *buf, int len)
 		return;
 	}
 
-	ntries = MS(rpt->rptb0, R92C_RPTB0_RETRY_CNT);
+	ntries = MS(rpt->rptb0, R88EE_RPTB0_RETRY_CNT);
 
 	RTWN_NT_LOCK(sc);
 	ni = sc->node_list[macid];
 	if (ni != NULL) {
 		RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: frame for macid %u was"
 		    "%s sent (%d retries)\n", __func__, macid,
-		    (rpt->rptb7 & R92C_RPTB7_PKT_OK) ? "" : " not",
+		    (rpt->rptb7 & R88EE_RPTB7_PKT_OK) ? "" : " not",
 		    ntries);
 
 #if __FreeBSD_version >= 1200012
 		txs.flags = IEEE80211_RATECTL_STATUS_LONG_RETRY;
 		txs.long_retries = ntries;
-		if (rpt->rptb7 & R92C_RPTB7_PKT_OK)
+		if (rpt->rptb7 & R88EE_RPTB7_PKT_OK)
 			txs.status = IEEE80211_RATECTL_TX_SUCCESS;
-		else if (rpt->rptb6 & R92C_RPTB6_RETRY_OVER)
+		else if (rpt->rptb6 & R88EE_RPTB6_RETRY_OVER)
 			txs.status = IEEE80211_RATECTL_TX_FAIL_LONG; /* XXX */
-		else if (rpt->rptb6 & R92C_RPTB6_LIFE_EXPIRE)
+		else if (rpt->rptb6 & R88EE_RPTB6_LIFE_EXPIRE)
 			txs.status = IEEE80211_RATECTL_TX_FAIL_EXPIRED;
 		else
 			txs.status = IEEE80211_RATECTL_TX_FAIL_UNSPECIFIED;
 		ieee80211_ratectl_tx_complete(ni, &txs);
 #else
 		struct ieee80211vap *vap = ni->ni_vap;
-		if (rpt->rptb7 & R92C_RPTB7_PKT_OK) {
+		if (rpt->rptb7 & R88EE_RPTB7_PKT_OK) {
 			ieee80211_ratectl_tx_complete(vap, ni,
 			    IEEE80211_RATECTL_TX_SUCCESS, &ntries, NULL);
 		} else {
@@ -484,7 +485,7 @@ r88ee_ratectl_tx_complete(struct rtwn_softc *sc, uint8_t *buf, int len)
 		rtwn_cmd_sleepable(sc, NULL, 0, rtwn_ff_flush_all);
 #endif
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -492,9 +493,9 @@ static void
 r88ee_handle_c2h_task(struct rtwn_softc *sc, union sec_param *data)
 {
 #if 0
-	const uint16_t off = R92C_C2H_EVT_MSG + sizeof(struct r88ee_c2h_evt);
+	const uint16_t off = R88EE_C2H_EVT_MSG + sizeof(struct r88ee_c2h_evt);
 	struct r88ee_softc *rs = sc->sc_priv;
-	uint16_t buf[R92C_C2H_MSG_MAX_LEN / 2 + 1];
+	uint16_t buf[R88EE_C2H_MSG_MAX_LEN / 2 + 1];
 	uint8_t id, len, status;
 	int i;
 
@@ -503,13 +504,13 @@ r88ee_handle_c2h_task(struct rtwn_softc *sc, union sec_param *data)
 		return;
 
 	/* Read current status. */
-	status = rtwn_read_1(sc, R92C_C2H_EVT_CLEAR);
-	if (status == R92C_C2H_EVT_HOST_CLOSE)
+	status = rtwn_read_1(sc, R88EE_C2H_EVT_CLEAR);
+	if (status == R88EE_C2H_EVT_HOST_CLOSE)
 		goto end;	/* nothing to do */
-	else if (status == R92C_C2H_EVT_FW_CLOSE) {
-		len = rtwn_read_1(sc, R92C_C2H_EVT_MSG);
-		id = MS(len, R92C_C2H_EVTB0_ID);
-		len = MS(len, R92C_C2H_EVTB0_LEN);
+	else if (status == R88EE_C2H_EVT_FW_CLOSE) {
+		len = rtwn_read_1(sc, R88EE_C2H_EVT_MSG);
+		id = MS(len, R88EE_C2H_EVTB0_ID);
+		len = MS(len, R88EE_C2H_EVTB0_LEN);
 
 		memset(buf, 0, sizeof(buf));
 		/* Try to optimize event reads. */
@@ -519,7 +520,7 @@ r88ee_handle_c2h_task(struct rtwn_softc *sc, union sec_param *data)
 		    __func__, i, sizeof(buf)));
 
 		switch (id) {
-		case R92C_C2H_EVT_TX_REPORT:
+		case R88EE_C2H_EVT_TX_REPORT:
 			r88ee_ratectl_tx_complete(sc, (uint8_t *)buf, len);
 			break;
 		default:
@@ -531,7 +532,7 @@ r88ee_handle_c2h_task(struct rtwn_softc *sc, union sec_param *data)
 	}
 
 	/* Prepare for next event. */
-	rtwn_write_1(sc, R92C_C2H_EVT_CLEAR, R92C_C2H_EVT_HOST_CLOSE);
+	rtwn_write_1(sc, R88EE_C2H_EVT_CLEAR, R88EE_C2H_EVT_HOST_CLOSE);
 
 end:
 	/* Adjust timeout for next call. */
@@ -541,7 +542,7 @@ end:
 	} else
 		rs->rs_c2h_paused++;
 
-	if (rs->rs_c2h_paused > R92C_TX_PAUSED_THRESHOLD)
+	if (rs->rs_c2h_paused > R88EE_TX_PAUSED_THRESHOLD)
 		rs->rs_c2h_timeout = hz;
 	else
 		rs->rs_c2h_timeout = MAX(hz / 100, 1);
@@ -550,7 +551,9 @@ end:
 	callout_reset(&rs->rs_c2h_report, rs->rs_c2h_timeout,
 	    r88ee_handle_c2h_report, sc);
 #else
-	device_printf(sc->sc_dev, "Unimplemented\n");
+	struct r88ee_softc *rs = sc->sc_priv;
+	printf("Memory of rs: %p\n", (void *)&rs);
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 
@@ -562,7 +565,7 @@ r88ee_handle_c2h_report(void *arg)
 
 	rtwn_cmd_sleepable(sc, NULL, 0, r88ee_handle_c2h_task);
 #else
-	printf("Unimplemented\n");
+	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }
 

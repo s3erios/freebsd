@@ -1,8 +1,8 @@
-# $FreeBSD: head/sys/modules/rtwn_pci/Makefile 307529 2016-10-17 20:38:24Z avos $
+# $FreeBSD$
 
-.PATH: ${SRCTOP}/sys/dev/rtwn/pci
+.PATH: ${.CURDIR}/../../dev/rtwn/pci
 
-SYSDIR?=${SRCTOP}/sys
+SYSDIR?=${.CURDIR}/../..
 .include "${SYSDIR}/conf/kern.opts.mk"
 
 KMOD     = if_rtwn_pci
@@ -12,7 +12,7 @@ SRCS	 = rtwn_pci_attach.c rtwn_pci_reg.c rtwn_pci_rx.c rtwn_pci_tx.c \
 	   device_if.h bus_if.h pci_if.h \
 	   opt_bus.h opt_rtwn.h opt_wlan.h
 
-.PATH: ${SRCTOP}/sys/dev/rtwn/rtl8192c/pci
+.PATH: ${.CURDIR}/../../dev/rtwn/rtl8192c/pci
 SRCS	+= r92ce_attach.c r92ce_calib.c r92ce_fw.c r92ce_init.c r92ce_led.c \
 	   r92ce_rx.c r92ce_tx.c \
 	   r92ce.h r92ce_priv.h r92ce_reg.h r92ce_rx_desc.h r92ce_tx_desc.h
@@ -21,7 +21,6 @@ SRCS	+= r92ce_attach.c r92ce_calib.c r92ce_fw.c r92ce_init.c r92ce_led.c \
 SRCS    += r88eee_attach.c r88eee_calib.c r88eee_fw.c r88eee_init.c r88eee_led.c \
 	   r88eee_rx.c r88eee_tx.c \
            r88eee.h r88eee_priv.h r88eee_reg.h r88eee_rx_desc.h r88eee_tx_desc.h
-
 
 opt_rtwn.h:
 	@echo "#define RTWN_DEBUG 1" > ${.TARGET}

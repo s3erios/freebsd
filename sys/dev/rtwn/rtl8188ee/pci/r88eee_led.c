@@ -1,3 +1,5 @@
+/*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
+
 /*-
  * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
@@ -15,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-//__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_beacon.c 308389 2016-11-06 23:13:13Z avos $");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_led.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -33,6 +35,10 @@
 #include <sys/endian.h>
 #include <sys/linker.h>
 
+#include <machine/bus.h>
+#include <machine/resource.h>
+#include <sys/rman.h>
+
 #include <net/if.h>
 #include <net/ethernet.h>
 #include <net/if_media.h>
@@ -41,51 +47,20 @@
 #include <net80211/ieee80211_radiotap.h>
 
 #include <dev/rtwn/if_rtwnvar.h>
-#include <dev/rtwn/if_rtwnreg.h>
 
-#include <dev/rtwn/if_rtwn_ridx.h>
+#include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/r88ee.h>
-#include <dev/rtwn/rtl8188ee/r88ee_var.h>
-#include <dev/rtwn/rtl8188ee/r88ee_reg.h>
-#include <dev/rtwn/rtl8188ee/r88ee_tx_desc.h>
-
+#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
+#include <dev/rtwn/rtl8188ee/pci/r88eee_reg.h>
 
 void
-r88ee_beacon_init(struct rtwn_softc *sc, void *buf, int id)
+r88eee_set_led(struct rtwn_softc *sc, int led, int on)
 {
 #if 0
-	struct r88ee_tx_desc *txd = (struct r88ee_tx_desc *)buf;
-
-	/*
-	 * NB: there is no need to setup HWSEQ_EN bit;
-	 * QSEL_BEACON already implies it.
-	 */
-	txd->flags0 |= R88EE_FLAGS0_BMCAST | R88EE_FLAGS0_FSG | R88EE_FLAGS0_LSG;
-	txd->txdw1 |= htole32(
-	    SM(R88EE_TXDW1_QSEL, R88EE_TXDW1_QSEL_BEACON) |
-	    SM(R88EE_TXDW1_RAID, R88EE_RAID_11B));
-
-	rtwn_r88ee_tx_setup_macid(sc, buf, id);
-	txd->txdw4 |= htole32(R88EE_TXDW4_DRVRATE);
-	txd->txdw4 |= htole32(SM(R88EE_TXDW4_SEQ_SEL, id));
-	txd->txdw4 |= htole32(SM(R88EE_TXDW4_PORT_ID, id));
-	txd->txdw5 |= htole32(SM(R88EE_TXDW5_DATARATE, RTWN_RIDX_CCK1));
-#else
-	printf("RTL88EE:%s not implemented\n", __func__);
-#endif
-}
-
-void
-r88ee_beacon_enable(struct rtwn_softc *sc, int id, int enable)
-{
-#if 0
-	if (enable) {
-		rtwn_setbits_1(sc, R88EE_BCN_CTRL(id),
-		    0, R88EE_BCN_CTRL_EN_BCN);
-	} else {
-		rtwn_setbits_1(sc, R88EE_BCN_CTRL(id),
-		    R88EE_BCN_CTRL_EN_BCN, 0);
+	if (led == RTWN_LED_LINK) {
+		rtwn_setbits_1(sc, R88EE_LEDCFG2, 0x0f,
+		    on ? R88EE_LEDCFG2_EN : R88EE_LEDCFG2_DIS);
+		sc->ledlink = on;	/* Save LED state. */
 	}
 #else
 	printf("RTL8188EE:%s not implemented\n", __func__);

@@ -1,3 +1,5 @@
+/*	$OpenBSD: if_urtwn.c,v 1.16 2011/02/10 17:26:40 jakemsr Exp $	*/
+
 /*-
  * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
  *
@@ -15,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+//__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/r88ee_attach.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -57,29 +59,39 @@ r88ee_detach_private(struct rtwn_softc *sc)
 }
 
 /*
- * This function receives the value reg_sys_cfg. This is an unsigned
- * 32-bit integer read from the rtl card which indicates its version
- * information.
- * It reads the 23'd bit to determine whether its a TEST chip or
- * normal chip.
- * In the Linux driver, the read section is done by the driver itself
- * whereas this is abstracted out due to the similarities in rtl
- * drivers.
-*/
+ * This function receives the value reg_sys_cfg. This is an unsigned 32-bit
+ * integer read from the rtl card which indicates its version information.
+ * It reads the 23rd bit to determine whether its a TEST chip or NORMAL chip.
+ * In the Linux driver, the read section is done by the driver itself, whereas
+ * this is abstracted out due to the similarities in the rtl drivers.
+ */
 
+#define VERSION_TEST_CHIP_88EE 0x00
+#define VERSION_NORMAL_CHIP_88EE 0x8
+#define VERSION_UNKNOWN 0xFF
+
+#define TYPE_ID 0x8000000 // BIT 27
+#define RF_TYPE_2T2R 0x20 // BIT 5
+#define VENDOR_ID 0x80000 // BIT 19
+#define CHIP_VENDOR_UMC 0x80 // BIT 7
+
+/*
+ * Write description here
+ * Borrowed from linux/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c Line 1197
+ */
 void
 r88ee_read_chipid_vendor(struct rtwn_softc *sc, uint32_t reg_sys_cfg)
 {
 	struct r88ee_softc *rs = sc->sc_priv;
 
-	if (reg_sys_cfg & 0x800000) { // BIT(23)
-		rs->chip = R88EE_CHIP_8723; // VERSION_TEST_CHIP_88E
-	}
+	printf("reg_sys_cfg: %X\n", reg_sys_cfg);
+
+	if (reg_sys_cfg & 0x800000) // BIT(23)
+		rs->chip = VERSION_TEST_CHIP_88EE; 
 	else {
-		rs->chip = R88EE_CHIP_92D;
+		rs->chip = VERSION_NORMAL_CHIP_88EE; 
+		rs->chip = rs->chip | ((reg_sys_cfg & TYPE_ID) ? RF_TYPE_2T2R : 0);
+		rs->chip = rs->chip | ((reg_sys_cfg & VENDOR_ID) ? CHIP_VENDOR_UMC : 0);
 	}
 
 }
-
-
-

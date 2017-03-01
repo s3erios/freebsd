@@ -17,6 +17,7 @@
  */
 
 void	r92ce_attach(struct rtwn_pci_softc *);
+void	r88eee_attach(struct rtwn_pci_softc *);
 
 enum {
 	RTWN_CHIP_RTL8192CE,
@@ -40,11 +41,15 @@ static const struct rtwn_pci_ident rtwn_pci_ident_table[] = {
 typedef void	(*chip_pci_attach)(struct rtwn_pci_softc *);
 
 static const chip_pci_attach rtwn_chip_pci_attach[RTWN_CHIP_MAX_PCI] = {
-	[RTWN_CHIP_RTL8192CE] = r92ce_attach
+	[RTWN_CHIP_RTL8192CE] = r92ce_attach,
+	[RTWN_CHIP_RTL8188EE] = r88eee_attach
 };
 
 static __inline void
 rtwn_pci_attach_private(struct rtwn_pci_softc *pc, int chip)
 {
+	printf("Beginning of rtwn_pci_attach_private\n");
+	printf("Chip ID: %d\n", chip);
 	rtwn_chip_pci_attach[chip](pc);
+	printf("End of rtwn_pci_attach_private\n");
 }
