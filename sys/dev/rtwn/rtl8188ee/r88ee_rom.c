@@ -175,47 +175,43 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 //	struct rtwn_r88ee_txpwr *rt = rs->rs_txpwr;
 	struct r88ee_rom *rom = (struct r88ee_rom *)buf;
 
-	int i, j;
-	int y; // Delete this
-
 	// Code comes from: https://github.com/lwfinger/rtlwifi_new/blob/dfd58dae0d52f9d2fa6569be51dd739d8d4eafd4/rtl8188ee/hw.c#L1866
 //	rs->board_type = MS(rom->rf_opt1, R88EE_ROM_RF1_BOARD_TYPE);
 //	rs->regulatory = MS(rom->rf_opt1, R88EE_ROM_RF1_REGULATORY);
 
 
-//	uint32_t offset = 0x10;		// Based on http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c#1588
-
 	rtwn_r88ee_set_name(sc);	// This is not completed yet
 	r88ee_set_chains(sc);		// This is not completed yet
-//	uint16_t         *macaddr;
 
-	uint8_t *x = (char *)buf; // delete me
-	for (y=0;y<512;y++)
-		printf("%d: %x \t %d\n", y, x[y], x[y]);
+	printf("id:\t\t\t%x\n", rom->id);
+	printf("hpon:\t\t\tRender How?\n");
+	printf("clk:\t\t\t%x\n", rom->clk);
 
-//	macaddr = buf+25;
-	printf("ID value: Should be 0x8129: 0x%x\n", rom->id);
-	printf("Mac address: should be 00:E0:4C: %X:%X:%X:%X:%X:%X:%X\n", rom->macaddr[0], rom->macaddr[1], rom->macaddr[2], rom->macaddr[3], rom->macaddr[4], rom->macaddr[5], rom->test);
+	printf("rf_board_option:\t%x\n", rom->rf_board_option);
+	printf("rf_feature_option:\t%x\n", rom->rf_feature_option);
+	printf("rf_bt_setting:\t\t%x\n", rom->rf_bt_setting);
+	printf("Version:\t\t%x\n", rom->version);
+	printf("customer_id:\t\t%x\n", rom->customer_id);
+	printf("rf_antenna_option:\t%x\n", rom->rf_antenna_option);
+
+	printf("MAC Address:\t\t%x:%x:%x:%x:%x:%x\n", 	rom->macaddr[0],
+							rom->macaddr[1],
+							rom->macaddr[2],
+							rom->macaddr[3],
+							rom->macaddr[4],
+							rom->macaddr[5]);
+
+	printf("vid:\t\t\t%x\n", rom->vid);
+	printf("did:\t\t\t%x\n", rom->did);
+	printf("svid:\t\t\t%x\n", rom->svid);
+	printf("smid:\t\t\t%x\n", rom->smid);
+
+
 	printf("Board type: %x\n", rs->board_type);
 	printf("Regulatory: %x\n", rs->regulatory);
-//	macaddr = (uint16_t *)&buf[22];
-//	printf("Mac address: should be 00:E0:4C: %X:%X:%X:%X:%X:%X\n", macaddr[0], macaddr[1], macaddr[2], macaddr[3], macaddr[4], macaddr[5]);
 
-
-	for (j = 0; j < 6 ; j++ ) { // MAX_RF_PATH on Linux, which is 6
-		for (i = 0; i < 4 ; i++ ) { // MAX_CHNL_GROUP_24G on Linux, which is 4
-//			rt->cck_tx_pwr[i][j] = rom->cck_tx_pwr[i][j];
-//			printf("%d: cck_tx_twr[%d][%d] = %x\n", (i*14)+28+j, i, j, rom->cck_tx_pwr[i][j]);
-		}
-	}
-//	for (j = 0; j < R88EE_GROUP_24G; j++) {
-//		for (i = 0; i < sc->ntxchain; i++) {
-//			rt->cck_tx_pwr[i][j] = rom->cck_tx_pwr[i][j];
-//		}
-//	}
 
 	IEEE80211_ADDR_COPY(sc->sc_ic.ic_macaddr, rom->macaddr);
 
-	//printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }

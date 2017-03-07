@@ -26,72 +26,60 @@
  * RTL8188EE ROM image.
  */
 
-struct r88ee_rom {
-	uint16_t	id;				/* Offset: 0, Must be 0x8129 */
-	uint8_t		cck_tx_pwr[2];			/* Offset: 2, This is a guess!!!!!! */
-	uint8_t		ht40_tx_pwr[1];			/* Offset: 4, Guess based on r80e */
-	uint8_t		tx_pwr_diff;			/* Offset: 5, 3rd guess */
-	
-	uint8_t		unknown_1[19];
-	uint8_t		macaddr[IEEE80211_ADDR_LEN];	/* Offset: 22+28 so 6 bytes, Begins with 00:E0:4C in little endian */
-	uint8_t		test;
-	uint8_t		unknown_4[96];
-
-//	uint8_t		cck_tx_pwr[2][14];		/* Offset: 32 */ // The define's need 
-
-//	uint8_t		unknown_3[133];			/* Offset: 56 */
-
-	// Ofsets come from here:
-	// https://github.com/lwfinger/rtlwifi_new/blob/b6a14442fea8e059662a52534692a50c63634c4e/rtl8188ee/reg.h#L704
-//	uint8_t		rf_opt1;			/* Offset: 193 */ // Comes from 0xC1 from Linux's 
-//	uint8_t		rf_opt2;			/* Offset: 194 */
-//	uint8_t		rf_opt3;			/* Offset: 195 */
-//	uint8_t		rf_opt4;			/* Offset: 196 */
-
-//	uint8_t		unknown_4[315]; // This length is whatever minus 512
+struct _bw40_bw20_ofdm_cck {
+	uint8_t				bw40_bw20; // Bitshift 07,08 
+	uint8_t				ofdm_cck; // Bitshift 09,10 
 };
 
-/*
- * RTL8192C ROM image.
- */
-struct r88ee_rom_old {
-	uint16_t	id;		/* Offset: 0, Must be 0x8188 */
-	uint8_t		reserved1[5];
-	uint8_t		dbg_sel;
-	uint16_t	reserved2;
-	uint16_t	vid;
-	uint16_t	pid;
-	uint8_t		usb_opt;
-	uint8_t		ep_setting;
-	uint16_t	reserved3;
-	uint8_t		usb_phy;
-	uint8_t		reserved4[3];
-	uint8_t		macaddr[IEEE80211_ADDR_LEN]; /* Offset: 22, 6 bytes */
-	uint8_t		string[61];	/* "Realtek" */
-	uint8_t		subcustomer_id;
-	uint8_t		cck_tx_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	uint8_t		ht40_1s_tx_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	uint8_t		ht40_2s_tx_pwr_diff[R88EE_GROUP_2G];
-	uint8_t		ht20_tx_pwr_diff[R88EE_GROUP_2G];
-	uint8_t		ofdm_tx_pwr_diff[R88EE_GROUP_2G];
-	uint8_t		ht40_max_pwr[R88EE_GROUP_2G];
-	uint8_t		ht20_max_pwr[R88EE_GROUP_2G];
-	uint8_t		xtal_calib;
-	uint8_t		tssi[R88EE_MAX_CHAINS];
-	uint8_t		thermal_meter;
-#define R88EE_ROM_THERMAL_METER_M	0x1f
-#define R88EE_ROM_THERMAL_METER_S	0
+struct _r88ee_rom_24g {
+	uint8_t				index_cck_base[6];//R88EE_GROUP_24G]; // 01 - This value is 6
+	uint8_t				index_bw40_base[6-1];//R88EE_GROUP_24G-1]; // 02 - Number is 5
+						   // 03 Is not captured anywhere.
+	uint8_t				bw20_ofdm; // 04,05 - bitshift_1;
+						   // 06 is also not captured
+	struct _bw40_bw20_ofdm_cck	bw40_bw20_ofdm_cck[4-1];//R88EE_MAX_CHAINS-1]; // 04 This value is 4
+};
 
-	uint8_t		rf_opt1;
-	uint8_t		rf_opt2;
-	uint8_t		rf_opt3;
-	uint8_t		rf_opt4;
-	uint8_t		channel_plan;
-#define R88EE_CHANNEL_PLAN_BY_HW		0x80
+struct _r88ee_rom_5g {
+	uint8_t				index_bw40_base[14];//R88EE_GROUP_5G]; // 11,12,13 This value is 14
+	uint8_t				bw20_ofdm;	// 14,15
+	uint8_t				bw40_bw20[4-1];//R88EE_MAX_TX_COUNT-1]; // 16,17 This value is 4-1=3
+	uint8_t				ofdm_1[2]; // 18,19 and then 20
+//	uint8_t				ofdm_2[MAX_TX_COUNT-1]; // Value is 4-1=3
+};
 
-	uint8_t		version;
-	uint8_t		customer_id;
-} __packed;
+struct _r88ee_rf_path {
+	struct _r88ee_rom_24g		rfpath_24g;
+	struct _r88ee_rom_5g		rfpath_5g;
+};
+
+struct r88ee_rom {
+	uint16_t			id; /* Always 0x8129 */
+
+	uint8_t				hpon[4];
+	uint16_t			clk;
+	uint8_t				testr[8];
+
+	struct _r88ee_rf_path		rfpath[4];//R88EE_MAX_RF_PATH]; // MAX_RF_PATH is 4 [16-168]
+
+	uint8_t				unknown3[25];
+	uint8_t				rf_board_option;
+	uint8_t				rf_feature_option;
+	uint8_t				rf_bt_setting;
+	uint8_t				version;
+	uint8_t				customer_id;
+	uint8_t				reserved1[3];
+	uint8_t				rf_antenna_option;
+
+	uint8_t				reserved2[6];
+	uint8_t				macaddr[IEEE80211_ADDR_LEN];
+	uint16_t			vid;
+	uint16_t			did;
+	uint16_t			svid;
+	uint16_t			smid;
+
+	uint8_t				unknown4[290];
+}; // Should be 512 byte
 
 _Static_assert(sizeof(struct r88ee_rom) == R88EE_EFUSE_MAP_LEN,
     "R88EE_EFUSE_MAP_LEN must be equal to sizeof(struct r88ee_rom)!");

@@ -154,6 +154,8 @@ static void		rtwn_init_beacon_reg(struct rtwn_softc *);
 static int		rtwn_init(struct rtwn_softc *);
 static void		rtwn_stop(struct rtwn_softc *);
 
+void send_test(struct rtwn_softc *sc);
+
 MALLOC_DEFINE(M_RTWN_PRIV, "rtwn_priv", "rtwn driver private state");
 
 static const uint8_t rtwn_chan_2ghz[] =
@@ -163,6 +165,21 @@ static const uint16_t wme2reg[] =
 	{ R92C_EDCA_BE_PARAM, R92C_EDCA_BK_PARAM,
 	  R92C_EDCA_VI_PARAM, R92C_EDCA_VO_PARAM };
 
+
+void
+send_test(struct rtwn_softc *sc) {
+//	struct rtwn_pci_softc *pc = device_get_softc(dev);
+//	struct rtwn_softc *sc = &pc->pc_sc;
+
+	printf("***WITH*** THE CLK WRITING\n");
+	sc->sc_write_1(sc, 0x81, 0);
+	sc->sc_write_1(sc, 0x44, 0);
+	sc->sc_write_1(sc, 0x04, 0x06);
+	sc->sc_write_1(sc, 0x04, 0x07);
+
+	printf("End of writing Clk Value\n");
+}
+
 int
 rtwn_attach(struct rtwn_softc *sc)
 {
@@ -170,6 +187,8 @@ rtwn_attach(struct rtwn_softc *sc)
 	int error;
 
 	sc->cur_bcnq_id = RTWN_VAP_ID_INVALID;
+
+	send_test(sc);
 
 	RTWN_NT_LOCK_INIT(sc);
 	rtwn_cmdq_init(sc);

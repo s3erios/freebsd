@@ -26,13 +26,13 @@
  * Parsed Tx power (diff) values.
  */
 struct rtwn_r88ee_txpwr {
-	uint8_t		cck_tx_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	uint8_t		ht40_1s_tx_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	int8_t		ht40_2s_tx_pwr_diff[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	int8_t		ht20_tx_pwr_diff[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	int8_t		ofdm_tx_pwr_diff[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	int8_t		ht40_max_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
-	int8_t		ht20_max_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_2G];
+	uint8_t		cck_tx_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
+	uint8_t		ht40_1s_tx_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
+	int8_t		ht40_2s_tx_pwr_diff[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
+	int8_t		ht20_tx_pwr_diff[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
+	int8_t		ofdm_tx_pwr_diff[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
+	int8_t		ht40_max_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
+	int8_t		ht20_max_pwr[R88EE_MAX_CHAINS][R88EE_GROUP_24G];
 
 };
 

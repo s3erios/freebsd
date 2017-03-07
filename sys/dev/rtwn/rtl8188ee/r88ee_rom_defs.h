@@ -20,11 +20,14 @@
 #ifndef R88EE_ROM_DEFS_H
 #define R88EE_ROM_DEFS_H
 
+#define R88EE_MAX_RF_PATH		4
+#define R88EE_MAX_TX_COUNT		4
 #define R88EE_MAX_CHAINS		2 // 4 // Done, taken from Linux's MAX_RF_PATH
-#define R88EE_GROUP_2G			3 // 6 // Done, taken from Linux's MAX_CHNL_GROUP_24G
+#define R88EE_GROUP_24G			6 // Taken from Linux's MAX_CHNL_GROUP_24G
+#define R88EE_GROUP_5G			14 // Taken from Linux's MAX_CHNL_GROUP_5G
 
-#define R88EE_EFUSE_MAX_LEN		128	
-#define R88EE_EFUSE_MAP_LEN		128 // Originally 128 
+#define R88EE_EFUSE_MAX_LEN		512	
+#define R88EE_EFUSE_MAP_LEN		512 // Originally 128 
 
 /*
  * Some generic rom parsing macros.

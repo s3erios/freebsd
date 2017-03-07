@@ -93,7 +93,6 @@ static void	rtwn_pci_beacon_update_end(struct rtwn_softc *,
 		    struct ieee80211vap *);
 static void	rtwn_pci_attach_methods(struct rtwn_softc *);
 
-
 static const struct rtwn_pci_ident *
 rtwn_pci_probe_sub(device_t dev)
 {
@@ -612,6 +611,7 @@ rtwn_pci_attach(device_t dev)
 	ident = rtwn_pci_probe_sub(dev);
 	if (ident == NULL)
 		return (ENXIO);
+
 
 	/*
 	 * Get the offset of the PCI Express Capability Structure in PCI
