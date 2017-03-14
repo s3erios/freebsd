@@ -36,6 +36,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/bus.h>
 #include <sys/endian.h>
 
+
 #include <net/if.h>
 #include <net/ethernet.h>
 #include <net/if_media.h>
@@ -58,12 +59,28 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 	uint32_t reg;
 	int error;
 
+printf("Modified\n");
+error = rtwn_write_1(sc, 0xcf, 0x69);
+reg = rtwn_read_1(sc, 0xcf);
+reg = rtwn_read_2(sc, 0x02);
+reg = rtwn_read_2(sc, 0x08);
+error = rtwn_write_1(sc, 0x31, 0x00);
+reg =   rtwn_read_1(sc, 0x31);
+reg =   rtwn_read_1(sc, 0x32);
+error = rtwn_write_1(sc, 0x32, 0x20);
+reg = 	rtwn_read_1(sc, 0x32);
+reg =   rtwn_read_1(sc, 0x33);
+error = rtwn_write_1(sc, 0x33, 0x00);
+
+
+	/*
 	error = rtwn_write_1(sc, R92C_EFUSE_ACCESS, R92C_EFUSE_ACCESS_ON);
 	if (error != 0)
 		return (error);
 
 	reg = rtwn_read_2(sc, R92C_SYS_FUNC_EN);
 	if (!(reg & R92C_SYS_FUNC_EN_ELDR)) {
+		printf("Comes here");
 		error = rtwn_write_2(sc, R92C_SYS_FUNC_EN,
 		    reg | R92C_SYS_FUNC_EN_ELDR);
 		if (error != 0)
@@ -72,11 +89,13 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 	reg = rtwn_read_2(sc, R92C_SYS_CLKR);
 	if ((reg & (R92C_SYS_CLKR_LOADER_EN | R92C_SYS_CLKR_ANA8M)) !=
 	    (R92C_SYS_CLKR_LOADER_EN | R92C_SYS_CLKR_ANA8M)) {
+		printf("Second comes here\n");
 		error = rtwn_write_2(sc, R92C_SYS_CLKR,
 		    reg | R92C_SYS_CLKR_LOADER_EN | R92C_SYS_CLKR_ANA8M);
 		if (error != 0)
 			return (error);
 	}
+	*/
 
 	return (0);
 }
@@ -227,10 +246,20 @@ static int
 rtwn_efuse_read_prepare(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 {
 	int error;
+	uint8_t b; // Mine
 
 	error = rtwn_efuse_switch_power(sc);
 	if (error != 0)
 		goto fail;
+
+	printf("Below this is my power on!\n");
+	b = rtwn_read_1(sc, 0x34 + 3);
+	b &= 0x0F;
+	b |= (0x03 << 4);
+	error = rtwn_write_1(sc, 0x34 + 3, b);
+	if (error != 0)
+		goto fail;
+	printf("(End of my power on\n");
 
 	error = rtwn_efuse_read(sc, rom, size);
 

@@ -51,11 +51,11 @@ options 	GEOM_PART_GPT		# GUID Partition Tables.
 options 	GEOM_RAID		# Soft RAID functionality.
 options 	GEOM_LABEL		# Provides labelization
 options 	COMPAT_FREEBSD32	# Compatible with i386 binaries
-options 	COMPAT_FREEBSD4		# Compatible with FreeBSD4
-options 	COMPAT_FREEBSD5		# Compatible with FreeBSD5
-options 	COMPAT_FREEBSD6		# Compatible with FreeBSD6
-options 	COMPAT_FREEBSD7		# Compatible with FreeBSD7
-options 	COMPAT_FREEBSD9		# Compatible with FreeBSD9
+#options 	COMPAT_FREEBSD4		# Compatible with FreeBSD4
+#options 	COMPAT_FREEBSD5		# Compatible with FreeBSD5
+#options 	COMPAT_FREEBSD6		# Compatible with FreeBSD6
+#options 	COMPAT_FREEBSD7		# Compatible with FreeBSD7
+#options 	COMPAT_FREEBSD9		# Compatible with FreeBSD9
 options 	COMPAT_FREEBSD10	# Compatible with FreeBSD10
 options 	COMPAT_FREEBSD11	# Compatible with FreeBSD11
 options 	SCSI_DELAY=5000		# Delay (in ms) before probing SCSI
@@ -111,7 +111,7 @@ options 	PCI_HP			# PCI-Express native HotPlug
 options		PCI_IOV			# PCI SR-IOV support
 
 # Floppy drives
-device		fdc
+#device		fdc
 
 # ATA controllers
 device		ahci			# AHCI-compatible SATA controllers
@@ -148,7 +148,7 @@ device		scbus			# SCSI bus (required for ATA/SCSI)
 device		ch			# SCSI media changers
 device		da			# Direct Access (disks)
 device		sa			# Sequential Access (tape etc)
-device		cd			# CD
+#device		cd			# CD
 device		pass			# Passthrough device (direct ATA/SCSI access)
 device		ses			# Enclosure Services (SES and SAF-TE)
 #device		ctl			# CAM Target Layer
@@ -215,67 +215,66 @@ device		pccard			# PC Card (16-bit) bus
 device		cardbus			# CardBus (32-bit) bus
 
 # Serial (COM) ports
-device		uart			# Generic UART driver
+#device		uart			# Generic UART driver
 
 # Parallel port
-device		ppc
-device		ppbus			# Parallel port bus (required)
-device		lpt			# Printer
-device		ppi			# Parallel port interface device
+#device		ppc
+#device		ppbus			# Parallel port bus (required)
+#device		lpt			# Printer
+#device		ppi			# Parallel port interface device
 #device		vpo			# Requires scbus and da
 
-device		puc			# Multi I/O cards and multi-channel UARTs
+#device		puc			# Multi I/O cards and multi-channel UARTs
 
 # PCI Ethernet NICs.
-device		bxe			# Broadcom NetXtreme II BCM5771X/BCM578XX 10GbE
-device		de			# DEC/Intel DC21x4x (``Tulip'')
+#device		bxe			# Broadcom NetXtreme II BCM5771X/BCM578XX 10GbE
+#device		de			# DEC/Intel DC21x4x (``Tulip'')
 device		em			# Intel PRO/1000 Gigabit Ethernet Family
-device		ix			# Intel PRO/10GbE PCIE PF Ethernet
-device		ixv			# Intel PRO/10GbE PCIE VF Ethernet
-device		ixl			# Intel XL710 40Gbe PCIE Ethernet
-options		IXL_IW			# Enable iWARP Client Interface in ixl(4)
-device		ixlv			# Intel XL710 40Gbe VF PCIE Ethernet
-device		le			# AMD Am7900 LANCE and Am79C9xx PCnet
-device		ti			# Alteon Networks Tigon I/II gigabit Ethernet
-device		txp			# 3Com 3cR990 (``Typhoon'')
-device		vx			# 3Com 3c590, 3c595 (``Vortex'')
+#device		ix			# Intel PRO/10GbE PCIE PF Ethernet
+#device		ixv			# Intel PRO/10GbE PCIE VF Ethernet
+#device		ixl			# Intel XL710 40Gbe PCIE Ethernet
+#device		ixlv			# Intel XL710 40Gbe VF PCIE Ethernet
+#device		le			# AMD Am7900 LANCE and Am79C9xx PCnet
+#device		ti			# Alteon Networks Tigon I/II gigabit Ethernet
+#device		txp			# 3Com 3cR990 (``Typhoon'')
+#device		vx			# 3Com 3c590, 3c595 (``Vortex'')
 
 # PCI Ethernet NICs that use the common MII bus controller code.
 # NOTE: Be sure to keep the 'device miibus' line in order to use these NICs!
 device		miibus			# MII bus support
-device		ae			# Attansic/Atheros L2 FastEthernet
-device		age			# Attansic/Atheros L1 Gigabit Ethernet
-device		alc			# Atheros AR8131/AR8132 Ethernet
-device		ale			# Atheros AR8121/AR8113/AR8114 Ethernet
-device		bce			# Broadcom BCM5706/BCM5708 Gigabit Ethernet
-device		bfe			# Broadcom BCM440x 10/100 Ethernet
-device		bge			# Broadcom BCM570xx Gigabit Ethernet
-device		cas			# Sun Cassini/Cassini+ and NS DP83065 Saturn
-device		dc			# DEC/Intel 21143 and various workalikes
-device		et			# Agere ET1310 10/100/Gigabit Ethernet
-device		fxp			# Intel EtherExpress PRO/100B (82557, 82558)
-device		gem			# Sun GEM/Sun ERI/Apple GMAC
-device		hme			# Sun HME (Happy Meal Ethernet)
-device		jme			# JMicron JMC250 Gigabit/JMC260 Fast Ethernet
-device		lge			# Level 1 LXT1001 gigabit Ethernet
-device		msk			# Marvell/SysKonnect Yukon II Gigabit Ethernet
-device		nfe			# nVidia nForce MCP on-board Ethernet
-device		nge			# NatSemi DP83820 gigabit Ethernet
-device		pcn			# AMD Am79C97x PCI 10/100 (precedence over 'le')
+#device		ae			# Attansic/Atheros L2 FastEthernet
+#device		age			# Attansic/Atheros L1 Gigabit Ethernet
+#device		alc			# Atheros AR8131/AR8132 Ethernet
+#device		ale			# Atheros AR8121/AR8113/AR8114 Ethernet
+#device		bce			# Broadcom BCM5706/BCM5708 Gigabit Ethernet
+#device		bfe			# Broadcom BCM440x 10/100 Ethernet
+#device		bge			# Broadcom BCM570xx Gigabit Ethernet
+#device		cas			# Sun Cassini/Cassini+ and NS DP83065 Saturn
+#device		dc			# DEC/Intel 21143 and various workalikes
+#device		et			# Agere ET1310 10/100/Gigabit Ethernet
+#device		fxp			# Intel EtherExpress PRO/100B (82557, 82558)
+#device		gem			# Sun GEM/Sun ERI/Apple GMAC
+#device		hme			# Sun HME (Happy Meal Ethernet)
+#device		jme			# JMicron JMC250 Gigabit/JMC260 Fast Ethernet
+#device		lge			# Level 1 LXT1001 gigabit Ethernet
+#device		msk			# Marvell/SysKonnect Yukon II Gigabit Ethernet
+#device		nfe			# nVidia nForce MCP on-board Ethernet
+#device		nge			# NatSemi DP83820 gigabit Ethernet
+#device		pcn			# AMD Am79C97x PCI 10/100 (precedence over 'le')
 device		re			# RealTek 8139C+/8169/8169S/8110S
 device		rl			# RealTek 8129/8139
-device		sf			# Adaptec AIC-6915 (``Starfire'')
-device		sge			# Silicon Integrated Systems SiS190/191
-device		sis			# Silicon Integrated Systems SiS 900/SiS 7016
-device		sk			# SysKonnect SK-984x & SK-982x gigabit Ethernet
-device		ste			# Sundance ST201 (D-Link DFE-550TX)
-device		stge			# Sundance/Tamarack TC9021 gigabit Ethernet
-device		tl			# Texas Instruments ThunderLAN
-device		tx			# SMC EtherPower II (83c170 ``EPIC'')
-device		vge			# VIA VT612x gigabit Ethernet
-device		vr			# VIA Rhine, Rhine II
-device		wb			# Winbond W89C840F
-device		xl			# 3Com 3c90x (``Boomerang'', ``Cyclone'')
+#device		sf			# Adaptec AIC-6915 (``Starfire'')
+#device		sge			# Silicon Integrated Systems SiS190/191
+#device		sis			# Silicon Integrated Systems SiS 900/SiS 7016
+#device		sk			# SysKonnect SK-984x & SK-982x gigabit Ethernet
+#device		ste			# Sundance ST201 (D-Link DFE-550TX)
+#device		stge			# Sundance/Tamarack TC9021 gigabit Ethernet
+#device		tl			# Texas Instruments ThunderLAN
+#device		tx			# SMC EtherPower II (83c170 ``EPIC'')
+#device		vge			# VIA VT612x gigabit Ethernet
+#device		vr			# VIA Rhine, Rhine II
+#device		wb			# Winbond W89C840F
+#device		xl			# 3Com 3c90x (``Boomerang'', ``Cyclone'')
 
 # Wireless NIC cards
 device		wlan			# 802.11 support
@@ -333,14 +332,14 @@ device		ukbd			# Keyboard
 device		umass			# Disks/Mass storage - Requires scbus and da
 
 # Sound support
-device		sound			# Generic sound driver (required)
-device		snd_cmi			# CMedia CMI8338/CMI8738
-device		snd_csa			# Crystal Semiconductor CS461x/428x
-device		snd_emu10kx		# Creative SoundBlaster Live! and Audigy
-device		snd_es137x		# Ensoniq AudioPCI ES137x
-device		snd_hda			# Intel High Definition Audio
-device		snd_ich			# Intel, NVidia and other ICH AC'97 Audio
-device		snd_via8233		# VIA VT8233x Audio
+#device		sound			# Generic sound driver (required)
+#device		snd_cmi			# CMedia CMI8338/CMI8738
+#device		snd_csa			# Crystal Semiconductor CS461x/428x
+#device		snd_emu10kx		# Creative SoundBlaster Live! and Audigy
+#device		snd_es137x		# Ensoniq AudioPCI ES137x
+#device		snd_hda			# Intel High Definition Audio
+#device		snd_ich			# Intel, NVidia and other ICH AC'97 Audio
+#device		snd_via8233		# VIA VT8233x Audio
 
 # MMC/SD
 device		mmc			# MMC/SD bus
