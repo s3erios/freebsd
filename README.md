@@ -1,86 +1,89 @@
-FreeBSD Source:
----------------
-This is the top level of the FreeBSD source directory.  This file
-was last revised on:
-$FreeBSD$
+# RTL8188EE Driver
 
-For copyright information, please see the file COPYRIGHT in this
-directory (additional copyright information also exists for some
-sources in this tree - please see the specific source directories for
-more information).
+## About
 
-The Makefile in this directory supports a number of targets for
-building components (or all) of the FreeBSD source tree.  See build(7)
-and http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/makeworld.html
-for more information, including setting make(1) variables.
+I wrote this to document my own approach, organize my own thoughts, and help any future kernel hackers.
+Note: THIS IS STILL A WORK AND PROGRESS AND CURRENTLY DOES NOT WORK!
 
-The `buildkernel` and `installkernel` targets build and install
-the kernel and the modules (see below).  Please see the top of
-the Makefile in this directory for more information on the
-standard build targets and compile-time flags.
+## Required Readings
 
-Building a kernel is a somewhat more involved process.  See build(7), config(8),
-and http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/kernelconfig.html
-for more information.
+* FreeBSD Architecture Handbook, in particular [Chapter 11. PCI Drivers](https://www.freebsd.org/doc/en_US.ISO8859-1/books/arch-handbook/pci.html)
+* [Linux Device Drivers, Third Edition](https://lwn.net/Kernel/LDD3/) Explains how Linux drivers and DMA works.
+* FreeBSD [ieee80211(9)](https://www.freebsd.org/cgi/man.cgi?query=ieee80211) man page, 802.11 network layer.
+* FreeBSD [net80211(9)](https://www.freebsd.org/cgi/man.cgi?query=net80211) man page, standard interface to IEEE 80211 devices.
 
-Note: If you want to build and install the kernel with the
-`buildkernel` and `installkernel` targets, you might need to build
-world before.  More information is available in the handbook.
+## How drivers work
 
-The kernel configuration files reside in the `sys/<arch>/conf`
-sub-directory.  GENERIC is the default configuration used in release builds.
-NOTES contains entries and documentation for all possible
-devices, not just those commonly used.
+Device drivers do nothing more than maintain state, and read/write data to the device. The code must 
+provide an interface to the operating system, typically in the form of a struct of function 
+pointers. The FreeBSD kernel will call the respective function based on the IEEE 802.11 stack.
 
+I am used to strictly linear or MFC code, so understanding the aforementioned helped me understand 
+how driver code worked.
 
-Source Roadmap:
----------------
-```
-bin				System/user commands.
+## General Approach
 
-cddl			Various commands and libraries under the Common Development  
-				and Distribution License.
+Given that my device is PCI, I copied the sys/dev/rtwn/rtl8192c/ directory, and renamed all file and 
+function names. I proceeded to comment all function code, using the C pre-processor headers, such as 
+the following:
 
-contrib			Packages contributed by 3rd parties.
-
-crypto			Cryptography stuff (see crypto/README).
-
-etc				Template files for /etc.
-
-gnu				Various commands and libraries under the GNU Public License.  
-				Please see gnu/COPYING* for more information.
-
-include			System include files.
-
-kerberos5		Kerberos5 (Heimdal) package.
-
-lib				System libraries.
-
-libexec			System daemons.
-
-release			Release building Makefile & associated tools.
-
-rescue			Build system for statically linked /rescue utilities.
-
-sbin			System commands.
-
-secure			Cryptographic libraries and commands.
-
-share			Shared resources.
-
-sys				Kernel sources.
-
-tests			Regression tests which can be run by Kyua.  See tests/README
-				for additional information.
-
-tools			Utilities for regression testing and miscellaneous tasks.
-
-usr.bin			User commands.
-
-usr.sbin		System administration commands.
+```c
+void
+function_name() {
+#if 0
+    // Previous code used as reference material
+#else
+    printf("RTL8188EE: Undefined function: %s\n", __func__);
+#endif
+}
 ```
 
-For information on synchronizing your source tree with one or more of
-the FreeBSD Project's development branches, please see:
+Next, I am gradually filling in whatever Undefined function appears in the terminal messages,
+function-by-function. I am comparing to see how the Linux driver implements the same objective in rtl8188ee.
+If there are any differences, I am carrying over those changes to the FreeBSD driver. Given that the FreeBSD
+and Linux stacks and rtwn vs realtek drivers are not a one-to-one match, the code does not perfectly match.
+The best way to find the equivalent function is to find the matching 'define' value and observe the
+surrounding code. (Overall, I noticed that the FreeBSD functions only do one task, while the Linx functions
+do multiple tasks in a single function).
 
-   http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/synching.html
+## About the RTL8188EE
+
+The RTL8188ee is a single-band chip. This means it can only do 2.4Ghz, not 5Ghz.
+The closest to documentation I was able to locate from the Realtek website was this link:
+http://www.realtek.com.tw/products/productsView.aspx?Langid=1&PNid=21&PFid=48&Level=5&Conn=4&ProdID=272
+According to Google searches, this is a collection of drivers, amongst which is the RTL8188EE.
+
+## Porting from Linux
+
+Given that I was unable to find any documentation on this device, I reviewed the Linux driver code 
+and used it as documentation - I did not copy, as that would violate the GPL.
+
+### Reverse Engineering
+
+Maybe going forward I will reverse-engineer device drivers from Windows using IdaPro. But why when 
+the Linux drivers are sufficient as documentation?
+
+## Common Commands
+
+### Build Kernel and Modules
+
+```
+make buildkernel -j 4 KERNCONF=MYKERNEL NO_CLEAN=1 MODULES_OVERRIDE="rtwn rtwn_pci rtwn_usb"
+make reinstallkernel -j 4 KERNCONF=MYKERNEL MODULES_OVERRIDE="rtwn rtwn_pci rtwn_usb"
+```
+
+### Clear the dmesg(8) buffer
+
+```
+sysctl kern.msgbuf_clear=1
+```
+
+## References
+
+* [OpenGrok source browsing suite](http://src.illumos.org/source/) - I used this very extensively 
+when browsing FreeBSD and Linux kernel source. Significiantly more efficient than using grep. Thank 
+you [illumos](https://www.illumos.org/)!
+
+## TODO
+
+I would love to port my code over to NetBSD, OpenBSD and illumos.
