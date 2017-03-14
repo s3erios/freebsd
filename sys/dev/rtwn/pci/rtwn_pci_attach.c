@@ -682,6 +682,13 @@ rtwn_pci_attach(device_t dev)
 		}
 	}
 
+	printf("End of CLK WRITING\n");
+	sc->sc_write_1(sc, 0x81, 0);
+	sc->sc_write_1(sc, 0x44, 0);
+	sc->sc_write_1(sc, 0x04, 0x06);
+	sc->sc_write_1(sc, 0x04, 0x07);
+	printf("End of CLK writing\n");
+
 	/* Generic attach. */
 	error = rtwn_attach(sc);
 	if (error != 0)
