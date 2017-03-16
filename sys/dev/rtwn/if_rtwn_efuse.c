@@ -52,6 +52,8 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/rtl8192c/r92c_reg.h>
 
+int _func_level = 0;
+int _loop;
 
 static int
 rtwn_efuse_switch_power(struct rtwn_softc *sc)
@@ -59,21 +61,12 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 	uint32_t reg;
 	int error;
 
-printf("Modified\n");
-error = rtwn_write_1(sc, 0xcf, 0x69);
-reg = rtwn_read_1(sc, 0xcf);
-reg = rtwn_read_2(sc, 0x02);
-reg = rtwn_read_2(sc, 0x08);
-error = rtwn_write_1(sc, 0x31, 0x00);
-reg =   rtwn_read_1(sc, 0x31);
-reg =   rtwn_read_1(sc, 0x32);
-error = rtwn_write_1(sc, 0x32, 0x20);
-reg = 	rtwn_read_1(sc, 0x32);
-reg =   rtwn_read_1(sc, 0x33);
-error = rtwn_write_1(sc, 0x33, 0x00);
+	_func_level++;
+	for(_loop=0 ; _loop < _func_level ; _loop++)
+		printf("-");
 
+	printf("Beginning of %s\n", __func__);
 
-	/*
 	error = rtwn_write_1(sc, R92C_EFUSE_ACCESS, R92C_EFUSE_ACCESS_ON);
 	if (error != 0)
 		return (error);
@@ -95,8 +88,8 @@ error = rtwn_write_1(sc, 0x33, 0x00);
 		if (error != 0)
 			return (error);
 	}
-	*/
 
+	_func_level--;
 	return (0);
 }
 
@@ -105,6 +98,12 @@ rtwn_efuse_read_next(struct rtwn_softc *sc, uint8_t *val)
 {
 	uint32_t reg;
 	int ntries, error;
+
+        _func_level++;
+        for(_loop=0 ; _loop < _func_level ; _loop++)
+                printf("-");
+
+	printf("Beginning of %s\n", __func__);
 
 	if (sc->next_rom_addr >= sc->efuse_maxlen)
 		return (EFAULT);
@@ -133,6 +132,7 @@ rtwn_efuse_read_next(struct rtwn_softc *sc, uint8_t *val)
 	*val = MS(reg, R92C_EFUSE_CTRL_DATA);
 	sc->next_rom_addr++;
 
+	_func_level--;
 	return (0);
 }
 
@@ -142,6 +142,11 @@ rtwn_efuse_read_data(struct rtwn_softc *sc, uint8_t *rom, uint8_t off,
 {
 	uint8_t reg;
 	int addr, i, error;
+
+        _func_level++;
+        for(_loop=0 ; _loop < _func_level ; _loop++)
+                printf("-");
+	printf("Beginning of %s\n", __func__);
 
 	for (i = 0; i < 4; i++) {
 		if (msk & (1 << i))
@@ -166,6 +171,7 @@ rtwn_efuse_read_data(struct rtwn_softc *sc, uint8_t *rom, uint8_t off,
 		rom[addr + 1] = reg;
 	}
 
+	_func_level--;
 	return (0);
 }
 
@@ -174,6 +180,12 @@ static void
 rtwn_dump_rom_contents(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 {
 	int i;
+
+        _func_level++;
+        for(_loop=0 ; _loop < _func_level ; _loop++)
+                printf("-");
+
+	printf("Beginning of %s\n", __func__);
 
 	/* Dump ROM contents. */
 	device_printf(sc->sc_dev, "%s:", __func__);
@@ -185,7 +197,7 @@ rtwn_dump_rom_contents(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 
 		printf("%02X", rom[i]);
 	}
-	printf("\n");
+	_func_level--;
 }
 #endif
 
@@ -193,11 +205,19 @@ static int
 rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 {
 #define RTWN_CHK(res) do {	\
-	if ((error = res) != 0)	\
+	if ((error = res) != 0) {	\
 		goto end;	\
+	} \
 } while(0)
 	uint8_t msk, off, reg;
 	int error;
+
+      _func_level++;
+        for(_loop=0 ; _loop < _func_level ; _loop++)
+             printf("-");
+
+
+	printf("Beginning of %s\n", __func__);
 
 	/* Read full ROM image. */
 	sc->next_rom_addr = 0;
@@ -224,7 +244,6 @@ rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 	}
 
 end:
-
 #ifdef RTWN_DEBUG
 	if (sc->sc_debug & RTWN_DEBUG_ROM)
 		rtwn_dump_rom_contents(sc, rom, size);
@@ -238,6 +257,8 @@ end:
 		    __func__);
 	}
 
+	_func_level--;
+
 	return (error);
 #undef RTWN_CHK
 }
@@ -246,26 +267,34 @@ static int
 rtwn_efuse_read_prepare(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 {
 	int error;
-	uint8_t b; // Mine
+//	uint8_t b; // Mine
+
+	        _func_level++;
+        for(_loop=0 ; _loop < _func_level ; _loop++)
+                printf("-");
+
+
+	printf("Beginning of %s\n", __func__);
 
 	error = rtwn_efuse_switch_power(sc);
 	if (error != 0)
 		goto fail;
 
-	printf("Below this is my power on!\n");
-	b = rtwn_read_1(sc, 0x34 + 3);
-	b &= 0x0F;
-	b |= (0x03 << 4);
-	error = rtwn_write_1(sc, 0x34 + 3, b);
-	if (error != 0)
-		goto fail;
-	printf("(End of my power on\n");
+	// Beginning of my code
+//	b = rtwn_read_1(sc, 0x34 + 3);
+//	b &= 0x0F;
+//	b |= (0x03 << 4);
+//	error = rtwn_write_1(sc, 0x34 + 3, b);
+//	if (error != 0)
+//		goto fail;
+	// End of my code
 
 	error = rtwn_efuse_read(sc, rom, size);
 
 fail:
 	rtwn_write_1(sc, R92C_EFUSE_ACCESS, R92C_EFUSE_ACCESS_OFF);
 
+	_func_level--;
 	return (error);
 }
 
@@ -274,6 +303,12 @@ rtwn_read_rom(struct rtwn_softc *sc)
 {
 	uint8_t *rom;
 	int error;
+
+        _func_level++;
+        for(_loop=0 ; _loop < _func_level ; _loop++)
+                printf("-");
+
+	printf("Beginning of %s\n", __func__);
 
 	rom = malloc(sc->efuse_maplen, M_TEMP, M_WAITOK);
 
@@ -290,5 +325,6 @@ rtwn_read_rom(struct rtwn_softc *sc)
 fail:
 	free(rom, M_TEMP);
 
+	_func_level--;
 	return (error);
 }
