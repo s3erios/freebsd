@@ -58,10 +58,69 @@ According to Google searches, this is a collection of drivers, amongst which is 
 Given that I was unable to find any documentation on this device, I reviewed the Linux driver code 
 and used it as documentation - I did not copy, as that would violate the GPL.
 
-### Reverse Engineering
+### Driver Details
 
-Maybe going forward I will reverse-engineer device drivers from Windows using IdaPro. But why when 
-the Linux drivers are sufficient as documentation?
+### Reading the eeprom
+
+The following is the process of reading the EEPROM/ROM.
+
+#### Power On
+
+Takes place in efuse power switch()
+
+##### Pre-Warmup
+
+```
+write_byte(addr = EFUSE_ACCESS=0xcf, 0xCF); // Takes place in 
+
+read_word(addr = SYS_FUNC_EN=0x2).
+If the 4th bit (LOADER_CLK_EN) is not set or the 2nd bit (ANA8M) is not set, then set those bits
+and write the result back to the SYS_FUNC_EN=0x2 address.
+
+read_word(addr = SYS_CLK=0x0008)
+If the BIT(5)/REG_SYS_CLKR is not set OR BIT(1)/ANA8M is not set, set those bits and write it back 
+
+```
+##### Power Up Phase
+
+The RTL8188ee card does not need to do the second phase of the bootup
+
+
+##### Read the Efuse Proces
+
+This is a little complex
+
+Provide this function an uint16_t/u16 offset value. At the initial eeprom value, its 0x0000.
+
+##### read_efuse_byte()
+
+read_efuse_byte process
+
+write's to the EFUSE_CTRL(0x30) + 1 (so 0x31) address with the value (offset & 0x00FF) - This wipes out the higher order byte.
+
+Read EFUSE_CTRL+2 (so 0x32), shift the value by this equation:
+((_offset >> 8) & 0x03) | (readbyte & 0xfc)
+and write it back to EFUSE_CTRL+2
+
+Read EFUSE_CTRL+3 (0x33), and that value by 0x7f, write it back to EFUSE_CTRL+3
+
+read_dword from EFUSE_CTRL (0x30), store that value in value32.
+This read and evaluation loop, explanation below the code:
+
+while(!(((value32 >> 24) & 0xff) & 0x80) && (retry < 10000)) {
+	read_word from EFUSE_CTRL
+	increment retry++
+
+The value32 >> 24 captures out the highest bit
+Wipes away all but the lowest 0x000000ff (which seems redundant to me)
+Logic-Ands the result with 0x80, which means extract out the 8th bit.
+The entire result is then negated. So if the 8th bit is set, its False.
+The second clause means it only happens at most 10000 times.
+
+Not sure why its done this way, instead of just !(value32 & 0x80000000)
+
+Delay by 50 microseconds?
+Final read_byte from EFUSE_CTRL, clear out all but the lower 8 bits, set that as the unsigned 8-bit bpuf value.
 
 ## Common Commands
 

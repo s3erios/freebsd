@@ -56,6 +56,8 @@ rtwn_pci_write_1(struct rtwn_softc *sc, uint16_t addr, uint8_t val)
 {
 	struct rtwn_pci_softc *pc = RTWN_PCI_SOFTC(sc);
 
+printf("addr=0x%x val=0x%x\n", addr, val);
+
 	bus_space_write_1(pc->pc_st, pc->pc_sh, addr, val);
 
 	return (0);
