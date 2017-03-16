@@ -62,7 +62,17 @@ and used it as documentation - I did not copy, as that would violate the GPL.
 
 ### Reading the eeprom
 
-The following is the process of reading the EEPROM/ROM.
+The following is the process of reading the EEPROM/ROM. This caused me a lot of problems, so I figured I would document it.
+* [rtl\_pci\_probe](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/pci.c#2164)
+* [Disable Clk Request and leave D3 mode](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/pci.c#2248)
+* [Execute read\_eeprom\_info](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/pci.c#2265) -> [rtl88ee\_read\_eeprom\_info](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c#1954)
+* [\_rtl88ee\_read\_adapter\_info](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c#_rtl88ee_read_adapter_info)
+* [(rtl\_get\_hwinfo](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#1249)
+* [rtl\_efuse\_shadow\_map\_update](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#520)
+* [efuse\_read\_all\_map](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#efuse_read_all_map)
+* [efuse\_power\_switch](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#1125)
+* [read\_efuse](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#read_efuse)
+
 
 #### Power On
 
