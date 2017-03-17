@@ -72,13 +72,11 @@ The following is the process of reading the EEPROM/ROM. This caused me a lot of 
 * [efuse\_read\_all\_map](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#efuse_read_all_map)
 * [efuse\_power\_switch](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#1125)
 * [read\_efuse](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#read_efuse)
+* [read\_efuse\_byte](http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/efuse.c#197)
 
+#### Power On (efuse\_power\_switch in English)
 
-#### Power On
-
-Takes place in efuse power switch()
-
-##### Pre-Warmup
+Takes place in efuse\_power\_switch()
 
 ```
 write_byte(addr = EFUSE_ACCESS=0xcf, 0xCF); // Takes place in 
@@ -100,26 +98,30 @@ The RTL8188ee card does not need to do the second phase of the bootup
 
 This is a little complex
 
-Provide this function an uint16_t/u16 offset value. At the initial eeprom value, its 0x0000.
+Provide this function an uint16\_t/u16 offset value. At the initial eeprom value, its 0x0000.
 
-##### read_efuse_byte()
+##### read\_efuse\_byte()
 
-read_efuse_byte process
+read\_efuse\_byte process
 
-write's to the EFUSE_CTRL(0x30) + 1 (so 0x31) address with the value (offset & 0x00FF) - This wipes out the higher order byte.
+write's to the EFUSE\_CTRL(0x30) + 1 (so 0x31) address with the value (offset & 0x00FF) - This wipes out the higher order byte.
 
-Read EFUSE_CTRL+2 (so 0x32), shift the value by this equation:
+Read EFUSE\_CTRL+2 (so 0x32), shift the value by this equation:
+```c
 ((_offset >> 8) & 0x03) | (readbyte & 0xfc)
-and write it back to EFUSE_CTRL+2
+```
+and write it back to EFUSE\_CTRL+2
 
-Read EFUSE_CTRL+3 (0x33), and that value by 0x7f, write it back to EFUSE_CTRL+3
+Read EFUSE\_CTRL+3 (0x33), and that value by 0x7f, write it back to EFUSE\_CTRL+3
 
-read_dword from EFUSE_CTRL (0x30), store that value in value32.
+read\_dword from EFUSE\_CTRL (0x30), store that value in value32.
 This read and evaluation loop, explanation below the code:
 
+```c
 while(!(((value32 >> 24) & 0xff) & 0x80) && (retry < 10000)) {
 	read_word from EFUSE_CTRL
 	increment retry++
+```
 
 The value32 >> 24 captures out the highest bit
 Wipes away all but the lowest 0x000000ff (which seems redundant to me)
@@ -130,22 +132,25 @@ The second clause means it only happens at most 10000 times.
 Not sure why its done this way, instead of just !(value32 & 0x80000000)
 
 Delay by 50 microseconds?
-Final read_byte from EFUSE_CTRL, clear out all but the lower 8 bits, set that as the unsigned 8-bit bpuf value.
+Final read\_byte from EFUSE\_CTRL, clear out all but the lower 8 bits, set that as the unsigned 8-bit bpuf value.
 
 ## Common Commands
 
 ### Build Kernel and Modules
 
+Compile the module
 ```
 make buildkernel -j 4 KERNCONF=MYKERNEL NO_CLEAN=1 MODULES_OVERRIDE="rtwn rtwn_pci rtwn_usb"
 make reinstallkernel -j 4 KERNCONF=MYKERNEL MODULES_OVERRIDE="rtwn rtwn_pci rtwn_usb"
 ```
 
-### Clear the dmesg(8) buffer
-
+Clear the kernel message buffer
 ```
 sysctl kern.msgbuf_clear=1
 ```
+
+To simplify this, I just created a script called buildscript.sh in the home directory.
+
 
 ## References
 
@@ -153,6 +158,7 @@ sysctl kern.msgbuf_clear=1
 when browsing FreeBSD and Linux kernel source. Significiantly more efficient than using grep. Thank 
 you [illumos](https://www.illumos.org/)!
 
-## TODO
+## Goals
 
-I would love to port my code over to NetBSD, OpenBSD and illumos.
+Make the driver work on FreeBSD, hop to other WiFi drivers.
+Maybe work on other porting for OpenBSD and illumos...?
