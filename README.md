@@ -102,7 +102,7 @@ Provide this function an uint16\_t/u16 offset value. At the initial eeprom value
 
 ##### read\_efuse\_byte()
 
-read\_efuse\_byte process
+read\_efuse\_byte process - This seems to retrieve the rtemp8 value. I do not know what this means yet.
 
 write's to the EFUSE\_CTRL(0x30) + 1 (so 0x31) address with the value (offset & 0x00FF) - This wipes out the higher order byte.
 
