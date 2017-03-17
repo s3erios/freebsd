@@ -65,7 +65,7 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 	for(_loop=0 ; _loop < _func_level ; _loop++)
 		printf("-");
 
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc)\n", __func__);
 
 	error = rtwn_write_1(sc, R92C_EFUSE_ACCESS, R92C_EFUSE_ACCESS_ON);
 	if (error != 0)
@@ -103,7 +103,7 @@ rtwn_efuse_read_next(struct rtwn_softc *sc, uint8_t *val)
         for(_loop=0 ; _loop < _func_level ; _loop++)
                 printf("-");
 
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc, val=0x%x\n", __func__, *val);
 
 	if (sc->next_rom_addr >= sc->efuse_maxlen)
 		return (EFAULT);
@@ -146,7 +146,7 @@ rtwn_efuse_read_data(struct rtwn_softc *sc, uint8_t *rom, uint8_t off,
         _func_level++;
         for(_loop=0 ; _loop < _func_level ; _loop++)
                 printf("-");
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc, rom=0x%x, off=0x%x, msk=0x%x)\n", __func__, *rom, off, msk);
 
 	for (i = 0; i < 4; i++) {
 		if (msk & (1 << i))
@@ -185,7 +185,7 @@ rtwn_dump_rom_contents(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
         for(_loop=0 ; _loop < _func_level ; _loop++)
                 printf("-");
 
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc, rom=0x%x, size=0x%x)\n", __func__, *rom, size);
 
 	/* Dump ROM contents. */
 	device_printf(sc->sc_dev, "%s:", __func__);
@@ -217,7 +217,7 @@ rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
              printf("-");
 
 
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc, rom=ptr, size=0x%x)\n", __func__, size);
 
 	/* Read full ROM image. */
 	sc->next_rom_addr = 0;
@@ -274,13 +274,13 @@ rtwn_efuse_read_prepare(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
                 printf("-");
 
 
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc, rom=ptr, size=0x%x\n", __func__, size);
 
 	error = rtwn_efuse_switch_power(sc);
 	if (error != 0)
 		goto fail;
 
-	// Beginning of my code
+	// my code
 //	b = rtwn_read_1(sc, 0x34 + 3);
 //	b &= 0x0F;
 //	b |= (0x03 << 4);
@@ -308,7 +308,7 @@ rtwn_read_rom(struct rtwn_softc *sc)
         for(_loop=0 ; _loop < _func_level ; _loop++)
                 printf("-");
 
-	printf("Beginning of %s\n", __func__);
+	printf("%s(sc)\n", __func__);
 
 	rom = malloc(sc->efuse_maplen, M_TEMP, M_WAITOK);
 
