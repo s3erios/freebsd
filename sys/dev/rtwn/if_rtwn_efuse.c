@@ -226,6 +226,7 @@ rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 	RTWN_CHK(rtwn_efuse_read_next(sc, &reg));
 	while (reg != 0xff) {
 		/* check for extended header */
+		printf("rtwn_flag_ext_hdr: %x\n", RTWN_FLAG_EXT_HDR);
 		if ((sc->sc_flags & RTWN_FLAG_EXT_HDR) &&
 		    (reg & 0x1f) == 0x0f) {
 			off = reg >> 5;
