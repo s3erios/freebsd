@@ -52,12 +52,12 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
+#include <dev/rtwn/rtl8188ee/pci/r88ee.h>
 
 
 #ifndef RTWN_WITHOUT_UCODE
 void
-r88eee_fw_reset(struct rtwn_softc *sc, int reason)
+r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 {
 #if 0
 	if (reason == RTWN_FW_RESET_CHECKSUM)

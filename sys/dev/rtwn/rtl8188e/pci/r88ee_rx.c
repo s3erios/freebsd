@@ -17,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188eee/pci/r88eee_rx.c 307529 2016-10-17 20:38:24Z avos $");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188eee/pci/r88ee_rx.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -51,12 +51,12 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188eee/pci/r88eee_rx.c 307529 2016-10-
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_reg.h>
+#include <dev/rtwn/rtl8188ee/pci/r88ee.h>
+#include <dev/rtwn/rtl8188ee/pci/r88ee_reg.h>
 
 
 int
-r88eee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
+r88ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 {
 #if 0
 	uint32_t status;
@@ -115,7 +115,7 @@ r88eee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 			R88EE_IMR_HIGHDOK | R88EE_IMR_BDOK | R88EE_IMR_RDU | \
 			R88EE_IMR_RXFOVW)
 void
-r88eee_enable_intr(struct rtwn_pci_softc *pc)
+r88ee_enable_intr(struct rtwn_pci_softc *pc)
 {
 #if 0
 	struct rtwn_softc *sc = &pc->pc_sc;
@@ -128,7 +128,7 @@ r88eee_enable_intr(struct rtwn_pci_softc *pc)
 }
 
 void
-r88eee_start_xfers(struct rtwn_softc *sc)
+r88ee_start_xfers(struct rtwn_softc *sc)
 {
 #if 0
 	/* Clear pending interrupts. */

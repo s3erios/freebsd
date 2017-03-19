@@ -15,16 +15,16 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
- * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_rx_desc.h 307529 2016-10-17 20:38:24Z avos $
+ * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_rx_desc.h 307529 2016-10-17 20:38:24Z avos $
  */
 
-#ifndef R88EEE_RX_DESC_H
-#define R88EEE_RX_DESC_H
+#ifndef R88EE_RX_DESC_H
+#define R88EE_RX_DESC_H
 
 #include <dev/rtwn/rtl8188ee/r88ee_rx_desc.h>
 
 /* Rx MAC descriptor (PCIe). */
-struct r88eee_rx_stat {
+struct r88ee_rx_stat {
 	uint32_t	rxdw0;
 	uint32_t	rxdw1;
 	uint32_t	rxdw2;
@@ -36,4 +36,4 @@ struct r88eee_rx_stat {
 	uint32_t	rxbufaddr64;
 } __packed __attribute__((aligned(4)));
 
-#endif	/* R88EEE_RX_DESC_H */
+#endif	/* R88EE_RX_DESC_H */

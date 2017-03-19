@@ -15,11 +15,11 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
- * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_priv.h 307529 2016-10-17 20:38:24Z avos $
+ * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_priv.h 307529 2016-10-17 20:38:24Z avos $
  */
 
-#ifndef R88EEE_PRIV_H
-#define R88EEE_PRIV_H
+#ifndef R88EE_PRIV_H
+#define R88EE_PRIV_H
 
 #include <dev/rtwn/rtl8188ee/r88ee_priv.h>
 
@@ -34,13 +34,13 @@ static const struct rtwn_mac_prog rtl8188eee_mac[] = {
 /*
  * Baseband initialization values.
  */
-static const uint16_t rtl8188eee_bb_regs0[] = {
+static const uint16_t rtl8188ee_bb_regs0[] = {
 };
 
-static const uint32_t rtl8188eee_bb_vals0_2t[] = {
+static const uint32_t rtl8188ee_bb_vals0_2t[] = {
 };
 
-static const struct rtwn_bb_prog rtl8188eee_bb[] = {
+static const struct rtwn_bb_prog rtl8188ee_bb[] = {
 };
 
-#endif	/* R88EEE_PRIV_H */
+#endif	/* R88EE_PRIV_H */
