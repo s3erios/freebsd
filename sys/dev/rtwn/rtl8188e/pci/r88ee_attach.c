@@ -17,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_attach.c 308575 2016-11-12 17:58:37Z avos $");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_attach.c 308575 2016-11-12 17:58:37Z avos $");
 
 #include "opt_wlan.h"
 
@@ -46,9 +46,9 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_attach.c 308575 2016-
 #include <net80211/ieee80211_var.h>
 #include <net80211/ieee80211_radiotap.h>
 
-#include <dev/rtwn/rtl8188ee/r88ee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-//#include <dev/rtwn/if_rtwn_var.h>
+#include <dev/rtwn/rtl8188e/r88e.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/if_rtwn_var.h>
 #include <dev/rtwn/if_rtwnreg.h>
 #include <dev/rtwn/if_rtwnvar.h>
 #include <dev/rtwn/if_rtwn_nop.h>
@@ -57,19 +57,19 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_attach.c 308575 2016-
 
 #include <dev/rtwn/rtl8188ee/r88ee_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_priv.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_reg.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_tx_desc.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_priv.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_tx_desc.h>
 
 
 static struct rtwn_r88ee_txpwr r88ee_txpwr;
 
-void	r88eee_attach(struct rtwn_pci_softc *);
+void	r88ee_attach(struct rtwn_pci_softc *);
 
 /* Set the firmware and rs/ic based on the chip type */
 static void
-r88eee_postattach(struct rtwn_softc *sc)
+r88ee_postattach(struct rtwn_softc *sc)
 {
 #if 0
 	struct r88ee_softc *rs = sc->sc_priv;
@@ -110,13 +110,13 @@ r88eee_postattach(struct rtwn_softc *sc)
 }
 
 static void
-r88eee_set_name(struct rtwn_softc *sc)
+r88ee_set_name(struct rtwn_softc *sc)
 {
 #if 0
 	struct r88ee_softc *rs = sc->sc_priv;
 
 	if (rs->chip & R88EE_CHIP_92C)
-		sc->name = "RTL8188EEE";
+		sc->name = "RTL8188EE";
 	else
 		sc->name = "RTL8188CE";
 #else
@@ -130,7 +130,7 @@ r88eee_set_name(struct rtwn_softc *sc)
  * to the base rtwn framework.
  */
 static void
-r88eee_attach_private(struct rtwn_softc *sc)
+r88ee_attach_private(struct rtwn_softc *sc)
 {
 	struct r88ee_softc *rs;
 
@@ -144,7 +144,7 @@ r88eee_attach_private(struct rtwn_softc *sc)
 	rs->rs_tx_enable_ampdu		= r88ee_tx_enable_ampdu;
 	rs->rs_tx_setup_hwseq		= r88ee_tx_setup_hwseq;
 	rs->rs_tx_setup_macid		= r88ee_tx_setup_macid;
-	rs->rs_set_name			= r88eee_set_name;
+	rs->rs_set_name			= r88ee_set_name;
 
 	/* XXX TODO: test with net80211 ratectl! */
 #ifndef RTWN_WITHOUT_UCODE
@@ -161,7 +161,7 @@ r88eee_attach_private(struct rtwn_softc *sc)
 }
 
 static void
-r88eee_adj_devcaps(struct rtwn_softc *sc)
+r88ee_adj_devcaps(struct rtwn_softc *sc)
 {
 #if 0
 	struct ieee80211com *ic = &sc->sc_ic;
@@ -183,15 +183,15 @@ r88eee_adj_devcaps(struct rtwn_softc *sc)
  */
 
 void
-r88eee_attach(struct rtwn_pci_softc *pc)
+r88ee_attach(struct rtwn_pci_softc *pc)
 {
 	struct rtwn_softc *sc		= &pc->pc_sc;
 
 	/* PCIe part. */
-	pc->pc_setup_tx_desc		= r88eee_setup_tx_desc;
-	pc->pc_tx_postsetup		= r88eee_tx_postsetup;
-	pc->pc_copy_tx_desc		= r88eee_copy_tx_desc;
-	pc->pc_enable_intr		= r88eee_enable_intr;
+	pc->pc_setup_tx_desc		= r88ee_setup_tx_desc;
+	pc->pc_tx_postsetup		= r88ee_tx_postsetup;
+	pc->pc_copy_tx_desc		= r88ee_copy_tx_desc;
+	pc->pc_enable_intr		= r88ee_enable_intr;
 
 	pc->pc_qmap			= 0xf771;
 	pc->tcr				=
@@ -201,17 +201,17 @@ r88eee_attach(struct rtwn_pci_softc *pc)
 	/* RTL8188EE* cannot use pairwise keys from first 4 slots */
 	sc->sc_flags			= RTWN_FLAG_EXT_HDR; // RTWN_FLAG_CAM_FIXED;
 
-	sc->sc_start_xfers		= r88eee_start_xfers;
+	sc->sc_start_xfers		= r88ee_start_xfers;
 	sc->sc_set_chan			= r88ee_set_chan;
 	sc->sc_fill_tx_desc		= r88ee_fill_tx_desc;
 	sc->sc_fill_tx_desc_raw		= r88ee_fill_tx_desc_raw;
 	sc->sc_fill_tx_desc_null	= r88ee_fill_tx_desc_null; /* XXX recheck */
-	sc->sc_dump_tx_desc		= r88eee_dump_tx_desc;
+	sc->sc_dump_tx_desc		= r88ee_dump_tx_desc;
 	sc->sc_tx_radiotap_flags	= r88ee_tx_radiotap_flags;
 	sc->sc_rx_radiotap_flags	= r88ee_rx_radiotap_flags;
 	sc->sc_get_rssi_cck		= r88ee_get_rssi_cck;
 	sc->sc_get_rssi_ofdm		= r88ee_get_rssi_ofdm;
-	sc->sc_classify_intr		= r88eee_classify_intr;
+	sc->sc_classify_intr		= r88ee_classify_intr;
 	sc->sc_handle_tx_report		= rtwn_nop_softc_uint8_int;
 	sc->sc_handle_c2h_report	= rtwn_nop_softc_uint8_int;
 	sc->sc_check_frame		= rtwn_nop_int_softc_mbuf;
@@ -220,20 +220,20 @@ r88eee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_check_condition		= r88ee_check_condition;
 	sc->sc_efuse_postread		= r88ee_efuse_postread;
 	sc->sc_parse_rom		= r88ee_parse_rom;
-	sc->sc_set_led			= r88eee_set_led;
-	sc->sc_power_on			= r88eee_power_on;
-	sc->sc_power_off		= r88eee_power_off;
+	sc->sc_set_led			= r88ee_set_led;
+	sc->sc_power_on			= r88ee_power_on;
+	sc->sc_power_off		= r88ee_power_off;
 #ifndef RTWN_WITHOUT_UCODE
-	sc->sc_fw_reset			= r88eee_fw_reset;
+	sc->sc_fw_reset			= r88ee_fw_reset;
 	sc->sc_fw_download_enable	= r88ee_fw_download_enable;
 #endif
 	sc->sc_set_page_size		= r88ee_set_page_size;
 	sc->sc_lc_calib			= r88ee_lc_calib;
-	sc->sc_iq_calib			= r88eee_iq_calib;
+	sc->sc_iq_calib			= r88ee_iq_calib;
 	sc->sc_read_chipid_vendor	= r88ee_read_chipid_vendor;
-	sc->sc_adj_devcaps		= r88eee_adj_devcaps;
+	sc->sc_adj_devcaps		= r88ee_adj_devcaps;
 	sc->sc_vap_preattach		= rtwn_nop_softc_vap;
-	sc->sc_postattach		= r88eee_postattach;
+	sc->sc_postattach		= r88ee_postattach;
 	sc->sc_detach_private		= r88ee_detach_private;
 	sc->sc_set_media_status		= r88ee_joinbss_rpt;
 #ifndef RTWN_WITHOUT_UCODE
@@ -249,13 +249,13 @@ r88eee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_temp_read		= r88ee_temp_read;
 	sc->sc_init_tx_agg		= rtwn_nop_softc;
 	sc->sc_init_rx_agg		= rtwn_nop_softc;
-	sc->sc_init_ampdu		= r88eee_init_ampdu;
-	sc->sc_init_intr		= r88eee_init_intr;
-	sc->sc_init_edca		= r88eee_init_edca;
-	sc->sc_init_bb			= r88eee_init_bb;
+	sc->sc_init_ampdu		= r88ee_init_ampdu;
+	sc->sc_init_intr		= r88ee_init_intr;
+	sc->sc_init_edca		= r88ee_init_edca;
+	sc->sc_init_bb			= r88ee_init_bb;
 	sc->sc_init_rf			= r88ee_init_rf;
 	sc->sc_init_antsel		= rtwn_nop_softc;
-	sc->sc_post_init		= r88eee_post_init;
+	sc->sc_post_init		= r88ee_post_init;
 	sc->sc_init_bcnq1_boundary	= rtwn_nop_int_softc;
 
 	sc->mac_prog			= &rtl8188eee_mac[0];
@@ -266,17 +266,17 @@ r88eee_attach(struct rtwn_pci_softc *pc)
 	sc->agc_size			= nitems(rtl8188ee_agc);
 	sc->rf_prog			= &rtl8188ee_rf[0];
 
-	sc->page_count			= R88EEE_TX_PAGE_COUNT;
+	sc->page_count			= R88EE_TX_PAGE_COUNT;
 	sc->pktbuf_count		= R88EE_TXPKTBUF_COUNT;
 
 	sc->ackto			= 0x40;
-	sc->npubqpages			= R88EEE_PUBQ_NPAGES;
-	sc->nhqpages			= R88EEE_HPQ_NPAGES;
+	sc->npubqpages			= R88EE_PUBQ_NPAGES;
+	sc->nhqpages			= R88EE_HPQ_NPAGES;
 	sc->nnqpages			= 0;
-	sc->nlqpages			= R88EEE_LPQ_NPAGES;
+	sc->nlqpages			= R88EE_LPQ_NPAGES;
 	sc->page_size			= R88EE_TX_PAGE_SIZE;
 
-	sc->txdesc_len			= sizeof(struct r88eee_tx_desc);
+	sc->txdesc_len			= sizeof(struct r88ee_tx_desc);
 	sc->efuse_maxlen		= R88EE_EFUSE_MAX_LEN;
 	sc->efuse_maplen		= R88EE_EFUSE_MAP_LEN;
 	sc->rx_dma_size			= R88EE_RX_DMA_BUFFER_SIZE;
@@ -296,5 +296,5 @@ r88eee_attach(struct rtwn_pci_softc *pc)
 	sc->bcn_status_reg[1]		= R88EE_TDECTRL;
 	sc->rcr				= 0;
 
-	r88eee_attach_private(sc);
+	r88ee_attach_private(sc);
 }

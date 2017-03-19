@@ -15,13 +15,13 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
- * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_reg.h 307529 2016-10-17 20:38:24Z avos $
+ * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_reg.h 307529 2016-10-17 20:38:24Z avos $
  */
 
-#ifndef R88EEE_REG_H
-#define R88EEE_REG_H
+#ifndef R88EE_REG_H
+#define R88EE_REG_H
 
-#include <dev/rtwn/rtl8188ee/r88ee_reg.h>
+//#include <dev/rtwn/rtl8188e/r88ee_reg.h>
 
 /*
  * MAC registers.

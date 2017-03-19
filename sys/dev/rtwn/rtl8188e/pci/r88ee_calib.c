@@ -52,8 +52,8 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_calib.c 307529 2016-10
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
 
 
 /* Registers to save and restore during IQ calibration. */
@@ -373,7 +373,7 @@ r88ee_iq_calib_write_results(struct rtwn_softc *sc, uint16_t tx[2],
 
 #define RTWN_IQ_CAL_NRUN	3
 void
-r88eee_iq_calib(struct rtwn_softc *sc)
+r88ee_iq_calib(struct rtwn_softc *sc)
 {
 #if 0
 	struct r88ee_iq_cal_reg_vals vals;

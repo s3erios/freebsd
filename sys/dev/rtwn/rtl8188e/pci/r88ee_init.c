@@ -17,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_init.c 311347 2017-01-05 02:04:53Z kevlo $");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188e/pci/r88ee_init.c 311347 2017-01-05 02:04:53Z kevlo $");
 
 #include "opt_wlan.h"
 
@@ -50,14 +50,14 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_init.c 311347 2017-01
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/r88ee_var.h>
+//#include <dev/rtwn/rtl8188e/r88ee_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
 
 
 void
-r88eee_init_intr(struct rtwn_softc *sc)
+r88ee_init_intr(struct rtwn_softc *sc)
 {
 #if 0
 	/* Disable interrupts. */
@@ -69,7 +69,7 @@ r88eee_init_intr(struct rtwn_softc *sc)
 }
 
 void
-r88eee_init_edca(struct rtwn_softc *sc)
+r88ee_init_edca(struct rtwn_softc *sc)
 {
 #if 0
 	/* SIFS */
@@ -88,7 +88,7 @@ r88eee_init_edca(struct rtwn_softc *sc)
 }
 
 void
-r88eee_init_bb(struct rtwn_softc *sc)
+r88ee_init_bb(struct rtwn_softc *sc)
 {
 #if 0
 	/* Enable BB and RF. */
@@ -117,7 +117,7 @@ r88eee_init_bb(struct rtwn_softc *sc)
 }
 
 int
-r88eee_power_on(struct rtwn_softc *sc)
+r88ee_power_on(struct rtwn_softc *sc)
 {
 #if 0
 	struct r88ee_softc *rs = sc->sc_priv;
@@ -242,7 +242,7 @@ r88eee_power_on(struct rtwn_softc *sc)
 }
 
 void
-r88eee_power_off(struct rtwn_softc *sc)
+r88ee_power_off(struct rtwn_softc *sc)
 {
 #if 0
 #ifndef RTWN_WITHOUT_UCODE
@@ -281,7 +281,7 @@ r88eee_power_off(struct rtwn_softc *sc)
 	/* If firmware in ram code, do reset. */
 #ifndef RTWN_WITHOUT_UCODE
 	if (rtwn_read_1(sc, R88EE_MCUFWDL) & R88EE_MCUFWDL_RAM_DL_SEL)
-		r88eee_fw_reset(sc, RTWN_FW_RESET_SHUTDOWN);
+		r88ee_fw_reset(sc, RTWN_FW_RESET_SHUTDOWN);
 #endif
 
 	/* TODO: linux does additional btcoex stuff here */
@@ -296,7 +296,7 @@ r88eee_power_off(struct rtwn_softc *sc)
 }
 
 void
-r88eee_init_ampdu(struct rtwn_softc *sc)
+r88ee_init_ampdu(struct rtwn_softc *sc)
 {
 #if 0
 	/* Setup AMPDU aggregation. */
@@ -308,7 +308,7 @@ r88eee_init_ampdu(struct rtwn_softc *sc)
 }
 
 void
-r88eee_post_init(struct rtwn_softc *sc)
+r88ee_post_init(struct rtwn_softc *sc)
 {
 #if 0
 	rtwn_write_2(sc, R88EE_FWHW_TXQ_CTRL,
@@ -317,7 +317,7 @@ r88eee_post_init(struct rtwn_softc *sc)
 	rtwn_write_1(sc, R88EE_BCN_MAX_ERR, 0xff);
 
 	/* Perform LO and IQ calibrations. */
-	r88eee_iq_calib(sc);
+	r88ee_iq_calib(sc);
 	/* Perform LC calibration. */
 	r88ee_lc_calib(sc);
 

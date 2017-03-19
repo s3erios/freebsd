@@ -17,7 +17,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_tx.c 307529 2016-10-17 20:38:24Z avos $");
+__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_tx.c 307529 2016-10-17 20:38:24Z avos $");
 
 #include "opt_wlan.h"
 
@@ -51,16 +51,16 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88eee_tx.c 307529 2016-10-1
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88eee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88eee_tx_desc.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_tx_desc.h>
 
 
 void
-r88eee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
+r88ee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
     uint32_t next_desc_addr)
 {
 #if 1
-	struct r88eee_tx_desc *txd = desc;
+	struct r88ee_tx_desc *txd = desc;
 
 	/* setup tx desc */
 	txd->nextdescaddr = htole32(next_desc_addr);
@@ -70,11 +70,11 @@ r88eee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
 }
 
 void
-r88eee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
+r88ee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
     bus_dma_segment_t segs[])
 {
 #if 0
-	struct r88eee_tx_desc *txd = desc;
+	struct r88ee_tx_desc *txd = desc;
 
 	txd->txbufaddr = htole32(segs[0].ds_addr);
 	txd->txbufsize = txd->pktlen;
@@ -86,10 +86,10 @@ r88eee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
 }
 
 void
-r88eee_copy_tx_desc(void *dest, const void *src)
+r88ee_copy_tx_desc(void *dest, const void *src)
 {
 #if 0
-	struct r88eee_tx_desc *txd = dest;
+	struct r88ee_tx_desc *txd = dest;
 	size_t len = sizeof(struct r88ee_tx_desc) +
 	    sizeof(txd->txbufsize) + sizeof(txd->pad);
 
@@ -103,11 +103,11 @@ r88eee_copy_tx_desc(void *dest, const void *src)
 }
 
 void
-r88eee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
+r88ee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 {
 #if 0
 #ifdef RTWN_DEBUG
-	const struct r88eee_tx_desc *txd = desc;
+	const struct r88ee_tx_desc *txd = desc;
 
 	RTWN_DPRINTF(sc, RTWN_DEBUG_XMIT_DESC,
 	    "%s: len %d, off %d, flags0 %02X, dw: 1 %08X, 2 %08X, 3 %04X "
