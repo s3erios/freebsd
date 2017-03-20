@@ -67,7 +67,8 @@ r88ee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
 	/* setup tx desc */
 	txd->nextdescaddr = htole32(next_desc_addr);
 #else
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	//printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	return;
 #endif
 }
 

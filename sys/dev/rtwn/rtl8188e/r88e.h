@@ -79,6 +79,7 @@ void	r88e_rf_write(struct rtwn_softc *, int, uint8_t, uint32_t);
 
 /* r88e_rom.c */
 void	r88e_parse_rom(struct rtwn_softc *, uint8_t *);
+void	r88ee_parse_rom(struct rtwn_softc *, uint8_t *);
 
 /* r88e_rx.c */
 void	r88e_ratectl_tx_complete(struct rtwn_softc *, uint8_t *, int);

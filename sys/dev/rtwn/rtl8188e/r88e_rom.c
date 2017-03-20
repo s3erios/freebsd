@@ -82,4 +82,51 @@ r88e_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 
 	sc->thermal_meter = rom->thermal_meter;
 	IEEE80211_ADDR_COPY(sc->sc_ic.ic_macaddr, rom->macaddr);
+
 }
+
+void
+r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
+{
+//	struct r88ee_softc *rs = sc->sc_priv;
+//	struct rtwn_r88ee_txpwr *rt = rs->rs_txpwr;
+	struct r88ee_rom *rom = (struct r88ee_rom *)buf;
+
+	// Code comes from: https://github.com/lwfinger/rtlwifi_new/blob/dfd58dae0d52f9d2fa6569be51dd739d8d4eafd4/rtl8188ee/hw.c#L1866
+//	rs->board_type = MS(rom->rf_opt1, R88EE_ROM_RF1_BOARD_TYPE);
+//	rs->regulatory = MS(rom->rf_opt1, R88EE_ROM_RF1_REGULATORY);
+
+
+//	rtwn_r88ee_set_name(sc);	// This is not completed yet
+	//r88e_set_chains(sc);		// This is not completed yet
+
+	printf("id:\t\t\t%x\n", rom->id);
+	printf("hpon:\t\t\tRender How?\n");
+	printf("clk:\t\t\t%x\n", rom->clk);
+
+	printf("rf_board_option:\t%x\n", rom->rf_board_option);
+	printf("rf_feature_option:\t%x\n", rom->rf_feature_option);
+	printf("rf_bt_setting:\t\t%x\n", rom->rf_bt_setting);
+	printf("Version:\t\t%x\n", rom->version);
+	printf("customer_id:\t\t%x\n", rom->customer_id);
+	printf("rf_antenna_option:\t%x\n", rom->rf_antenna_option);
+
+	printf("MAC Address:\t\t%x:%x:%x:%x:%x:%x\n", 	rom->macaddr[0],
+							rom->macaddr[1],
+							rom->macaddr[2],
+							rom->macaddr[3],
+							rom->macaddr[4],
+							rom->macaddr[5]);
+	printf("vid:\t\t\t%x\n", rom->vid);
+	printf("did:\t\t\t%x\n", rom->did);
+	printf("svid:\t\t\t%x\n", rom->svid);
+	printf("smid:\t\t\t%x\n", rom->smid);
+
+
+//	printf("Board type: %x\n", rs->board_type);
+//	printf("Regulatory: %x\n", rs->regulatory);
+
+	IEEE80211_ADDR_COPY(sc->sc_ic.ic_macaddr, rom->macaddr);
+
+}
+
