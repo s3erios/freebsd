@@ -183,7 +183,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 
 	/* Common part. */
 	/* RTL8192C* cannot use pairwise keys from first 4 slots */
-	sc->sc_flags			= RTWN_FLAG_CAM_FIXED;
+	sc->sc_flags			= RTWN_FLAG_EXT_HDR; //RTWN_FLAG_CAM_FIXED;
 
 	sc->sc_start_xfers		= r92ce_start_xfers;
 	sc->sc_set_chan			= r92c_set_chan;
@@ -203,7 +203,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_rf_write			= r88e_rf_write;
 	sc->sc_check_condition		= r92c_check_condition;
 	sc->sc_efuse_postread		= r92c_efuse_postread;
-	sc->sc_parse_rom		= r88e_parse_rom;
+	sc->sc_parse_rom		= r88ee_parse_rom;
 	sc->sc_set_led			= r88e_set_led;
 	sc->sc_power_on			= r88e_power_on;
 	sc->sc_power_off		= r92ce_power_off;
