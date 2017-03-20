@@ -59,6 +59,7 @@ __FBSDID("$FreeBSD$");
 void
 r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 {
+#if 0
 
 	if (reason == RTWN_FW_RESET_CHECKSUM)
 		return;
@@ -71,5 +72,8 @@ r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 	 */
 	if (reason == RTWN_FW_RESET_DOWNLOAD)
 		rtwn_delay(sc, 1000 * 1000);
+#else
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+#endif
 }
 #endif

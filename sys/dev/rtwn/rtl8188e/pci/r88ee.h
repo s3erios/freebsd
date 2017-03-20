@@ -61,7 +61,7 @@ void	r88ee_set_led(struct rtwn_softc *, int, int);
 
 /* r88ee_rx.c */
 int	r88ee_classify_intr(struct rtwn_softc *, void *, int);
-void	r88ee_enable_intr(struct rtwn_pci_softc *);
+//void	r88ee_enable_intr(struct rtwn_pci_softc *);
 void	r88ee_start_xfers(struct rtwn_softc *);
 
 /* r88ee_tx.c */

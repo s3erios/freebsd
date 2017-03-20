@@ -17,7 +17,7 @@
  */
 
 void	r92ce_attach(struct rtwn_pci_softc *);
-void	r88eee_attach(struct rtwn_pci_softc *);
+void	r88ee_attach(struct rtwn_pci_softc *);
 
 enum {
 	RTWN_CHIP_RTL8192CE,
@@ -42,7 +42,7 @@ typedef void	(*chip_pci_attach)(struct rtwn_pci_softc *);
 
 static const chip_pci_attach rtwn_chip_pci_attach[RTWN_CHIP_MAX_PCI] = {
 	[RTWN_CHIP_RTL8192CE] = r92ce_attach,
-	[RTWN_CHIP_RTL8188EE] = r88eee_attach
+	[RTWN_CHIP_RTL8188EE] = r88ee_attach
 };
 
 static __inline void
