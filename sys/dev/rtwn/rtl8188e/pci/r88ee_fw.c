@@ -1,7 +1,9 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +19,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_fw.c 308380 2016-11-06 17:24:16Z avos $");
+__FBSDID("$FreeBSD$");
 
 #include "opt_wlan.h"
 
@@ -57,11 +59,11 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_fw.c 308380 2016-11-06
 void
 r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 {
-#if 0
+
 	if (reason == RTWN_FW_RESET_CHECKSUM)
 		return;
 
-	r88ee_fw_reset(sc, reason);
+	r88e_fw_reset(sc, reason);
 
 	/*
 	 * We must sleep for one second to let the firmware settle.
@@ -69,8 +71,5 @@ r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 	 */
 	if (reason == RTWN_FW_RESET_DOWNLOAD)
 		rtwn_delay(sc, 1000 * 1000);
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-#endif
 }
 #endif

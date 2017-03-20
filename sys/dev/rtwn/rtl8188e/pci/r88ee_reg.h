@@ -1,7 +1,9 @@
 /*	$OpenBSD: if_rtwnreg.h,v 1.3 2015/06/14 08:02:47 stsp Exp $	*/
 
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -15,13 +17,13 @@
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  * 
- * $FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_reg.h 307529 2016-10-17 20:38:24Z avos $
+ * $FreeBSD$
  */
 
-#ifndef R88EE_REG_H
-#define R88EE_REG_H
+#ifndef R88EEE_REG_H
+#define R88EEE_REG_H
 
-//#include <dev/rtwn/rtl8188e/r88ee_reg.h>
+#include <dev/rtwn/rtl8192c/r92c_reg.h>
 
 /*
  * MAC registers.
@@ -66,17 +68,17 @@
 #define R88EE_IMR_VIDOK		0x00000004	/* AC_VI DMA OK */
 #define R88EE_IMR_BEDOK		0x00000008	/* AC_BE DMA OK */
 #define R88EE_IMR_BKDOK		0x00000010	/* AC_BK DMA OK */
-#define R88EE_IMR_TXBDER		0x00000020	/* beacon transmit error */
+#define R88EE_IMR_TXBDER	0x00000020	/* beacon transmit error */
 #define R88EE_IMR_MGNTDOK	0x00000040	/* management queue DMA OK */
 #define R88EE_IMR_TBDOK		0x00000080	/* beacon transmit OK */
 #define R88EE_IMR_HIGHDOK	0x00000100	/* high queue DMA OK */
 #define R88EE_IMR_BDOK		0x00000200	/* beacon queue DMA OK */
 #define R88EE_IMR_ATIMEND	0x00000400	/* ATIM window end interrupt */
 #define R88EE_IMR_RDU		0x00000800	/* Rx descriptor unavailable */
-#define R88EE_IMR_RXFOVW		0x00001000	/* receive FIFO overflow */
-#define R88EE_IMR_BCNINT		0x00002000	/* beacon DMA interrupt 0 */
+#define R88EE_IMR_RXFOVW	0x00001000	/* receive FIFO overflow */
+#define R88EE_IMR_BCNINT	0x00002000	/* beacon DMA interrupt 0 */
 #define R88EE_IMR_PSTIMEOUT	0x00004000	/* powersave timeout */
-#define R88EE_IMR_TXFOVW		0x00008000	/* transmit FIFO overflow */
+#define R88EE_IMR_TXFOVW	0x00008000	/* transmit FIFO overflow */
 #define R88EE_IMR_TIMEOUT1	0x00010000	/* timeout interrupt 1 */
 #define R88EE_IMR_TIMEOUT2	0x00020000	/* timeout interrupt 2 */
 #define R88EE_IMR_BCNDOK1	0x00040000	/* beacon queue DMA OK (1) */
@@ -98,4 +100,4 @@
 #define R88EE_IBSS_INT_MASK	\
 	(R88EE_IMR_BCNINT | R88EE_IMR_TBDOK | R88EE_IMR_TBDER)
 
-#endif	/* R88EEE_REG_H */
+#endif	/* R99EE_REG_H */

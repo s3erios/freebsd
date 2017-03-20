@@ -1,7 +1,9 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +19,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_tx.c 307529 2016-10-17 20:38:24Z avos $");
+__FBSDID("$FreeBSD$");
 
 #include "opt_wlan.h"
 
@@ -59,30 +61,22 @@ void
 r88ee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
     uint32_t next_desc_addr)
 {
-#if 1
 	struct r88ee_tx_desc *txd = desc;
 
 	/* setup tx desc */
 	txd->nextdescaddr = htole32(next_desc_addr);
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-#endif
 }
 
 void
 r88ee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
     bus_dma_segment_t segs[])
 {
-#if 0
 	struct r88ee_tx_desc *txd = desc;
 
 	txd->txbufaddr = htole32(segs[0].ds_addr);
 	txd->txbufsize = txd->pktlen;
 	bus_space_barrier(pc->pc_st, pc->pc_sh, 0, pc->pc_mapsize,
 	    BUS_SPACE_BARRIER_WRITE);
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-#endif
 }
 
 void
@@ -90,7 +84,7 @@ r88ee_copy_tx_desc(void *dest, const void *src)
 {
 #if 0
 	struct r88ee_tx_desc *txd = dest;
-	size_t len = sizeof(struct r88ee_tx_desc) +
+	size_t len = sizeof(struct r92c_tx_desc) +
 	    sizeof(txd->txbufsize) + sizeof(txd->pad);
 
 	if (src != NULL)
@@ -98,14 +92,13 @@ r88ee_copy_tx_desc(void *dest, const void *src)
 	else
 		memset(dest, 0, len);
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
+	printf("Not implemented\n");
 #endif
 }
 
 void
 r88ee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 {
-#if 0
 #ifdef RTWN_DEBUG
 	const struct r88ee_tx_desc *txd = desc;
 
@@ -122,8 +115,5 @@ r88ee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 	    le32toh(txd->nextdescaddr), le32toh(txd->nextdescaddr64),
 	    le32toh(txd->reserved[0]), le32toh(txd->reserved[1]),
 	    le32toh(txd->reserved[2]), le32toh(txd->reserved[3]));
-#endif
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
 #endif
 }

@@ -1,7 +1,9 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +19,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_calib.c 307529 2016-10-17 20:38:24Z avos $");
+__FBSDID("$FreeBSD$");
 
 #include "opt_wlan.h"
 
@@ -128,8 +130,8 @@ r88ee_iq_calib_chain(struct rtwn_softc *sc, int chain, uint16_t tx[2],
 
 	return (3);	/* Both Tx and Rx succeeded. */
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-	return 3; // I put this here.
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	return (-1);
 #endif
 }
 
@@ -192,7 +194,7 @@ r88ee_iq_calib_run(struct rtwn_softc *sc, int n, uint16_t tx[2][2],
 	}
 
 	rtwn_write_1(sc, R88EE_TXPAUSE,
-	    R88EE_TX_QUEUE_AC | R88EE_TX_QUEUE_MGT | R88EE_TX_QUEUE_HIGH);
+	    R88E_TX_QUEUE_AC | R88E_TX_QUEUE_MGT | R88E_TX_QUEUE_HIGH);
 	rtwn_write_1(sc, R88EE_BCN_CTRL(0),
 	    vals->bcn_ctrl[0] & ~R88EE_BCN_CTRL_EN_BCN);
 	rtwn_write_1(sc, R88EE_BCN_CTRL(1),
@@ -281,7 +283,7 @@ r88ee_iq_calib_run(struct rtwn_softc *sc, int n, uint16_t tx[2][2],
 		rtwn_write_4(sc, R88EE_GPIO_MUXCFG, vals->gpio_muxcfg);
 	}
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
 }
 
@@ -313,8 +315,8 @@ r88ee_iq_calib_compare_results(struct rtwn_softc *sc, uint16_t tx1[2][2],
 	else
 		return (tx_ok[0] && rx_ok[0]);
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-	return 0;
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	return (0);
 #endif
 }
 #undef RTWN_IQ_CAL_MAX_TOLERANCE
@@ -367,7 +369,7 @@ r88ee_iq_calib_write_results(struct rtwn_softc *sc, uint16_t tx[2],
 		    (rx[1] & 0x3c0) << 6);
 	}
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
 }
 
@@ -400,7 +402,7 @@ r88ee_iq_calib(struct rtwn_softc *sc)
 			r88ee_iq_calib_write_results(sc, tx[n][1], rx[n][1], 1);
 	}
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
 }
 #undef RTWN_IQ_CAL_NRUN
