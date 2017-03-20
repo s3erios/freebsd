@@ -1,0 +1,406 @@
+R12A_AFE_POWER_1	rtl8812a/r12a_reg.h	/^#define R12A_AFE_POWER_1(chain)		(0xc60 + (chain) /
+R12A_AFE_POWER_2	rtl8812a/r12a_reg.h	/^#define R12A_AFE_POWER_2(chain)		(0xc64 + (chain) /
+R12A_ARFR_2G	rtl8812a/r12a_reg.h	/^#define R12A_ARFR_2G(i)			(0x48c + (i) * 8)$/
+R12A_ARFR_5G	rtl8812a/r12a_reg.h	/^#define R12A_ARFR_5G(i)			(0x444 + (i) * 8)$/
+R12A_COND_TYPE	rtl8812a/r12a_priv.h	/^#define R12A_COND_TYPE(t)	((t) << 4)$/
+R12A_GET_ROM_LNA_TYPE	rtl8812a/r12a_rom_image.h	/^#define R12A_GET_ROM_LNA_TYPE(lna_type, chain)	\\$/
+R12A_GET_ROM_PA_TYPE	rtl8812a/r12a_rom_image.h	/^#define R12A_GET_ROM_PA_TYPE(lna_type, chain)		\\$/
+R12A_HSPI_READBACK	rtl8812a/r12a_reg.h	/^#define R12A_HSPI_READBACK(chain)	(0xd04 + (chain)/
+R12A_HSSI_PARAM1	rtl8812a/r12a_reg.h	/^#define R12A_HSSI_PARAM1(chain)		(0xc00 + (chain) /
+R12A_INITIAL_GAIN	rtl8812a/r12a_reg.h	/^#define R12A_INITIAL_GAIN(chain)	(0xc50 + (chain) /
+R12A_LSSI_PARAM	rtl8812a/r12a_reg.h	/^#define R12A_LSSI_PARAM(chain)		(0xc90 + (chain) */
+R12A_LSSI_READBACK	rtl8812a/r12a_reg.h	/^#define R12A_LSSI_READBACK(chain)	(0xd08 + (chain)/
+R12A_PMPD	rtl8812a/r12a_reg.h	/^#define R12A_PMPD(chain)		(0xc84 + (chain) * 0x200/
+R12A_RFE	rtl8812a/r12a_reg.h	/^#define R12A_RFE(chain)			(0xcb8 + (chain) * 0x200/
+R12A_RFE_INV	rtl8812a/r12a_reg.h	/^#define R12A_RFE_INV(chain)		(0xcb4 + (chain) * 0x/
+R12A_RFE_PINMUX	rtl8812a/r12a_reg.h	/^#define R12A_RFE_PINMUX(chain)		(0xcb0 + (chain) */
+R12A_ROM_IS_LNA_EXT	rtl8812a/r12a_rom_image.h	/^#define R12A_ROM_IS_LNA_EXT(lna_type)		(((lna_type/
+R12A_ROM_IS_PA_EXT_2GHZ	rtl8812a/r12a_rom_image.h	/^#define R12A_ROM_IS_PA_EXT_2GHZ(pa_type)	(((pa_typ/
+R12A_ROM_IS_PA_EXT_5GHZ	rtl8812a/r12a_rom_image.h	/^#define R12A_ROM_IS_PA_EXT_5GHZ(pa_type)	(((pa_typ/
+R12A_SLEEP_NAV	rtl8812a/r12a_reg.h	/^#define R12A_SLEEP_NAV(chain)		(0xc80 + (chain) * /
+R12A_SOFTC	rtl8812a/r12a_var.h	/^#define	R12A_SOFTC(_sc)	((struct r12a_softc *)((_s/
+R12A_TXAGC_CCK11_1	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_CCK11_1(chain)	(0xc20 + (chain)/
+R12A_TXAGC_MCS11_8	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_MCS11_8(chain)	(0xc34 + (chain)/
+R12A_TXAGC_MCS15_12	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_MCS15_12(chain)	(0xc38 + (chain/
+R12A_TXAGC_MCS3_0	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_MCS3_0(chain)	(0xc2c + (chain) /
+R12A_TXAGC_MCS7_4	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_MCS7_4(chain)	(0xc30 + (chain) /
+R12A_TXAGC_NSS1IX3_1IX0	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_NSS1IX3_1IX0(chain)	(0xc3c + (c/
+R12A_TXAGC_NSS1IX7_1IX4	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_NSS1IX7_1IX4(chain)	(0xc40 + (c/
+R12A_TXAGC_NSS2IX1_1IX8	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_NSS2IX1_1IX8(chain)	(0xc44 + (c/
+R12A_TXAGC_NSS2IX5_2IX2	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_NSS2IX5_2IX2(chain)	(0xc48 + (c/
+R12A_TXAGC_NSS2IX9_2IX6	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_NSS2IX9_2IX6(chain)	(0xc4c + (c/
+R12A_TXAGC_OFDM18_6	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_OFDM18_6(chain)	(0xc24 + (chain/
+R12A_TXAGC_OFDM54_24	rtl8812a/r12a_reg.h	/^#define R12A_TXAGC_OFDM54_24(chain)	(0xc28 + (chai/
+R12A_TX_SCALE	rtl8812a/r12a_reg.h	/^#define R12A_TX_SCALE(chain)		(0xc1c + (chain) * 0/
+R21A_ROM_IS_LNA_EXT	rtl8812a/r12a_rom_image.h	/^#define R21A_ROM_IS_LNA_EXT(lna_type)		(((lna_type/
+R21A_ROM_IS_PA_EXT_2GHZ	rtl8812a/r12a_rom_image.h	/^#define R21A_ROM_IS_PA_EXT_2GHZ(pa_type)	(((pa_typ/
+R21A_ROM_IS_PA_EXT_5GHZ	rtl8812a/r12a_rom_image.h	/^#define R21A_ROM_IS_PA_EXT_5GHZ(pa_type)	(((pa_typ/
+R88E_HMEBOX_EXT	rtl8188e/r88e_reg.h	/^#define R88E_HMEBOX_EXT(idx)		(0x1f0 + (idx) * 4)$/
+R88E_MBID_TXBCN_RPT	rtl8188e/r88e_reg.h	/^#define R88E_MBID_TXBCN_RPT(id)		(0x08 << (id))$/
+R92C_ARFR	rtl8192c/r92c_reg.h	/^#define R92C_ARFR(i)			(0x444 + (i) * 4)$/
+R92C_BCN_CTRL	rtl8192c/r92c_reg.h	/^#define R92C_BCN_CTRL(id)		((id) + 0x550)$/
+R92C_BCN_INTERVAL	rtl8192c/r92c_reg.h	/^#define R92C_BCN_INTERVAL(id)		(0x554 + (id) * 2)$/
+R92C_BSSID	rtl8192c/r92c_reg.h	/^#define R92C_BSSID(id)			((id) == 0 ? R92C_BSSID0 /
+R92C_CAM_CTL0	rtl8192c/r92c_reg.h	/^#define R92C_CAM_CTL0(entry)	((entry) * 8 + 0)$/
+R92C_CAM_CTL1	rtl8192c/r92c_reg.h	/^#define R92C_CAM_CTL1(entry)	((entry) * 8 + 1)$/
+R92C_CAM_CTL6	rtl8192c/r92c_reg.h	/^#define R92C_CAM_CTL6(entry)	((entry) * 8 + 6)$/
+R92C_CAM_CTL7	rtl8192c/r92c_reg.h	/^#define R92C_CAM_CTL7(entry)	((entry) * 8 + 7)$/
+R92C_CAM_KEY	rtl8192c/r92c_reg.h	/^#define R92C_CAM_KEY(entry, i)	((entry) * 8 + 2 + /
+R92C_DUAL_TSF_RESET	rtl8192c/r92c_reg.h	/^#define R92C_DUAL_TSF_RESET(id)		(0x01 << (id))$/
+R92C_FPGA0_RFIFACEOE	rtl8192c/r92c_reg.h	/^#define R92C_FPGA0_RFIFACEOE(chain)	(0x860 + (chai/
+R92C_FPGA0_RFIFACESW	rtl8192c/r92c_reg.h	/^#define R92C_FPGA0_RFIFACESW(idx)	(0x870 + (idx) */
+R92C_FPGA0_RFPARAM	rtl8192c/r92c_reg.h	/^#define R92C_FPGA0_RFPARAM(idx)		(0x878 + (idx) * /
+R92C_HMEBOX	rtl8192c/r92c_reg.h	/^#define R92C_HMEBOX(idx)		(0x1d0 + (idx) * 4)$/
+R92C_HMEBOX_EXT	rtl8192c/r92c_reg.h	/^#define R92C_HMEBOX_EXT(idx)		(0x088 + (idx) * 2)$/
+R92C_HSPI_READBACK	rtl8192c/r92c_reg.h	/^#define R92C_HSPI_READBACK(chain)	(0x8b8 + (chain)/
+R92C_HSSI_PARAM1	rtl8192c/r92c_reg.h	/^#define R92C_HSSI_PARAM1(chain)		(0x820 + (chain) /
+R92C_HSSI_PARAM2	rtl8192c/r92c_reg.h	/^#define R92C_HSSI_PARAM2(chain)		(0x824 + (chain) /
+R92C_INIDATA_RATE_SEL	rtl8192c/r92c_reg.h	/^#define R92C_INIDATA_RATE_SEL(macid)	(0x484 + (mac/
+R92C_LSSI_PARAM	rtl8192c/r92c_reg.h	/^#define R92C_LSSI_PARAM(chain)		(0x840 + (chain) */
+R92C_LSSI_READBACK	rtl8192c/r92c_reg.h	/^#define R92C_LSSI_READBACK(chain)	(0x8a0 + (chain)/
+R92C_MACID	rtl8192c/r92c_reg.h	/^#define R92C_MACID(id)			((id) == 0 ? R92C_MACID0 /
+R92C_OFDM0_AGCCORE1	rtl8192c/r92c_reg.h	/^#define R92C_OFDM0_AGCCORE1(chain)	(0xc50 + (chain/
+R92C_OFDM0_RXIQIMBALANCE	rtl8192c/r92c_reg.h	/^#define R92C_OFDM0_RXIQIMBALANCE(chain)	(0xc14 + (/
+R92C_OFDM0_TXAFE	rtl8192c/r92c_reg.h	/^#define R92C_OFDM0_TXAFE(chain)		(0xc94 + (chain) /
+R92C_OFDM0_TXIQIMBALANCE	rtl8192c/r92c_reg.h	/^#define R92C_OFDM0_TXIQIMBALANCE(chain)	(0xc80 + (/
+R92C_RF_IQADJ_G	rtl8192c/r92c_reg.h	/^#define R92C_RF_IQADJ_G(i)	(0x01 + (i))$/
+R92C_RF_SYN_G	rtl8192c/r92c_reg.h	/^#define R92C_RF_SYN_G(i)	(0x25 + (i))$/
+R92C_RF_TXPA_G	rtl8192c/r92c_reg.h	/^#define R92C_RF_TXPA_G(i)	(0x31 + (i))$/
+R92C_RF_TX_G	rtl8192c/r92c_reg.h	/^#define R92C_RF_TX_G(i)		(0x20 + (i))$/
+R92C_RXFLTMAP_SUBTYPE	rtl8192c/r92c_reg.h	/^#define R92C_RXFLTMAP_SUBTYPE(subtype)	\\$/
+R92C_SOFTC	rtl8192c/r92c_var.h	/^#define R92C_SOFTC(_sc)	((struct r92c_softc *)((_s/
+R92C_TC0_CTRL	rtl8192c/r92c_reg.h	/^#define R92C_TC0_CTRL(i)		(0x150 + (i) * 4)$/
+R92C_TSFTR	rtl8192c/r92c_reg.h	/^#define R92C_TSFTR(i)			(0x560 + (i) * 8)$/
+R92C_TXAGC_MCS03_MCS00	rtl8192c/r92c_reg.h	/^#define R92C_TXAGC_MCS03_MCS00(i)	(((i) == 0) ? 0x/
+R92C_TXAGC_MCS07_MCS04	rtl8192c/r92c_reg.h	/^#define R92C_TXAGC_MCS07_MCS04(i)	(((i) == 0) ? 0x/
+R92C_TXAGC_MCS11_MCS08	rtl8192c/r92c_reg.h	/^#define R92C_TXAGC_MCS11_MCS08(i)	(((i) == 0) ? 0x/
+R92C_TXAGC_MCS15_MCS12	rtl8192c/r92c_reg.h	/^#define R92C_TXAGC_MCS15_MCS12(i)	(((i) == 0) ? 0x/
+R92C_TXAGC_RATE18_06	rtl8192c/r92c_reg.h	/^#define R92C_TXAGC_RATE18_06(i)		(((i) == 0) ? 0xe/
+R92C_TXAGC_RATE54_24	rtl8192c/r92c_reg.h	/^#define R92C_TXAGC_RATE54_24(i)		(((i) == 0) ? 0xe/
+RTWN_CHK	rtl8188e/r88e_init.c	/^#define RTWN_CHK(res) do {	\\$/
+RTWN_CMD_IQ_EXT_LNA_5G	rtl8812a/r12a_fw_cmd.h	/^#define RTWN_CMD_IQ_EXT_LNA_5G(lna)	((lna) << 1)$/
+RTWN_CMD_IQ_EXT_PA_5G	rtl8812a/r12a_fw_cmd.h	/^#define RTWN_CMD_IQ_EXT_PA_5G(pa)	(pa)$/
+RTWN_GET_ROM_VAR	rtl8192c/r92c_rom_defs.h	/^#define RTWN_GET_ROM_VAR(var, def)	(((var) != 0xff/
+RTWN_N_TRANSFER	usb/rtwn_usb_var.h	/^};$/
+RTWN_PCI_SOFTC	pci/rtwn_pci_var.h	/^#define RTWN_PCI_SOFTC(sc)	((struct rtwn_pci_softc/
+RTWN_RTL8188EU_DEV	usb/rtwn_usb_attach.h	/^#define RTWN_RTL8188EU_DEV(v,p) \\$/
+RTWN_RTL8192CU_DEV	usb/rtwn_usb_attach.h	/^#define RTWN_RTL8192CU_DEV(v,p) \\$/
+RTWN_RTL8812AU_DEV	usb/rtwn_usb_attach.h	/^#define RTWN_RTL8812AU_DEV(v,p) \\$/
+RTWN_RTL8821AU_DEV	usb/rtwn_usb_attach.h	/^#define RTWN_RTL8821AU_DEV(v,p) \\$/
+RTWN_SIGN4TO8	rtl8192c/r92c_rom_defs.h	/^#define RTWN_SIGN4TO8(val)		(((val) & 0x08) ? (val/
+RTWN_USB_SOFTC	usb/rtwn_usb_var.h	/^#define RTWN_USB_SOFTC(sc)	((struct rtwn_usb_softc/
+STAILQ_HEAD	usb/rtwn_usb_var.h	/^typedef STAILQ_HEAD(, rtwn_data) rtwn_datahead;$/
+_rtwn_usb_getbuf	usb/rtwn_usb_tx.c	/^_rtwn_usb_getbuf(struct rtwn_usb_softc *uc)$/
+r12a_beacon_init	rtl8812a/r12a_beacon.c	/^r12a_beacon_init(struct rtwn_softc *sc, void *buf,/
+r12a_beacon_set_rate	rtl8812a/r12a_beacon.c	/^r12a_beacon_set_rate(void *buf, int is5ghz)$/
+r12a_c2h_ra_report	rtl8812a/r12a_fw_cmd.h	/^struct r12a_c2h_ra_report {$/
+r12a_c2h_tx_rpt	rtl8812a/r12a_fw_cmd.h	/^struct r12a_c2h_tx_rpt {$/
+r12a_c_cut_rf_read	rtl8812a/r12a_rf.c	/^r12a_c_cut_rf_read(struct rtwn_softc *sc, int chai/
+r12a_check_condition	rtl8812a/r12a_init.c	/^r12a_check_condition(struct rtwn_softc *sc, const /
+r12a_check_frame_checksum	rtl8812a/r12a_rx.c	/^r12a_check_frame_checksum(struct rtwn_softc *sc, s/
+r12a_crystalcap_write	rtl8812a/r12a_init.c	/^r12a_crystalcap_write(struct rtwn_softc *sc)$/
+r12a_fill_tx_desc	rtl8812a/r12a_tx.c	/^r12a_fill_tx_desc(struct rtwn_softc *sc, struct ie/
+r12a_fill_tx_desc_null	rtl8812a/r12a_tx.c	/^r12a_fill_tx_desc_null(struct rtwn_softc *sc, void/
+r12a_fill_tx_desc_raw	rtl8812a/r12a_tx.c	/^r12a_fill_tx_desc_raw(struct rtwn_softc *sc, struc/
+r12a_fix_spur	rtl8812a/r12a_chan.c	/^r12a_fix_spur(struct rtwn_softc *sc, struct ieee80/
+r12a_fw_cmd_iq_calib	rtl8812a/r12a_fw_cmd.h	/^struct r12a_fw_cmd_iq_calib {$/
+r12a_fw_cmd_msrrpt	rtl8812a/r12a_fw_cmd.h	/^struct r12a_fw_cmd_msrrpt {$/
+r12a_fw_cmd_pwrmode	rtl8812a/r12a_fw_cmd.h	/^struct r12a_fw_cmd_pwrmode {$/
+r12a_fw_download_enable	rtl8812a/r12a_fw.c	/^r12a_fw_download_enable(struct rtwn_softc *sc, int/
+r12a_fw_reset	rtl8812a/r12a_fw.c	/^r12a_fw_reset(struct rtwn_softc *sc, int reason)$/
+r12a_get_power_group	rtl8812a/r12a_chan.c	/^r12a_get_power_group(struct rtwn_softc *sc, struct/
+r12a_get_primary_channel	rtl8812a/r12a_tx.c	/^r12a_get_primary_channel(struct rtwn_softc *sc, st/
+r12a_get_txpower	rtl8812a/r12a_chan.c	/^r12a_get_txpower(struct rtwn_softc *sc, int chain,/
+r12a_handle_c2h_report	rtl8812a/r12a_rx.c	/^r12a_handle_c2h_report(struct rtwn_softc *sc, uint/
+r12a_init_antsel	rtl8812a/r12a_init.c	/^r12a_init_antsel(struct rtwn_softc *sc)$/
+r12a_init_bb	rtl8812a/r12a_init.c	/^r12a_init_bb(struct rtwn_softc *sc)$/
+r12a_init_edca	rtl8812a/r12a_init.c	/^r12a_init_edca(struct rtwn_softc *sc)$/
+r12a_init_intr	rtl8812a/r12a_init.c	/^r12a_init_intr(struct rtwn_softc *sc)$/
+r12a_init_rf	rtl8812a/r12a_init.c	/^r12a_init_rf(struct rtwn_softc *sc)$/
+r12a_ioctl_net	rtl8812a/r12a_caps.c	/^r12a_ioctl_net(struct ieee80211com *ic, u_long cmd/
+r12a_iq_calib	rtl8812a/r12a_calib.c	/^r12a_iq_calib(struct rtwn_softc *sc)$/
+r12a_iq_calib_fw	rtl8812a/r12a_fw.c	/^r12a_iq_calib_fw(struct rtwn_softc *sc)$/
+r12a_iq_calib_fw_supported	rtl8812a/r12a_calib.c	/^r12a_iq_calib_fw_supported(struct rtwn_softc *sc)$/
+r12a_iq_calib_sw	rtl8812a/r12a_calib.c	/^r12a_iq_calib_sw(struct rtwn_softc *sc)$/
+r12a_iq_config_mac	rtl8812a/r12a_calib.c	/^r12a_iq_config_mac(struct rtwn_softc *sc)$/
+r12a_iq_tx	rtl8812a/r12a_calib.c	/^r12a_iq_tx(struct rtwn_softc *sc)$/
+r12a_lc_calib	rtl8812a/r12a_calib.c	/^r12a_lc_calib(struct rtwn_softc *sc)$/
+r12a_parse_rom	rtl8812a/r12a_rom.c	/^r12a_parse_rom(struct rtwn_softc *sc, uint8_t *buf/
+r12a_parse_rom_common	rtl8812a/r12a_rom.c	/^r12a_parse_rom_common(struct rtwn_softc *sc, uint8/
+r12a_power_off	rtl8812a/r12a_init.c	/^r12a_power_off(struct rtwn_softc *sc)$/
+r12a_power_on	rtl8812a/r12a_init.c	/^r12a_power_on(struct rtwn_softc *sc)$/
+r12a_ratectl_tx_complete	rtl8812a/r12a_rx.c	/^r12a_ratectl_tx_complete(struct rtwn_softc *sc, ui/
+r12a_restore_bb_afe_vals	rtl8812a/r12a_calib.c	/^r12a_restore_bb_afe_vals(struct rtwn_softc *sc, ui/
+r12a_restore_rf_vals	rtl8812a/r12a_calib.c	/^r12a_restore_rf_vals(struct rtwn_softc *sc, uint32/
+r12a_rf_init_workaround	rtl8812a/r12a_init.c	/^r12a_rf_init_workaround(struct rtwn_softc *sc)$/
+r12a_rf_read	rtl8812a/r12a_rf.c	/^r12a_rf_read(struct rtwn_softc *sc, int chain, uin/
+r12a_rf_write	rtl8812a/r12a_rf.c	/^r12a_rf_write(struct rtwn_softc *sc, int chain, ui/
+r12a_rom	rtl8812a/r12a_rom_image.h	/^struct r12a_rom {$/
+r12a_rx_phystat	rtl8812a/r12a_rx_desc.h	/^struct r12a_rx_phystat {$/
+r12a_rx_radiotap_flags	rtl8812a/r12a_rx.c	/^r12a_rx_radiotap_flags(const void *buf)$/
+r12a_save_bb_afe_vals	rtl8812a/r12a_calib.c	/^r12a_save_bb_afe_vals(struct rtwn_softc *sc, uint3/
+r12a_save_rf_vals	rtl8812a/r12a_calib.c	/^r12a_save_rf_vals(struct rtwn_softc *sc, uint32_t /
+r12a_set_band	rtl8812a/r12a_chan.c	/^r12a_set_band(struct rtwn_softc *sc, struct ieee80/
+r12a_set_band_2ghz	rtl8812a/r12a_chan.c	/^r12a_set_band_2ghz(struct rtwn_softc *sc, uint32_t/
+r12a_set_band_5ghz	rtl8812a/r12a_chan.c	/^r12a_set_band_5ghz(struct rtwn_softc *sc, uint32_t/
+r12a_set_chan	rtl8812a/r12a_chan.c	/^r12a_set_chan(struct rtwn_softc *sc, struct ieee80/
+r12a_set_led	rtl8812a/r12a_led.c	/^r12a_set_led(struct rtwn_softc *sc, int led, int o/
+r12a_set_media_status	rtl8812a/r12a_fw.c	/^r12a_set_media_status(struct rtwn_softc *sc, int m/
+r12a_set_page_size	rtl8812a/r12a_init.c	/^r12a_set_page_size(struct rtwn_softc *sc)$/
+r12a_set_pwrmode	rtl8812a/r12a_fw.c	/^r12a_set_pwrmode(struct rtwn_softc *sc, struct iee/
+r12a_set_txpower	rtl8812a/r12a_chan.c	/^r12a_set_txpower(struct rtwn_softc *sc, struct iee/
+r12a_softc	rtl8812a/r12a_var.h	/^struct r12a_softc {$/
+r12a_tx_desc	rtl8812a/r12a_tx_desc.h	/^struct r12a_tx_desc {$/
+r12a_tx_protection	rtl8812a/r12a_tx.c	/^r12a_tx_protection(struct rtwn_softc *sc, struct r/
+r12a_tx_pwr	rtl8812a/r12a_rom_image.h	/^struct r12a_tx_pwr {$/
+r12a_tx_pwr_2g	rtl8812a/r12a_rom_image.h	/^struct r12a_tx_pwr_2g {$/
+r12a_tx_pwr_5g	rtl8812a/r12a_rom_image.h	/^struct r12a_tx_pwr_5g {$/
+r12a_tx_pwr_diff_2g	rtl8812a/r12a_rom_image.h	/^struct r12a_tx_pwr_diff_2g {$/
+r12a_tx_pwr_diff_5g	rtl8812a/r12a_rom_image.h	/^struct r12a_tx_pwr_diff_5g {$/
+r12a_tx_radiotap_flags	rtl8812a/r12a_tx.c	/^r12a_tx_radiotap_flags(const void *buf)$/
+r12a_tx_raid	rtl8812a/r12a_tx.c	/^r12a_tx_raid(struct rtwn_softc *sc, struct r12a_tx/
+r12a_tx_set_ht40	rtl8812a/r12a_tx.c	/^r12a_tx_set_ht40(struct rtwn_softc *sc, void *buf,/
+r12a_tx_set_sgi	rtl8812a/r12a_tx.c	/^r12a_tx_set_sgi(struct rtwn_softc *sc, void *buf, /
+r12a_write_txpower	rtl8812a/r12a_chan.c	/^r12a_write_txpower(struct rtwn_softc *sc, int chai/
+r21a_beacon_init	rtl8821a/r21a_beacon.c	/^r21a_beacon_init(struct rtwn_softc *sc, void *buf,/
+r21a_beacon_select	rtl8821a/r21a_beacon.c	/^r21a_beacon_select(struct rtwn_softc *sc, int id)$/
+r21a_bypass_ext_lna_2ghz	rtl8821a/r21a_chan.c	/^r21a_bypass_ext_lna_2ghz(struct rtwn_softc *sc)$/
+r21a_check_condition	rtl8821a/r21a_init.c	/^r21a_check_condition(struct rtwn_softc *sc, const /
+r21a_crystalcap_write	rtl8821a/r21a_init.c	/^r21a_crystalcap_write(struct rtwn_softc *sc)$/
+r21a_fw_reset	rtl8821a/r21a_fw.c	/^r21a_fw_reset(struct rtwn_softc *sc, int reason)$/
+r21a_get_rssi_cck	rtl8821a/r21a_rx.c	/^r21a_get_rssi_cck(struct rtwn_softc *sc, void *phy/
+r21a_init_ampdu_fwhw	rtl8821a/r21a_init.c	/^r21a_init_ampdu_fwhw(struct rtwn_softc *sc)$/
+r21a_init_bcnq1_boundary	rtl8821a/r21a_init.c	/^r21a_init_bcnq1_boundary(struct rtwn_softc *sc)$/
+r21a_iq_calib_fw_supported	rtl8821a/r21a_calib.c	/^r21a_iq_calib_fw_supported(struct rtwn_softc *sc)$/
+r21a_iq_calib_sw	rtl8821a/r21a_calib.c	/^r21a_iq_calib_sw(struct rtwn_softc *sc)$/
+r21a_parse_rom	rtl8821a/r21a_rom.c	/^r21a_parse_rom(struct rtwn_softc *sc, uint8_t *buf/
+r21a_power_off	rtl8821a/r21a_init.c	/^r21a_power_off(struct rtwn_softc *sc)$/
+r21a_power_on	rtl8821a/r21a_init.c	/^r21a_power_on(struct rtwn_softc *sc)$/
+r21a_set_band_2ghz	rtl8821a/r21a_chan.c	/^r21a_set_band_2ghz(struct rtwn_softc *sc, uint32_t/
+r21a_set_band_5ghz	rtl8821a/r21a_chan.c	/^r21a_set_band_5ghz(struct rtwn_softc *sc, uint32_t/
+r21a_set_led	rtl8821a/r21a_led.c	/^r21a_set_led(struct rtwn_softc *sc, int led, int o/
+r88e_beacon_enable	rtl8188e/r88e_beacon.c	/^r88e_beacon_enable(struct rtwn_softc *sc, int id, /
+r88e_crystalcap_write	rtl8188e/r88e_init.c	/^r88e_crystalcap_write(struct rtwn_softc *sc)$/
+r88e_fw_cmd	rtl8188e/r88e_fw.c	/^r88e_fw_cmd(struct rtwn_softc *sc, uint8_t id, con/
+r88e_fw_cmd_msrrpt	rtl8188e/r88e_fw_cmd.h	/^struct r88e_fw_cmd_msrrpt {$/
+r88e_fw_cmd_pwrmode	rtl8188e/r88e_fw_cmd.h	/^struct r88e_fw_cmd_pwrmode {$/
+r88e_fw_cmd_rsvdpage	rtl8188e/r88e_fw_cmd.h	/^struct r88e_fw_cmd_rsvdpage {$/
+r88e_fw_download_enable	rtl8188e/r88e_fw.c	/^r88e_fw_download_enable(struct rtwn_softc *sc, int/
+r88e_fw_reset	rtl8188e/r88e_fw.c	/^r88e_fw_reset(struct rtwn_softc *sc, int reason)$/
+r88e_get_power_group	rtl8188e/r88e_chan.c	/^r88e_get_power_group(struct rtwn_softc *sc, struct/
+r88e_get_rssi_cck	rtl8188e/r88e_rx.c	/^r88e_get_rssi_cck(struct rtwn_softc *sc, void *phy/
+r88e_get_rssi_ofdm	rtl8188e/r88e_rx.c	/^r88e_get_rssi_ofdm(struct rtwn_softc *sc, void *ph/
+r88e_get_txpower	rtl8188e/r88e_chan.c	/^r88e_get_txpower(struct rtwn_softc *sc, int chain,/
+r88e_handle_c2h_report	rtl8188e/r88e_rx.c	/^r88e_handle_c2h_report(struct rtwn_softc *sc, uint/
+r88e_init_bb	rtl8188e/r88e_init.c	/^r88e_init_bb(struct rtwn_softc *sc)$/
+r88e_intr_msg	rtl8188e/r88e_rx_desc.h	/^struct r88e_intr_msg {$/
+r88e_iq_calib	rtl8188e/r88e_calib.c	/^r88e_iq_calib(struct rtwn_softc *sc)$/
+r88e_macid_enable_link	rtl8188e/r88e_fw.c	/^r88e_macid_enable_link(struct rtwn_softc *sc, int /
+r88e_parse_rom	rtl8188e/r88e_rom.c	/^r88e_parse_rom(struct rtwn_softc *sc, uint8_t *buf/
+r88e_power_on	rtl8188e/r88e_init.c	/^r88e_power_on(struct rtwn_softc *sc)$/
+r88e_ratectl_tx_complete	rtl8188e/r88e_rx.c	/^r88e_ratectl_tx_complete(struct rtwn_softc *sc, ui/
+r88e_rf_write	rtl8188e/r88e_rf.c	/^r88e_rf_write(struct rtwn_softc *sc, int chain, ui/
+r88e_rom	rtl8188e/r88e_rom_image.h	/^struct r88e_rom {$/
+r88e_rx_phystat	rtl8188e/r88e_rx_desc.h	/^struct r88e_rx_phystat {$/
+r88e_set_bw20	rtl8188e/r88e_chan.c	/^r88e_set_bw20(struct rtwn_softc *sc, uint8_t chan)/
+r88e_set_gain	rtl8188e/r88e_chan.c	/^r88e_set_gain(struct rtwn_softc *sc, uint8_t gain)/
+r88e_set_led	rtl8188e/r88e_led.c	/^r88e_set_led(struct rtwn_softc *sc, int led, int o/
+r88e_set_media_status	rtl8188e/r88e_fw.c	/^r88e_set_media_status(struct rtwn_softc *sc, int m/
+r88e_set_pwrmode	rtl8188e/r88e_fw.c	/^r88e_set_pwrmode(struct rtwn_softc *sc, struct iee/
+r88e_set_rsvd_page	rtl8188e/r88e_fw.c	/^r88e_set_rsvd_page(struct rtwn_softc *sc, int prob/
+r88e_temp_measure	rtl8188e/r88e_calib.c	/^r88e_temp_measure(struct rtwn_softc *sc)$/
+r88e_temp_read	rtl8188e/r88e_calib.c	/^r88e_temp_read(struct rtwn_softc *sc)$/
+r88e_tx_enable_ampdu	rtl8188e/r88e_tx.c	/^r88e_tx_enable_ampdu(void *buf, int enable)$/
+r88e_tx_rpt_ccx	rtl8188e/r88e_rx_desc.h	/^struct r88e_tx_rpt_ccx {$/
+r88e_tx_setup_hwseq	rtl8188e/r88e_tx.c	/^r88e_tx_setup_hwseq(void *buf)$/
+r88e_tx_setup_macid	rtl8188e/r88e_tx.c	/^r88e_tx_setup_macid(void *buf, int id)$/
+r92c_beacon_enable	rtl8192c/r92c_beacon.c	/^r92c_beacon_enable(struct rtwn_softc *sc, int id, /
+r92c_beacon_init	rtl8192c/r92c_beacon.c	/^r92c_beacon_init(struct rtwn_softc *sc, void *buf,/
+r92c_c2h_evt	rtl8192c/r92c_fw_cmd.h	/^struct r92c_c2h_evt {$/
+r92c_c2h_tx_rpt	rtl8192c/r92c_fw_cmd.h	/^struct r92c_c2h_tx_rpt {$/
+r92c_check_condition	rtl8192c/r92c_init.c	/^r92c_check_condition(struct rtwn_softc *sc, const /
+r92c_detach_private	rtl8192c/r92c_attach.c	/^r92c_detach_private(struct rtwn_softc *sc)$/
+r92c_efuse_postread	rtl8192c/r92c_rom.c	/^r92c_efuse_postread(struct rtwn_softc *sc)$/
+r92c_fill_tx_desc	rtl8192c/r92c_tx.c	/^r92c_fill_tx_desc(struct rtwn_softc *sc, struct ie/
+r92c_fill_tx_desc_null	rtl8192c/r92c_tx.c	/^r92c_fill_tx_desc_null(struct rtwn_softc *sc, void/
+r92c_fill_tx_desc_raw	rtl8192c/r92c_tx.c	/^r92c_fill_tx_desc_raw(struct rtwn_softc *sc, struc/
+r92c_fw_cmd	rtl8192c/r92c_fw.c	/^r92c_fw_cmd(struct rtwn_softc *sc, uint8_t id, con/
+r92c_fw_cmd_joinbss_rpt	rtl8192c/r92c_fw_cmd.h	/^struct r92c_fw_cmd_joinbss_rpt {$/
+r92c_fw_cmd_macid_cfg	rtl8192c/r92c_fw_cmd.h	/^struct r92c_fw_cmd_macid_cfg {$/
+r92c_fw_cmd_pwrmode	rtl8192c/r92c_fw_cmd.h	/^struct r92c_fw_cmd_pwrmode {$/
+r92c_fw_cmd_rssi	rtl8192c/r92c_fw_cmd.h	/^struct r92c_fw_cmd_rssi {$/
+r92c_fw_cmd_rsvdpage	rtl8192c/r92c_fw_cmd.h	/^struct r92c_fw_cmd_rsvdpage {$/
+r92c_fw_download_enable	rtl8192c/r92c_fw.c	/^r92c_fw_download_enable(struct rtwn_softc *sc, int/
+r92c_fw_reset	rtl8192c/r92c_fw.c	/^r92c_fw_reset(struct rtwn_softc *sc, int reason)$/
+r92c_get_power_group	rtl8192c/r92c_chan.c	/^r92c_get_power_group(struct rtwn_softc *sc, struct/
+r92c_get_rssi_cck	rtl8192c/r92c_rx.c	/^r92c_get_rssi_cck(struct rtwn_softc *sc, void *phy/
+r92c_get_rssi_ofdm	rtl8192c/r92c_rx.c	/^r92c_get_rssi_ofdm(struct rtwn_softc *sc, void *ph/
+r92c_get_txpower	rtl8192c/r92c_chan.c	/^r92c_get_txpower(struct rtwn_softc *sc, int chain,/
+r92c_handle_c2h_report	rtl8192c/r92c_fw.c	/^r92c_handle_c2h_report(void *arg)$/
+r92c_handle_c2h_task	rtl8192c/r92c_fw.c	/^r92c_handle_c2h_task(struct rtwn_softc *sc, union /
+r92c_init_ampdu	rtl8192c/r92c_init.c	/^r92c_init_ampdu(struct rtwn_softc *sc)$/
+r92c_init_antsel	rtl8192c/r92c_init.c	/^r92c_init_antsel(struct rtwn_softc *sc)$/
+r92c_init_bb_common	rtl8192c/r92c_init.c	/^r92c_init_bb_common(struct rtwn_softc *sc)$/
+r92c_init_edca	rtl8192c/r92c_init.c	/^r92c_init_edca(struct rtwn_softc *sc)$/
+r92c_init_ra	rtl8192c/r92c_fw.c	/^r92c_init_ra(struct rtwn_softc *sc, int macid)$/
+r92c_init_rf	rtl8192c/r92c_init.c	/^r92c_init_rf(struct rtwn_softc *sc)$/
+r92c_init_rf_chain	rtl8192c/r92c_init.c	/^r92c_init_rf_chain(struct rtwn_softc *sc,$/
+r92c_iq_calib	rtl8192c/r92c_calib.c	/^r92c_iq_calib(struct rtwn_softc *sc)$/
+r92c_joinbss_rpt	rtl8192c/r92c_fw.c	/^r92c_joinbss_rpt(struct rtwn_softc *sc, int macid)/
+r92c_lc_calib	rtl8192c/r92c_calib.c	/^r92c_lc_calib(struct rtwn_softc *sc)$/
+r92c_pa_bias_init	rtl8192c/r92c_init.c	/^r92c_pa_bias_init(struct rtwn_softc *sc)$/
+r92c_parse_rom	rtl8192c/r92c_rom.c	/^r92c_parse_rom(struct rtwn_softc *sc, uint8_t *buf/
+r92c_ratectl_tx_complete	rtl8192c/r92c_fw.c	/^r92c_ratectl_tx_complete(struct rtwn_softc *sc, ui/
+r92c_read_chipid_vendor	rtl8192c/r92c_attach.c	/^r92c_read_chipid_vendor(struct rtwn_softc *sc, uin/
+r92c_rf_read	rtl8192c/r92c_rf.c	/^r92c_rf_read(struct rtwn_softc *sc, int chain, uin/
+r92c_rf_write	rtl8192c/r92c_rf.c	/^r92c_rf_write(struct rtwn_softc *sc, int chain, ui/
+r92c_rom	rtl8192c/r92c_rom_image.h	/^struct r92c_rom {$/
+r92c_rx_cck	rtl8192c/r92c_rx_desc.h	/^struct r92c_rx_cck {$/
+r92c_rx_phystat	rtl8192c/r92c_rx_desc.h	/^struct r92c_rx_phystat {$/
+r92c_rx_radiotap_flags	rtl8192c/r92c_rx.c	/^r92c_rx_radiotap_flags(const void *buf)$/
+r92c_rx_stat	rtl8192c/r92c_rx_desc.h	/^struct r92c_rx_stat {$/
+r92c_scan_end	rtl8192c/r92c_chan.c	/^r92c_scan_end(struct ieee80211com *ic)$/
+r92c_scan_start	rtl8192c/r92c_chan.c	/^r92c_scan_start(struct ieee80211com *ic)$/
+r92c_send_ra_cmd	rtl8192c/r92c_fw.c	/^r92c_send_ra_cmd(struct rtwn_softc *sc, int macid,/
+r92c_set_bw20	rtl8192c/r92c_chan.c	/^r92c_set_bw20(struct rtwn_softc *sc, uint8_t chan)/
+r92c_set_bw40	rtl8192c/r92c_chan.c	/^r92c_set_bw40(struct rtwn_softc *sc, uint8_t chan,/
+r92c_set_chains	rtl8192c/r92c_rom.c	/^r92c_set_chains(struct rtwn_softc *sc)$/
+r92c_set_chan	rtl8192c/r92c_chan.c	/^r92c_set_chan(struct rtwn_softc *sc, struct ieee80/
+r92c_set_gain	rtl8192c/r92c_chan.c	/^r92c_set_gain(struct rtwn_softc *sc, uint8_t gain)/
+r92c_set_page_size	rtl8192c/r92c_init.c	/^r92c_set_page_size(struct rtwn_softc *sc)$/
+r92c_set_pwrmode	rtl8192c/r92c_fw.c	/^r92c_set_pwrmode(struct rtwn_softc *sc, struct iee/
+r92c_set_rssi	rtl8192c/r92c_fw.c	/^r92c_set_rssi(struct rtwn_softc *sc)$/
+r92c_set_rsvd_page	rtl8192c/r92c_fw.c	/^r92c_set_rsvd_page(struct rtwn_softc *sc, int prob/
+r92c_set_txpower	rtl8192c/r92c_chan.c	/^r92c_set_txpower(struct rtwn_softc *sc, struct iee/
+r92c_softc	rtl8192c/r92c_var.h	/^struct r92c_softc {$/
+r92c_temp_measure	rtl8192c/r92c_calib.c	/^r92c_temp_measure(struct rtwn_softc *sc)$/
+r92c_temp_read	rtl8192c/r92c_calib.c	/^r92c_temp_read(struct rtwn_softc *sc)$/
+r92c_tx_desc	rtl8192c/r92c_tx_desc.h	/^struct r92c_tx_desc {$/
+r92c_tx_enable_ampdu	rtl8192c/r92c_tx.c	/^r92c_tx_enable_ampdu(void *buf, int enable)$/
+r92c_tx_get_sco	rtl8192c/r92c_tx.c	/^r92c_tx_get_sco(struct rtwn_softc *sc, struct ieee/
+r92c_tx_protection	rtl8192c/r92c_tx.c	/^r92c_tx_protection(struct rtwn_softc *sc, struct r/
+r92c_tx_radiotap_flags	rtl8192c/r92c_tx.c	/^r92c_tx_radiotap_flags(const void *buf)$/
+r92c_tx_raid	rtl8192c/r92c_tx.c	/^r92c_tx_raid(struct rtwn_softc *sc, struct r92c_tx/
+r92c_tx_set_ht40	rtl8192c/r92c_tx.c	/^r92c_tx_set_ht40(struct rtwn_softc *sc, void *buf,/
+r92c_tx_set_sgi	rtl8192c/r92c_tx.c	/^r92c_tx_set_sgi(struct rtwn_softc *sc, void *buf, /
+r92c_tx_setup_hwseq	rtl8192c/r92c_tx.c	/^r92c_tx_setup_hwseq(void *buf)$/
+r92c_tx_setup_macid	rtl8192c/r92c_tx.c	/^r92c_tx_setup_macid(void *buf, int id)$/
+r92c_write_txpower	rtl8192c/r92c_chan.c	/^r92c_write_txpower(struct rtwn_softc *sc, int chai/
+rtwn_agc_prog	rtl8812a/r12a_priv.h	/^		&(const struct rtwn_agc_prog){$/
+rtwn_bb_prog	rtl8812a/r12a_priv.h	/^		&(const struct rtwn_bb_prog){$/
+rtwn_bulk_rx_callback	usb/rtwn_usb_rx.c	/^rtwn_bulk_rx_callback(struct usb_xfer *xfer, usb_e/
+rtwn_bulk_tx_callback	usb/rtwn_usb_tx.c	/^rtwn_bulk_tx_callback(struct usb_xfer *xfer, usb_e/
+rtwn_data	usb/rtwn_usb_var.h	/^struct rtwn_data {$/
+rtwn_do_request	usb/rtwn_usb_reg.c	/^rtwn_do_request(struct rtwn_softc *sc, struct usb_/
+rtwn_mbuf_defrag	pci/rtwn_pci_tx.c	/^rtwn_mbuf_defrag(struct mbuf *m0, int how)$/
+rtwn_pci_alloc_rx_list	pci/rtwn_pci_attach.c	/^rtwn_pci_alloc_rx_list(struct rtwn_softc *sc)$/
+rtwn_pci_alloc_tx_list	pci/rtwn_pci_attach.c	/^rtwn_pci_alloc_tx_list(struct rtwn_softc *sc, int /
+rtwn_pci_attach	pci/rtwn_pci_attach.c	/^rtwn_pci_attach(device_t dev)$/
+rtwn_pci_attach_methods	pci/rtwn_pci_attach.c	/^rtwn_pci_attach_methods(struct rtwn_softc *sc)$/
+rtwn_pci_attach_private	pci/rtwn_pci_attach.h	/^rtwn_pci_attach_private(struct rtwn_pci_softc *pc,/
+rtwn_pci_beacon_update_begin	pci/rtwn_pci_attach.c	/^rtwn_pci_beacon_update_begin(struct rtwn_softc *sc/
+rtwn_pci_beacon_update_end	pci/rtwn_pci_attach.c	/^rtwn_pci_beacon_update_end(struct rtwn_softc *sc, /
+rtwn_pci_copy_tx_desc	pci/rtwn_pci_var.h	/^#define rtwn_pci_copy_tx_desc(_pc, _dest, _src) \\/
+rtwn_pci_delay	pci/rtwn_pci_reg.c	/^rtwn_pci_delay(struct rtwn_softc *sc, int usec)$/
+rtwn_pci_detach	pci/rtwn_pci_attach.c	/^rtwn_pci_detach(device_t dev)$/
+rtwn_pci_dma_map_addr	pci/rtwn_pci_rx.c	/^rtwn_pci_dma_map_addr(void *arg, bus_dma_segment_t/
+rtwn_pci_enable_intr	pci/rtwn_pci_var.h	/^#define rtwn_pci_enable_intr(_pc) \\$/
+rtwn_pci_free_rx_list	pci/rtwn_pci_attach.c	/^rtwn_pci_free_rx_list(struct rtwn_softc *sc)$/
+rtwn_pci_free_tx_list	pci/rtwn_pci_attach.c	/^rtwn_pci_free_tx_list(struct rtwn_softc *sc, int q/
+rtwn_pci_fw_write_block	pci/rtwn_pci_attach.c	/^rtwn_pci_fw_write_block(struct rtwn_softc *sc, con/
+rtwn_pci_get_qmap	pci/rtwn_pci_attach.c	/^rtwn_pci_get_qmap(struct rtwn_softc *sc)$/
+rtwn_pci_ident	pci/rtwn_pci_attach.h	/^struct rtwn_pci_ident {$/
+rtwn_pci_intr	pci/rtwn_pci_rx.c	/^rtwn_pci_intr(void *arg)$/
+rtwn_pci_probe	pci/rtwn_pci_attach.c	/^rtwn_pci_probe(device_t dev)$/
+rtwn_pci_probe_sub	pci/rtwn_pci_attach.c	/^rtwn_pci_probe_sub(device_t dev)$/
+rtwn_pci_read_1	pci/rtwn_pci_reg.c	/^rtwn_pci_read_1(struct rtwn_softc *sc, uint16_t ad/
+rtwn_pci_read_2	pci/rtwn_pci_reg.c	/^rtwn_pci_read_2(struct rtwn_softc *sc, uint16_t ad/
+rtwn_pci_read_4	pci/rtwn_pci_reg.c	/^rtwn_pci_read_4(struct rtwn_softc *sc, uint16_t ad/
+rtwn_pci_reset_beacon_ring	pci/rtwn_pci_attach.c	/^rtwn_pci_reset_beacon_ring(struct rtwn_softc *sc, /
+rtwn_pci_reset_lists	pci/rtwn_pci_attach.c	/^rtwn_pci_reset_lists(struct rtwn_softc *sc, struct/
+rtwn_pci_reset_rx_list	pci/rtwn_pci_attach.c	/^rtwn_pci_reset_rx_list(struct rtwn_softc *sc)$/
+rtwn_pci_reset_tx_list	pci/rtwn_pci_attach.c	/^rtwn_pci_reset_tx_list(struct rtwn_softc *sc, stru/
+rtwn_pci_reset_tx_ring_stopped	pci/rtwn_pci_attach.c	/^rtwn_pci_reset_tx_ring_stopped(struct rtwn_softc */
+rtwn_pci_resume	pci/rtwn_pci_attach.c	/^rtwn_pci_resume(device_t self)$/
+rtwn_pci_rx_done	pci/rtwn_pci_rx.c	/^rtwn_pci_rx_done(struct rtwn_softc *sc)$/
+rtwn_pci_rx_frame	pci/rtwn_pci_rx.c	/^rtwn_pci_rx_frame(struct rtwn_softc *sc, struct r9/
+rtwn_pci_set_desc_addr	pci/rtwn_pci_attach.c	/^rtwn_pci_set_desc_addr(struct rtwn_softc *sc)$/
+rtwn_pci_setup_rx_desc	pci/rtwn_pci_rx.c	/^rtwn_pci_setup_rx_desc(struct rtwn_pci_softc *pc, /
+rtwn_pci_setup_tx_desc	pci/rtwn_pci_var.h	/^#define rtwn_pci_setup_tx_desc(_pc, _desc, _addr) /
+rtwn_pci_shutdown	pci/rtwn_pci_attach.c	/^rtwn_pci_shutdown(device_t self)$/
+rtwn_pci_softc	pci/rtwn_pci_attach.h	/^typedef void	(*chip_pci_attach)(struct rtwn_pci_so/
+rtwn_pci_suspend	pci/rtwn_pci_attach.c	/^rtwn_pci_suspend(device_t self)$/
+rtwn_pci_tx_done	pci/rtwn_pci_rx.c	/^rtwn_pci_tx_done(struct rtwn_softc *sc, int qid)$/
+rtwn_pci_tx_postsetup	pci/rtwn_pci_var.h	/^#define rtwn_pci_tx_postsetup(_pc, _txd, _segs) \\/
+rtwn_pci_tx_start	pci/rtwn_pci_tx.c	/^rtwn_pci_tx_start(struct rtwn_softc *sc, struct ie/
+rtwn_pci_tx_start_beacon	pci/rtwn_pci_tx.c	/^rtwn_pci_tx_start_beacon(struct rtwn_softc *sc, st/
+rtwn_pci_tx_start_frame	pci/rtwn_pci_tx.c	/^rtwn_pci_tx_start_frame(struct rtwn_softc *sc, str/
+rtwn_pci_write_1	pci/rtwn_pci_reg.c	/^rtwn_pci_write_1(struct rtwn_softc *sc, uint16_t a/
+rtwn_pci_write_2	pci/rtwn_pci_reg.c	/^rtwn_pci_write_2(struct rtwn_softc *sc, uint16_t a/
+rtwn_pci_write_4	pci/rtwn_pci_reg.c	/^rtwn_pci_write_4(struct rtwn_softc *sc, uint16_t a/
+rtwn_r12a_crystalcap_write	rtl8812a/r12a_var.h	/^#define rtwn_r12a_crystalcap_write(_sc) \\$/
+rtwn_r12a_fix_spur	rtl8812a/r12a_var.h	/^#define rtwn_r12a_fix_spur(_sc, _c) \\$/
+rtwn_r12a_init_ampdu_fwhw	rtl8812a/r12a_var.h	/^#define rtwn_r12a_init_ampdu_fwhw(_sc) \\$/
+rtwn_r12a_init_burstlen	rtl8812a/r12a_var.h	/^#define rtwn_r12a_init_burstlen(_sc) \\$/
+rtwn_r12a_iq_calib_fw_supported	rtl8812a/r12a_var.h	/^#define rtwn_r12a_iq_calib_fw_supported(_sc) \\$/
+rtwn_r12a_iq_calib_sw	rtl8812a/r12a_var.h	/^#define rtwn_r12a_iq_calib_sw(_sc) \\$/
+rtwn_r12a_set_band_2ghz	rtl8812a/r12a_var.h	/^#define rtwn_r12a_set_band_2ghz(_sc, _rates) \\$/
+rtwn_r12a_set_band_5ghz	rtl8812a/r12a_var.h	/^#define rtwn_r12a_set_band_5ghz(_sc, _rates) \\$/
+rtwn_r88e_txagc	rtl8188e/r88e_priv.h	/^struct rtwn_r88e_txagc {$/
+rtwn_r88e_txpwr	rtl8188e/r88e_priv.h	/^struct rtwn_r88e_txpwr {$/
+rtwn_r92c_get_txpower	rtl8192c/r92c_var.h	/^#define rtwn_r92c_get_txpower(_sc, _chain, _c, _po/
+rtwn_r92c_set_bw20	rtl8192c/r92c_var.h	/^#define rtwn_r92c_set_bw20(_sc, _chan) \\$/
+rtwn_r92c_set_gain	rtl8192c/r92c_var.h	/^#define rtwn_r92c_set_gain(_sc, _gain) \\$/
+rtwn_r92c_set_name	rtl8192c/r92c_var.h	/^#define rtwn_r92c_set_name(_sc) \\$/
+rtwn_r92c_tx_enable_ampdu	rtl8192c/r92c_var.h	/^#define rtwn_r92c_tx_enable_ampdu(_sc, _buf, _enab/
+rtwn_r92c_tx_setup_hwseq	rtl8192c/r92c_var.h	/^#define rtwn_r92c_tx_setup_hwseq(_sc, _buf) \\$/
+rtwn_r92c_tx_setup_macid	rtl8192c/r92c_var.h	/^#define rtwn_r92c_tx_setup_macid(_sc, _buf, _id) /
+rtwn_r92c_txagc	rtl8192c/r92c_priv.h	/^struct rtwn_r92c_txagc {$/
+rtwn_r92c_txpwr	rtl8192c/r92c_priv.h	/^struct rtwn_r92c_txpwr {$/
+rtwn_report_intr	usb/rtwn_usb_rx.c	/^rtwn_report_intr(struct rtwn_usb_softc *uc, struct/
+rtwn_rf_prog	rtl8192c/r92c_priv.h	/^		&(const struct rtwn_rf_prog){$/
+rtwn_rx_copy_to_mbuf	usb/rtwn_usb_rx.c	/^rtwn_rx_copy_to_mbuf(struct rtwn_softc *sc, struct/
+rtwn_rx_data	pci/rtwn_pci_var.h	/^struct rtwn_rx_data {$/
+rtwn_rx_frame	usb/rtwn_usb_rx.c	/^rtwn_rx_frame(struct rtwn_softc *sc, struct mbuf */
+rtwn_rx_ring	pci/rtwn_pci_var.h	/^struct rtwn_rx_ring {$/
+rtwn_rxeof	usb/rtwn_usb_rx.c	/^rtwn_rxeof(struct rtwn_softc *sc, uint8_t *buf, in/
+rtwn_tx_data	pci/rtwn_pci_var.h	/^struct rtwn_tx_data {$/
+rtwn_tx_ring	pci/rtwn_pci_var.h	/^struct rtwn_tx_ring {$/
+rtwn_usb_abort_xfers	usb/rtwn_usb_attach.c	/^rtwn_usb_abort_xfers(struct rtwn_softc *sc)$/
+rtwn_usb_align_rx	usb/rtwn_usb_var.h	/^#define rtwn_usb_align_rx(_uc, _totlen, _len) \\$/
+rtwn_usb_alloc_list	usb/rtwn_usb_attach.c	/^rtwn_usb_alloc_list(struct rtwn_softc *sc, struct /
+rtwn_usb_alloc_rx_list	usb/rtwn_usb_attach.c	/^rtwn_usb_alloc_rx_list(struct rtwn_softc *sc)$/
+rtwn_usb_alloc_tx_list	usb/rtwn_usb_attach.c	/^rtwn_usb_alloc_tx_list(struct rtwn_softc *sc)$/
+rtwn_usb_attach	usb/rtwn_usb_attach.c	/^rtwn_usb_attach(device_t self)$/
+rtwn_usb_attach_methods	usb/rtwn_usb_attach.c	/^rtwn_usb_attach_methods(struct rtwn_softc *sc)$/
+rtwn_usb_attach_private	usb/rtwn_usb_attach.h	/^rtwn_usb_attach_private(struct rtwn_usb_softc *uc,/
+rtwn_usb_calc_tx_checksum	usb/rtwn_usb_reg.h	/^rtwn_usb_calc_tx_checksum(void *buf)$/
+rtwn_usb_delay	usb/rtwn_usb_reg.c	/^rtwn_usb_delay(struct rtwn_softc *sc, int usec)$/
+rtwn_usb_detach	usb/rtwn_usb_attach.c	/^rtwn_usb_detach(device_t self)$/
+rtwn_usb_drop_incorrect_tx	usb/rtwn_usb_attach.c	/^rtwn_usb_drop_incorrect_tx(struct rtwn_softc *sc)$/
+rtwn_usb_free_list	usb/rtwn_usb_attach.c	/^rtwn_usb_free_list(struct rtwn_softc *sc, struct r/
+rtwn_usb_free_rx_list	usb/rtwn_usb_attach.c	/^rtwn_usb_free_rx_list(struct rtwn_softc *sc)$/
+rtwn_usb_free_tx_list	usb/rtwn_usb_attach.c	/^rtwn_usb_free_tx_list(struct rtwn_softc *sc)$/
+rtwn_usb_fw_write_block	usb/rtwn_usb_attach.c	/^rtwn_usb_fw_write_block(struct rtwn_softc *sc, con/
+rtwn_usb_get_qmap	usb/rtwn_usb_ep.c	/^rtwn_usb_get_qmap(struct rtwn_softc *sc)$/
+rtwn_usb_getbuf	usb/rtwn_usb_tx.c	/^rtwn_usb_getbuf(struct rtwn_usb_softc *uc)$/
+rtwn_usb_match	usb/rtwn_usb_attach.c	/^rtwn_usb_match(device_t self)$/
+rtwn_usb_read_1	usb/rtwn_usb_reg.c	/^rtwn_usb_read_1(struct rtwn_softc *sc, uint16_t ad/
+rtwn_usb_read_2	usb/rtwn_usb_reg.c	/^rtwn_usb_read_2(struct rtwn_softc *sc, uint16_t ad/
+rtwn_usb_read_4	usb/rtwn_usb_reg.c	/^rtwn_usb_read_4(struct rtwn_softc *sc, uint16_t ad/
+rtwn_usb_read_region_1	usb/rtwn_usb_reg.c	/^rtwn_usb_read_region_1(struct rtwn_softc *sc, uint/
+rtwn_usb_reset_lists	usb/rtwn_usb_attach.c	/^rtwn_usb_reset_lists(struct rtwn_softc *sc, struct/
+rtwn_usb_reset_tx_list	usb/rtwn_usb_attach.c	/^rtwn_usb_reset_tx_list(struct rtwn_usb_softc *uc,$/
+rtwn_usb_resume	usb/rtwn_usb_attach.c	/^rtwn_usb_resume(device_t self)$/
+rtwn_usb_setup_endpoints	usb/rtwn_usb_ep.c	/^rtwn_usb_setup_endpoints(struct rtwn_usb_softc *uc/
+rtwn_usb_setup_queues	usb/rtwn_usb_ep.c	/^rtwn_usb_setup_queues(struct rtwn_usb_softc *uc)$/
+rtwn_usb_softc	usb/rtwn_usb_attach.h	/^typedef void	(*chip_usb_attach)(struct rtwn_usb_so/
+rtwn_usb_start_xfers	usb/rtwn_usb_attach.c	/^rtwn_usb_start_xfers(struct rtwn_softc *sc)$/
+rtwn_usb_suspend	usb/rtwn_usb_attach.c	/^rtwn_usb_suspend(device_t self)$/
+rtwn_usb_tx_checksum	usb/rtwn_usb_tx.c	/^rtwn_usb_tx_checksum(struct rtwn_tx_desc_common *t/
+rtwn_usb_tx_start	usb/rtwn_usb_tx.c	/^rtwn_usb_tx_start(struct rtwn_softc *sc, struct ie/
+rtwn_usb_txeof	usb/rtwn_usb_tx.c	/^rtwn_usb_txeof(struct rtwn_usb_softc *uc, struct r/
+rtwn_usb_write_1	usb/rtwn_usb_reg.c	/^rtwn_usb_write_1(struct rtwn_softc *sc, uint16_t a/
+rtwn_usb_write_2	usb/rtwn_usb_reg.c	/^rtwn_usb_write_2(struct rtwn_softc *sc, uint16_t a/
+rtwn_usb_write_4	usb/rtwn_usb_reg.c	/^rtwn_usb_write_4(struct rtwn_softc *sc, uint16_t a/
+rtwn_usb_write_region_1	usb/rtwn_usb_reg.c	/^rtwn_usb_write_region_1(struct rtwn_softc *sc, uin/

@@ -1,7 +1,9 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +19,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188eee/pci/r88ee_rx.c 307529 2016-10-17 20:38:24Z avos $");
+__FBSDID("$FreeBSD$");
 
 #include "opt_wlan.h"
 
@@ -51,93 +53,80 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188eee/pci/r88ee_rx.c 307529 2016-10-1
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8188ee/pci/r88ee.h>
-#include <dev/rtwn/rtl8188ee/pci/r88ee_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
 
 
 int
-r88ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
+r988ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 {
-#if 0
 	uint32_t status;
 	int *rings = arg;
 	int ret;
 
 	*rings = 0;
-	status = rtwn_read_4(sc, R88EE_HISR);
+	status = rtwn_read_4(sc, R88E_HISR);
 	RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: HISR %08X, HISRE %04X\n",
-	    __func__, status, rtwn_read_2(sc, R88EE_HISRE));
+	    __func__, status, rtwn_read_2(sc, R88E_HISRE));
 	if (status == 0 || status == 0xffffffff)
 		return (0);
 
 	/* Disable interrupts. */
-	rtwn_write_4(sc, R88EE_HIMR, 0);
+	rtwn_write_4(sc, R88E_HIMR, 0);
 
 	/* Ack interrupts. */
-	rtwn_write_4(sc, R88EE_HISR, status);
+	rtwn_write_4(sc, R88E_HISR, status);
 
-	if (status & R88EE_IMR_BDOK)
+	if (status & R88E_IMR_BDOK)
 		*rings |= (1 << RTWN_PCI_BEACON_QUEUE);
-	if (status & R88EE_IMR_HIGHDOK)
+	if (status & R88E_IMR_HIGHDOK)
 		*rings |= (1 << RTWN_PCI_HIGH_QUEUE);
-	if (status & R88EE_IMR_MGNTDOK)
+	if (status & R88E_IMR_MGNTDOK)
 		*rings |= (1 << RTWN_PCI_MGNT_QUEUE);
-	if (status & R88EE_IMR_BKDOK)
+	if (status & R88E_IMR_BKDOK)
 		*rings |= (1 << RTWN_PCI_BK_QUEUE);
-	if (status & R88EE_IMR_BEDOK)
+	if (status & R88E_IMR_BEDOK)
 		*rings |= (1 << RTWN_PCI_BE_QUEUE);
-	if (status & R88EE_IMR_VIDOK)
+	if (status & R88E_IMR_VIDOK)
 		*rings |= (1 << RTWN_PCI_VI_QUEUE);
-	if (status & R88EE_IMR_VODOK)
+	if (status & R88E_IMR_VODOK)
 		*rings |= (1 << RTWN_PCI_VO_QUEUE);
 
 	ret = 0;
-	if (status & R88EE_IMR_RXFOVW)
+	if (status & R88E_IMR_RXFOVW)
 		ret |= RTWN_PCI_INTR_RX_OVERFLOW;
-	if (status & R88EE_IMR_RDU)
+	if (status & R88E_IMR_RDU)
 		ret |= RTWN_PCI_INTR_RX_DESC_UNAVAIL;
-	if (status & R88EE_IMR_ROK)
+	if (status & R88E_IMR_ROK)
 		ret |= RTWN_PCI_INTR_RX_DONE;
-	if (status & R88EE_IMR_TXFOVW)
+	if (status & R88E_IMR_TXFOVW)
 		ret |= RTWN_PCI_INTR_TX_OVERFLOW;
-	if (status & R88EE_IMR_PSTIMEOUT)
+	if (status & R88E_IMR_PSTIMEOUT)
 		ret |= RTWN_PCI_INTR_PS_TIMEOUT;
 
 	return (ret);
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-	return 0;
-#endif
 }
 
-#define R88EE_INT_ENABLE (R88EE_IMR_ROK | R88EE_IMR_VODOK | R88EE_IMR_VIDOK | \
-			R88EE_IMR_BEDOK | R88EE_IMR_BKDOK | R88EE_IMR_MGNTDOK | \
-			R88EE_IMR_HIGHDOK | R88EE_IMR_BDOK | R88EE_IMR_RDU | \
-			R88EE_IMR_RXFOVW)
+#define R88E_INT_ENABLE (R88E_IMR_ROK | R88E_IMR_VODOK | R88E_IMR_VIDOK | \
+			R88E_IMR_BEDOK | R88E_IMR_BKDOK | R88E_IMR_MGNTDOK | \
+			R88E_IMR_HIGHDOK | R88E_IMR_BDOK | R88E_IMR_RDU | \
+			R88E_IMR_RXFOVW)
 void
-r88ee_enable_intr(struct rtwn_pci_softc *pc)
+r988ee_enable_intr(struct rtwn_pci_softc *pc)
 {
-#if 0
 	struct rtwn_softc *sc = &pc->pc_sc;
 
 	/* Enable interrupts. */
-	rtwn_write_4(sc, R88EE_HIMR, R88EE_INT_ENABLE);
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-#endif
+	rtwn_write_4(sc, R88E_HIMR, R88E_INT_ENABLE);
 }
 
 void
-r88ee_start_xfers(struct rtwn_softc *sc)
+r988ee_start_xfers(struct rtwn_softc *sc)
 {
-#if 0
 	/* Clear pending interrupts. */
-	rtwn_write_4(sc, R88EE_HISR, 0xffffffff);
+	rtwn_write_4(sc, R88E_HISR, 0xffffffff);
 
 	/* Enable interrupts. */
-	rtwn_write_4(sc, R88EE_HIMR, R88EE_INT_ENABLE);
-#else
-	printf("RTL8188EE:%s not implemented\n", __func__);
-#endif
+	rtwn_write_4(sc, R88E_HIMR, R88E_INT_ENABLE);
 }
-#undef R88EE_INT_ENABLE
+#undef R88E_INT_ENABLE

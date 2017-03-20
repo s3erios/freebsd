@@ -1,7 +1,9 @@
 /*	$OpenBSD: if_rtwn.c,v 1.6 2015/08/28 00:03:53 deraadt Exp $	*/
 
 /*-
- * Copyright (c) 2017 Farhan Khan <khanzf@gmail.com>
+ * Copyright (c) 2010 Damien Bergamini <damien.bergamini@free.fr>
+ * Copyright (c) 2015 Stefan Sperling <stsp@openbsd.org>
+ * Copyright (c) 2016 Andriy Voskoboinyk <avos@FreeBSD.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +19,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_led.c 307529 2016-10-17 20:38:24Z avos $");
+__FBSDID("$FreeBSD$");
 
 #include "opt_wlan.h"
 
@@ -50,19 +52,19 @@ __FBSDID("$FreeBSD: head/sys/dev/rtwn/rtl8188ee/pci/r88ee_led.c 307529 2016-10-1
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-//#include <dev/rtwn/rtl8188ee/pci/r88ee.h>
-//#include <dev/rtwn/rtl8188ee/pci/r88ee_reg.h>
+#include <dev/rtwn/rtl8192c/pci/r92ce.h>
+#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
 
 void
 r88ee_set_led(struct rtwn_softc *sc, int led, int on)
 {
 #if 0
 	if (led == RTWN_LED_LINK) {
-		rtwn_setbits_1(sc, R88EE_LEDCFG2, 0x0f,
-		    on ? R88EE_LEDCFG2_EN : R88EE_LEDCFG2_DIS);
+		rtwn_setbits_1(sc, R88E_LEDCFG2, 0x0f,
+		    on ? R92C_LEDCFG2_EN : R88E_LEDCFG2_DIS);
 		sc->ledlink = on;	/* Save LED state. */
 	}
 #else
-	printf("RTL8188EE:%s not implemented\n", __func__);
+	printf("Not implemented\n");
 #endif
 }

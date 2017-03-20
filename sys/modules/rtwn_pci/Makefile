@@ -18,9 +18,11 @@ SRCS	+= r92ce_attach.c r92ce_calib.c r92ce_fw.c r92ce_init.c r92ce_led.c \
 	   r92ce.h r92ce_priv.h r92ce_reg.h r92ce_rx_desc.h r92ce_tx_desc.h
 
 .PATH: ${.CURDIR}/../../dev/rtwn/rtl8188e/pci
-SRCS    += r88ee_attach.c r88ee_calib.c r88ee_fw.c r88ee_init.c r88ee_led.c \
-	   r88ee_rx.c r88ee_tx.c \
+SRCS    += r88ee_attach.c r88ee_calib.c r88ee_fw.c r88ee_init.c \
+	   r88ee_tx.c \
            r88ee.h r88ee_priv.h r88ee_reg.h r88ee_rx_desc.h r88ee_tx_desc.h
+
+# Just removed r88ee_led.c
 
 
 opt_rtwn.h:
