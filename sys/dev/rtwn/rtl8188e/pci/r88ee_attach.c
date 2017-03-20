@@ -175,7 +175,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	pc->pc_setup_tx_desc		= r88ee_setup_tx_desc;
 	pc->pc_tx_postsetup		= r88ee_tx_postsetup;
 	pc->pc_copy_tx_desc		= r88ee_copy_tx_desc;
-	pc->pc_enable_intr		= r88ee_enable_intr;
+	pc->pc_enable_intr		= r92ce_enable_intr;
 
 	pc->pc_qmap			= 0xf771;
 	pc->tcr				=
@@ -185,7 +185,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	/* RTL8192C* cannot use pairwise keys from first 4 slots */
 	sc->sc_flags			= RTWN_FLAG_CAM_FIXED;
 
-	sc->sc_start_xfers		= r88ee_start_xfers;
+	sc->sc_start_xfers		= r92ce_start_xfers;
 	sc->sc_set_chan			= r92c_set_chan;
 	sc->sc_fill_tx_desc		= r92c_fill_tx_desc;
 	sc->sc_fill_tx_desc_raw		= r92c_fill_tx_desc_raw;
@@ -195,7 +195,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_rx_radiotap_flags	= r92c_rx_radiotap_flags;
 	sc->sc_get_rssi_cck		= r88e_get_rssi_cck;
 	sc->sc_get_rssi_ofdm		= r88e_get_rssi_ofdm;
-	sc->sc_classify_intr		= r88ee_classify_intr;
+	sc->sc_classify_intr		= r92ce_classify_intr;
 	sc->sc_handle_tx_report		= rtwn_nop_softc_uint8_int;
 	sc->sc_handle_c2h_report	= rtwn_nop_softc_uint8_int;
 	sc->sc_check_frame		= rtwn_nop_int_softc_mbuf;
@@ -237,7 +237,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_init_intr		= r92ce_init_intr;
 	sc->sc_init_edca		= r92ce_init_edca;
 	sc->sc_init_bb			= r88e_init_bb;
-	sc->sc_init_rf			= r88e_init_rf;
+	sc->sc_init_rf			= r92c_init_rf;
 	sc->sc_init_antsel		= rtwn_nop_softc;
 	sc->sc_post_init		= r92ce_post_init;
 	sc->sc_init_bcnq1_boundary	= rtwn_nop_int_softc;

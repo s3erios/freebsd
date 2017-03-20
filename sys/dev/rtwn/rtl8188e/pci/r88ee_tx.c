@@ -61,22 +61,30 @@ void
 r88ee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
     uint32_t next_desc_addr)
 {
+#if 0
 	struct r88ee_tx_desc *txd = desc;
 
 	/* setup tx desc */
 	txd->nextdescaddr = htole32(next_desc_addr);
+#else
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+#endif
 }
 
 void
 r88ee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
     bus_dma_segment_t segs[])
 {
+#if 0
 	struct r88ee_tx_desc *txd = desc;
 
 	txd->txbufaddr = htole32(segs[0].ds_addr);
 	txd->txbufsize = txd->pktlen;
 	bus_space_barrier(pc->pc_st, pc->pc_sh, 0, pc->pc_mapsize,
 	    BUS_SPACE_BARRIER_WRITE);
+#else
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+#endif
 }
 
 void
@@ -99,6 +107,7 @@ r88ee_copy_tx_desc(void *dest, const void *src)
 void
 r88ee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 {
+#if 0
 #ifdef RTWN_DEBUG
 	const struct r88ee_tx_desc *txd = desc;
 
@@ -115,5 +124,8 @@ r88ee_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 	    le32toh(txd->nextdescaddr), le32toh(txd->nextdescaddr64),
 	    le32toh(txd->reserved[0]), le32toh(txd->reserved[1]),
 	    le32toh(txd->reserved[2]), le32toh(txd->reserved[3]));
+#endif
+#else
+	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
 }
