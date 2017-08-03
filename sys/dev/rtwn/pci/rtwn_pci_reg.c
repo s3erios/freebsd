@@ -56,7 +56,7 @@ rtwn_pci_write_1(struct rtwn_softc *sc, uint16_t addr, uint8_t val)
 {
 	struct rtwn_pci_softc *pc = RTWN_PCI_SOFTC(sc);
 
-	printf("write_1(addr=0x%x val=0x%x)\n", addr, val);
+//	printf("write_1(addr=0x%x val=0x%x)\n", addr, val);
 
 	bus_space_write_1(pc->pc_st, pc->pc_sh, addr, val);
 
@@ -68,7 +68,7 @@ rtwn_pci_write_2(struct rtwn_softc *sc, uint16_t addr, uint16_t val)
 {
 	struct rtwn_pci_softc *pc = RTWN_PCI_SOFTC(sc);
 
-	printf("write_2(addr=0x%x val=0x%x)\n", addr, val);
+	//printf("write_2(addr=0x%x val=0x%x)\n", addr, val);
 
 	val = htole16(val);
 	bus_space_write_2(pc->pc_st, pc->pc_sh, addr, val);
@@ -81,7 +81,7 @@ rtwn_pci_write_4(struct rtwn_softc *sc, uint16_t addr, uint32_t val)
 {
 	struct rtwn_pci_softc *pc = RTWN_PCI_SOFTC(sc);
 
-	printf("write_4(addr=0x%x val=0x%x)\n", addr, val);
+	//printf("write_4(addr=0x%x val=0x%x)\n", addr, val);
 
 	val = htole32(val);
 	bus_space_write_4(pc->pc_st, pc->pc_sh, addr, val);
@@ -97,7 +97,7 @@ rtwn_pci_read_1(struct rtwn_softc *sc, uint16_t addr)
 
 	val = bus_space_read_2(pc->pc_st, pc->pc_sh, addr);
 
-	printf("read_1(addr=0x%x) = 0x%x\n", addr, val);
+//	printf("read_1(addr=0x%x) = 0x%x\n", addr, val);
 
 	return (val);
 }
@@ -109,7 +109,7 @@ rtwn_pci_read_2(struct rtwn_softc *sc, uint16_t addr)
 	uint16_t val;
 
 	val = bus_space_read_2(pc->pc_st, pc->pc_sh, addr);
-	printf("read_2(addr=0x%x) = 0x%x\n", addr, le16toh(val));
+//	printf("read_2(addr=0x%x) = 0x%x\n", addr, le16toh(val));
 	return le16toh(val);
 }
 
@@ -120,7 +120,7 @@ rtwn_pci_read_4(struct rtwn_softc *sc, uint16_t addr)
 	uint32_t val;
 
 	val = bus_space_read_4(pc->pc_st, pc->pc_sh, addr);
-	printf("read_4(addr=0x%x) = 0x%x\n", addr, le32toh(val));
+//	printf("read_4(addr=0x%x) = 0x%x\n", addr, le32toh(val));
 
 	return le32toh(val);
 }
