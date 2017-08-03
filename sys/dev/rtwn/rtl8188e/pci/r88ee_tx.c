@@ -101,7 +101,7 @@ r88ee_copy_tx_desc(void *dest, const void *src)
 	else
 		memset(dest, 0, len);
 #else
-	printf("Not implemented\n");
+	//printf("Not implemented\n");
 #endif
 }
 

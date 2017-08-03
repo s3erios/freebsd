@@ -62,10 +62,10 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 	int error;
 
 	_func_level++;
-	for(_loop=0 ; _loop < _func_level ; _loop++)
-		printf("-");
+//	for(_loop=0 ; _loop < _func_level ; _loop++)
+//		printf("-");
 
-	printf("%s(sc)\n", __func__);
+//	printf("%s(sc)\n", __func__);
 
 	error = rtwn_write_1(sc, R92C_EFUSE_ACCESS, R92C_EFUSE_ACCESS_ON);
 	if (error != 0)
@@ -73,7 +73,7 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 
 	reg = rtwn_read_2(sc, R92C_SYS_FUNC_EN);
 	if (!(reg & R92C_SYS_FUNC_EN_ELDR)) {
-		printf("Comes here");
+//		printf("Comes here");
 		error = rtwn_write_2(sc, R92C_SYS_FUNC_EN,
 		    reg | R92C_SYS_FUNC_EN_ELDR);
 		if (error != 0)
@@ -82,7 +82,7 @@ rtwn_efuse_switch_power(struct rtwn_softc *sc)
 	reg = rtwn_read_2(sc, R92C_SYS_CLKR);
 	if ((reg & (R92C_SYS_CLKR_LOADER_EN | R92C_SYS_CLKR_ANA8M)) !=
 	    (R92C_SYS_CLKR_LOADER_EN | R92C_SYS_CLKR_ANA8M)) {
-		printf("Second comes here\n");
+//		printf("Second comes here\n");
 		error = rtwn_write_2(sc, R92C_SYS_CLKR,
 		    reg | R92C_SYS_CLKR_LOADER_EN | R92C_SYS_CLKR_ANA8M);
 		if (error != 0)
@@ -100,10 +100,10 @@ rtwn_efuse_read_next(struct rtwn_softc *sc, uint8_t *val)
 	int ntries, error;
 
         _func_level++;
-        for(_loop=0 ; _loop < _func_level ; _loop++)
-                printf("-");
+//        for(_loop=0 ; _loop < _func_level ; _loop++)
+//                printf("-");
 
-	printf("%s(sc, val=0x%x\n", __func__, *val);
+//	printf("%s(sc, val=0x%x\n", __func__, *val);
 
 	if (sc->next_rom_addr >= sc->efuse_maxlen)
 		return (EFAULT);
@@ -144,9 +144,9 @@ rtwn_efuse_read_data(struct rtwn_softc *sc, uint8_t *rom, uint8_t off,
 	int addr, i, error;
 
         _func_level++;
-        for(_loop=0 ; _loop < _func_level ; _loop++)
-                printf("-");
-	printf("%s(sc, rom=0x%x, off=0x%x, msk=0x%x)\n", __func__, *rom, off, msk);
+//        for(_loop=0 ; _loop < _func_level ; _loop++)
+//                printf("-");
+//	printf("%s(sc, rom=0x%x, off=0x%x, msk=0x%x)\n", __func__, *rom, off, msk);
 
 	for (i = 0; i < 4; i++) {
 		if (msk & (1 << i))
@@ -182,10 +182,10 @@ rtwn_dump_rom_contents(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 	int i;
 
         _func_level++;
-        for(_loop=0 ; _loop < _func_level ; _loop++)
-                printf("-");
+//        for(_loop=0 ; _loop < _func_level ; _loop++)
+//                printf("-");
 
-	printf("%s(sc, rom=0x%x, size=0x%x)\n", __func__, *rom, size);
+//	printf("%s(sc, rom=0x%x, size=0x%x)\n", __func__, *rom, size);
 
 	/* Dump ROM contents. */
 	device_printf(sc->sc_dev, "%s:", __func__);
@@ -213,11 +213,11 @@ rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 	int error;
 
       _func_level++;
-        for(_loop=0 ; _loop < _func_level ; _loop++)
-             printf("-");
+//        for(_loop=0 ; _loop < _func_level ; _loop++)
+//             printf("-");
 
 
-	printf("%s(sc, rom=ptr, size=0x%x)\n", __func__, size);
+//	printf("%s(sc, rom=ptr, size=0x%x)\n", __func__, size);
 
 	/* Read full ROM image. */
 	sc->next_rom_addr = 0;
@@ -226,7 +226,7 @@ rtwn_efuse_read(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 	RTWN_CHK(rtwn_efuse_read_next(sc, &reg));
 	while (reg != 0xff) {
 		/* check for extended header */
-		printf("rtwn_flag_ext_hdr: %x\n", RTWN_FLAG_EXT_HDR);
+//		printf("rtwn_flag_ext_hdr: %x\n", RTWN_FLAG_EXT_HDR);
 		if ((sc->sc_flags & RTWN_FLAG_EXT_HDR) &&
 		    (reg & 0x1f) == 0x0f) {
 			off = reg >> 5;
@@ -271,11 +271,11 @@ rtwn_efuse_read_prepare(struct rtwn_softc *sc, uint8_t *rom, uint16_t size)
 //	uint8_t b; // Mine
 
 	        _func_level++;
-        for(_loop=0 ; _loop < _func_level ; _loop++)
-                printf("-");
+//        for(_loop=0 ; _loop < _func_level ; _loop++)
+//                printf("-");
 
 
-	printf("%s(sc, rom=ptr, size=0x%x\n", __func__, size);
+//	printf("%s(sc, rom=ptr, size=0x%x\n", __func__, size);
 
 	error = rtwn_efuse_switch_power(sc);
 	if (error != 0)
@@ -306,10 +306,10 @@ rtwn_read_rom(struct rtwn_softc *sc)
 	int error;
 
         _func_level++;
-        for(_loop=0 ; _loop < _func_level ; _loop++)
-                printf("-");
+//        for(_loop=0 ; _loop < _func_level ; _loop++)
+//                printf("-");
 
-	printf("%s(sc)\n", __func__);
+//	printf("%s(sc)\n", __func__);
 
 	rom = malloc(sc->efuse_maplen, M_TEMP, M_WAITOK);
 
