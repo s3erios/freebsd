@@ -104,7 +104,7 @@ r88ee_postattach(struct rtwn_softc *sc)
 #else
 	struct r92c_softc *rs = sc->sc_priv;
 	struct ieee80211com *ic = &sc->sc_ic;
-	sc->fwname = "rtl8188efw.bin";
+	sc->fwname = "rtwn-rtl8188eefw";
 	sc->fwsig = 0x88c;
 
 	rs->rs_scan_start = ic->ic_scan_start;
@@ -267,7 +267,9 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 
 	sc->macid_limit			= R88E_MACID_MAX + 1;
 	sc->cam_entry_limit		= R92C_CAM_ENTRY_COUNT;
-	sc->fwsize_limit		= R92C_MAX_FW_SIZE;
+//	sc->fwsize_limit		= R92C_MAX_FW_SIZE; 
+	sc->fwsize_limit		= 77895; // Stolen from Linux
+	// https://github.com/lwfinger/rtlwifi_new/blob/master/rtl8188ee/fw.h#L32
 	sc->temp_delta			= R88E_CALIB_THRESHOLD;
 
 	sc->bcn_status_reg[0]		= R92C_TDECTRL;
