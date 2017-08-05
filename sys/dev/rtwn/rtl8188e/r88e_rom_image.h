@@ -59,6 +59,8 @@ _Static_assert(sizeof(struct r88e_rom) == R88E_EFUSE_MAP_LEN,
 
 /*
  * RTL8188EE ROM image.
+ * Largely derived from this:
+ * http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c#1576
  */
 
 struct _bw40_bw20_ofdm_cck {
@@ -95,7 +97,7 @@ struct r88ee_rom {
 	uint16_t			clk;
 	uint8_t				testr[8];
 
-	struct _r88ee_rf_path		rfpath[4];//R88EE_MAX_RF_PATH]; // MAX_RF_PATH is 4 [16-168]
+	struct _r88ee_rf_path		rfpath[4]; //R88EE [MAX_RF_PATH]; // MAX_RF_PATH is 4 [16-168]
 
 	uint8_t				unknown3[25];
 	uint8_t				rf_board_option;

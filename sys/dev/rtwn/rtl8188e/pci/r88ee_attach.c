@@ -105,7 +105,7 @@ r88ee_postattach(struct rtwn_softc *sc)
 	struct r92c_softc *rs = sc->sc_priv;
 	struct ieee80211com *ic = &sc->sc_ic;
 	sc->fwname = "rtwn-rtl8188eefw";
-	sc->fwsig = 0x88c;
+	sc->fwsig = 0x88E;
 
 	rs->rs_scan_start = ic->ic_scan_start;
 	ic->ic_scan_start = r92c_scan_start;
@@ -113,7 +113,8 @@ r88ee_postattach(struct rtwn_softc *sc)
 	ic->ic_scan_end = r92c_scan_end;
 
 //	printf("Check this too\n");
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
+//	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
 }
 
@@ -121,6 +122,7 @@ static void
 r88ee_set_name(struct rtwn_softc *sc)
 {
 	sc->name = "RTL8188EE";
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 }
 
 static void
@@ -138,6 +140,7 @@ r88ee_attach_private(struct rtwn_softc *sc)
 	rs->rs_tx_enable_ampdu		= r88e_tx_enable_ampdu;
 	rs->rs_tx_setup_hwseq		= r88e_tx_setup_hwseq;
 	rs->rs_tx_setup_macid		= r88e_tx_setup_macid;
+	printf("Should be setting the name here\n");
 	rs->rs_set_name			= r88ee_set_name;
 
 	/* XXX TODO: test with net80211 ratectl! */
@@ -152,6 +155,8 @@ r88ee_attach_private(struct rtwn_softc *sc)
 	rs->rf_read_delay[2]		= 1000;
 
 	sc->sc_priv = rs;
+
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 }
 
 static void
@@ -164,6 +169,8 @@ r88ee_adj_devcaps(struct rtwn_softc *sc)
 	 * will not be tested / fixed + HRPWM register must be set too.
 	 */
 	ic->ic_caps &= ~IEEE80211_C_PMGT;
+
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 }
 
 void
@@ -282,5 +289,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->bcn_status_reg[1]		= R92C_TDECTRL;
 	sc->rcr				= 0;
 
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
+	printf("Is this called?\n");
 	r88ee_attach_private(sc);
 }

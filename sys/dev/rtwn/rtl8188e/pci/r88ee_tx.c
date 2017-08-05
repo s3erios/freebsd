@@ -61,13 +61,14 @@ void
 r88ee_setup_tx_desc(struct rtwn_pci_softc *pc, void *desc,
     uint32_t next_desc_addr)
 {
-#if 0
+#if 1
 	struct r88ee_tx_desc *txd = desc;
 
 	/* setup tx desc */
 	txd->nextdescaddr = htole32(next_desc_addr);
 #else
 	//printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 	return;
 #endif
 }
@@ -91,7 +92,7 @@ r88ee_tx_postsetup(struct rtwn_pci_softc *pc, void *desc,
 void
 r88ee_copy_tx_desc(void *dest, const void *src)
 {
-#if 0
+#if 1
 	struct r88ee_tx_desc *txd = dest;
 	size_t len = sizeof(struct r92c_tx_desc) +
 	    sizeof(txd->txbufsize) + sizeof(txd->pad);
@@ -101,7 +102,7 @@ r88ee_copy_tx_desc(void *dest, const void *src)
 	else
 		memset(dest, 0, len);
 #else
-	//printf("Not implemented\n");
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 #endif
 }
 

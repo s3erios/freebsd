@@ -171,6 +171,8 @@ rtwn_attach(struct rtwn_softc *sc)
 
 	sc->cur_bcnq_id = RTWN_VAP_ID_INVALID;
 
+	printf("6\n");
+
 	RTWN_NT_LOCK_INIT(sc);
 	rtwn_cmdq_init(sc);
 #ifndef D4054
@@ -180,6 +182,8 @@ rtwn_attach(struct rtwn_softc *sc)
 	callout_init(&sc->sc_pwrmode_init, 0);
 	mbufq_init(&sc->sc_snd, ifqmaxlen);
 
+	printf("7\n");
+
 	RTWN_LOCK(sc);
 	error = rtwn_read_chipid(sc);
 	RTWN_UNLOCK(sc);
@@ -188,12 +192,16 @@ rtwn_attach(struct rtwn_softc *sc)
 		goto detach;
 	}
 
+	printf("8\n");
+
 	error = rtwn_read_rom(sc);
 	if (error != 0) {
 		device_printf(sc->sc_dev, "%s: cannot read rom, error %d\n",
 		    __func__, error);
 		goto detach;
 	}
+	
+	printf("9\n");
 
 	if (sc->macid_limit > RTWN_MACID_LIMIT) {
 		device_printf(sc->sc_dev,

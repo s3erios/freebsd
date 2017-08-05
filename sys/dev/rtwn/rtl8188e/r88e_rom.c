@@ -88,17 +88,22 @@ r88e_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 void
 r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 {
-//	struct r88ee_softc *rs = sc->sc_priv;
-//	struct rtwn_r88ee_txpwr *rt = rs->rs_txpwr;
+	struct r92c_softc *rs = sc->sc_priv;
+	struct rtwn_r88e_txpwr *rt = rs->rs_txpwr;
 	struct r88ee_rom *rom = (struct r88ee_rom *)buf;
+
 
 	// Code comes from: https://github.com/lwfinger/rtlwifi_new/blob/dfd58dae0d52f9d2fa6569be51dd739d8d4eafd4/rtl8188ee/hw.c#L1866
 //	rs->board_type = MS(rom->rf_opt1, R88EE_ROM_RF1_BOARD_TYPE);
 //	rs->regulatory = MS(rom->rf_opt1, R88EE_ROM_RF1_REGULATORY);
 
+	// These values should not be 0
+	rt->bw20_tx_pwr_diff = 0; //RTWN_SIGN4TO8(MS(rom->tx_pwr_diff, HIGH_PART));
+	rt->ofdm_tx_pwr_diff = 0; //RTWN_SIGN4TO8(MS(rom->tx_pwr_diff, LOW_PART));
 
-//	rtwn_r88ee_set_name(sc);	// This is not completed yet
-	//r88e_set_chains(sc);		// This is not completed yet
+	rtwn_r92c_set_name(sc);	// This is here because the rtl8192c parse rom function has it here. 
+//	r92c_set_chains(sc);		// This is not completed yet
+	// This might not be necessary? Will be left blank for now
 
 	printf("id:\t\t\t%x\n", rom->id);
 	printf("hpon:\t\t\tRender How?\n");
@@ -126,7 +131,10 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 //	printf("Board type: %x\n", rs->board_type);
 //	printf("Regulatory: %x\n", rs->regulatory);
 
+	
+
 	IEEE80211_ADDR_COPY(sc->sc_ic.ic_macaddr, rom->macaddr);
+	printf("RTL8188EE:%s:%s This function is clearly broken\n", __FILE__, __func__);
 
 }
 

@@ -131,6 +131,7 @@ r88ee_iq_calib_chain(struct rtwn_softc *sc, int chain, uint16_t tx[2],
 	return (3);	/* Both Tx and Rx succeeded. */
 #else
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 	return (-1);
 #endif
 }
@@ -284,6 +285,7 @@ r88ee_iq_calib_run(struct rtwn_softc *sc, int n, uint16_t tx[2][2],
 	}
 #else
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 #endif
 }
 
@@ -316,6 +318,7 @@ r88ee_iq_calib_compare_results(struct rtwn_softc *sc, uint16_t tx1[2][2],
 		return (tx_ok[0] && rx_ok[0]);
 #else
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 	return (0);
 #endif
 }
