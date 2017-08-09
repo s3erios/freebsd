@@ -64,6 +64,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/rtl8192c/pci/r92ce_priv.h>
 #include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
 #include <dev/rtwn/rtl8192c/pci/r92ce_tx_desc.h>
+#include <dev/rtwn/rtl8192c/r92c.h>
 // Remove at the end
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
@@ -289,7 +290,9 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->bcn_status_reg[1]		= R92C_TDECTRL;
 	sc->rcr				= 0;
 
+	sc->sc_llt_init =		r92c_llt_init;
+
 	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
-	printf("Is this called?\n");
+	printf("Is this called now?\n");
 	r88ee_attach_private(sc);
 }
