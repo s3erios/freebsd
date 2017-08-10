@@ -162,3 +162,25 @@ you [illumos](https://www.illumos.org/)!
 
 Make the driver work on FreeBSD, hop to other WiFi drivers.
 Maybe work on other porting for OpenBSD and illumos...?
+
+## Linux to FreeBSD Mapping
+
+On the Linux and FreeBSD side:
+```
+rtl_write_byte(struct rtl_priv *rtlpriv, u32 addr u8 val8)
+r88e_rf_write(struct rtwn_softc *sc, int chain, uint8_t addr, uint32_t val)
+```
+
+## Current thought
+
+Verify these match the Linux driver:
+
+```
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/r92c_beacon.c r92c_beacon_init Borrowed function
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/r92c_init.c r92c_set_page_size Borrowed function
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_init_intr Borrowed function
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_init_edca Borrowed function
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_init_ampdu Borrowed function
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_post_init Borrowed function
+RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/r92c_calib.c r92c_lc_calib Borrowed function
+```
