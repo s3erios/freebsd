@@ -60,6 +60,7 @@ r92c_beacon_init(struct rtwn_softc *sc, void *buf, int id)
 	 * NB: there is no need to setup HWSEQ_EN bit;
 	 * QSEL_BEACON already implies it.
 	 */
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	txd->flags0 |= R92C_FLAGS0_BMCAST | R92C_FLAGS0_FSG | R92C_FLAGS0_LSG;
 	txd->txdw1 |= htole32(
 	    SM(R92C_TXDW1_QSEL, R92C_TXDW1_QSEL_BEACON) |

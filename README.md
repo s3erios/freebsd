@@ -177,8 +177,40 @@ Verify these match the Linux driver:
 
 ```
 RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/r92c_beacon.c r92c_beacon_init Borrowed function
+```
+r92c_beacon_init sets values for struct rtwn_vap uvp
+r92c_beacon_init is rtwn_beacon_init in the core.
+rtwn_beacon_init called by rtwn_vap_create
+rtwn_vap_create called by wlan_clone_create in net80211
+wlan_clone_create called by wlan_modevent in net80211
+
+I cannot seem to figure out where that rtwn_vap value is invoked and how this might differ from r88ee,
+so I will come back to it, in sha Allah.
+
+```
 RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/r92c_init.c r92c_set_page_size Borrowed function
+```
+Writes to the same register, R92C_PBP (FreeBSD) REG_PBP (Linux) which is 0x0104
+The Linux driver hardcodes in the value 0x11, while the FreeBSD calculates it.
+No changes made here
+
+
+```
 RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_init_intr Borrowed function
+```
+Differences:
+rtl8192ce:
+R92C_HISR = REG_HISR = 0x124
+R92C_HIMR = REG_HIMR  = 0x120
+
+rtl8188ee:
+H88E_HISR = R88E=HISR = 0x00B4
+R88E_HIMR = R88E_HIMR = 0x00B0
+
+Was Replacing it with r88eu_init_intr
+
+
+```
 RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_init_edca Borrowed function
 RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_init_ampdu Borrowed function
 RTL8192CE:/usr/src/sys/dev/rtwn/rtl8192c/pci/r92ce_init.c r92ce_post_init Borrowed function

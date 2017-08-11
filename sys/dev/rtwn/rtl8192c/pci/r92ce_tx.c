@@ -98,6 +98,8 @@ r92ce_dump_tx_desc(struct rtwn_softc *sc, const void *desc)
 #ifdef RTWN_DEBUG
 	const struct r92ce_tx_desc *txd = desc;
 
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
+
 	RTWN_DPRINTF(sc, RTWN_DEBUG_XMIT_DESC,
 	    "%s: len %d, off %d, flags0 %02X, dw: 1 %08X, 2 %08X, 3 %04X "
 	    "(seq %04X), 4 %08X, 5 %08X, 6 %08X, size %04X, pad %04X, "

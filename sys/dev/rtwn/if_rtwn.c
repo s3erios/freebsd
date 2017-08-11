@@ -79,7 +79,6 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/rtl8192c/r92c_reg.h>
 
-
 static void		rtwn_radiotap_attach(struct rtwn_softc *);
 static void		rtwn_vap_decrement_counters(struct rtwn_softc *,
 			    enum ieee80211_opmode, int);
@@ -555,6 +554,7 @@ rtwn_vap_create(struct ieee80211com *ic, const char name[IFNAMSIZ], int unit,
 
 	if (ieee80211_vap_setup(ic, vap, name, unit, opmode,
 	    flags | IEEE80211_CLONE_NOBEACONS, bssid) != 0) {
+		printf("This produces a decremental error, Check this and delete it\n");
 		/* out of memory */
 		free(uvp, M_80211_VAP);
 

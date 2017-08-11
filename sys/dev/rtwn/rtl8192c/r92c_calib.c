@@ -54,6 +54,7 @@ __FBSDID("$FreeBSD$");
 void
 r92c_iq_calib(struct rtwn_softc *sc)
 {
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	/* XXX TODO */
 }
 
@@ -64,6 +65,7 @@ r92c_lc_calib(struct rtwn_softc *sc)
 	uint8_t txmode;
 	int i;
 
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	txmode = rtwn_read_1(sc, R92C_OFDM1_LSTF + 3);
 	if ((txmode & 0x70) != 0) {
 		/* Disable all continuous Tx. */

@@ -71,7 +71,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/rtl8188e/pci/r88ee_priv.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_tx_desc.h>
-
+#include <dev/rtwn/rtl8188e/usb/r88eu.h>
 
 //static struct rtwn_r88ee_txpwr r88e_txpwr;
 static struct rtwn_r92c_txpwr r88ee_txpwr;
@@ -141,7 +141,6 @@ r88ee_attach_private(struct rtwn_softc *sc)
 	rs->rs_tx_enable_ampdu		= r88e_tx_enable_ampdu;
 	rs->rs_tx_setup_hwseq		= r88e_tx_setup_hwseq;
 	rs->rs_tx_setup_macid		= r88e_tx_setup_macid;
-	printf("Should be setting the name here\n");
 	rs->rs_set_name			= r88ee_set_name;
 
 	/* XXX TODO: test with net80211 ratectl! */
@@ -170,8 +169,6 @@ r88ee_adj_devcaps(struct rtwn_softc *sc)
 	 * will not be tested / fixed + HRPWM register must be set too.
 	 */
 	ic->ic_caps &= ~IEEE80211_C_PMGT;
-
-	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 }
 
 void
@@ -183,6 +180,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	pc->pc_setup_tx_desc		= r88ee_setup_tx_desc;
 	pc->pc_tx_postsetup		= r88ee_tx_postsetup;
 	pc->pc_copy_tx_desc		= r88ee_copy_tx_desc;
+						// tap
 	pc->pc_enable_intr		= r92ce_enable_intr;
 
 	pc->pc_qmap			= 0xf771;
@@ -193,16 +191,25 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	/* RTL8192C* cannot use pairwise keys from first 4 slots */
 	sc->sc_flags			= RTWN_FLAG_EXT_HDR; //RTWN_FLAG_CAM_FIXED;
 
+						// tap
 	sc->sc_start_xfers		= r92ce_start_xfers;
+						// tap
 	sc->sc_set_chan			= r92c_set_chan;
+						// tap
 	sc->sc_fill_tx_desc		= r92c_fill_tx_desc;
+						// tap
 	sc->sc_fill_tx_desc_raw		= r92c_fill_tx_desc_raw;
+						// tap
 	sc->sc_fill_tx_desc_null	= r92c_fill_tx_desc_null; /* XXX recheck */
+						// tap
 	sc->sc_dump_tx_desc		= r92ce_dump_tx_desc;
+						// tap
 	sc->sc_tx_radiotap_flags	= r92c_tx_radiotap_flags;
+						// tap
 	sc->sc_rx_radiotap_flags	= r92c_rx_radiotap_flags;
 	sc->sc_get_rssi_cck		= r88e_get_rssi_cck;
 	sc->sc_get_rssi_ofdm		= r88e_get_rssi_ofdm;
+						// tap
 	sc->sc_classify_intr		= r92ce_classify_intr;
 	sc->sc_handle_tx_report		= rtwn_nop_softc_uint8_int;
 	sc->sc_handle_c2h_report	= rtwn_nop_softc_uint8_int;
@@ -219,7 +226,9 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_fw_reset			= r88e_fw_reset;
 	sc->sc_fw_download_enable	= r88e_fw_download_enable;
 #endif
+						// tap
 	sc->sc_set_page_size		= r92c_set_page_size;
+						// tap
 	sc->sc_lc_calib			= r92c_lc_calib;
 	sc->sc_iq_calib			= r88e_iq_calib;
 	sc->sc_read_chipid_vendor	= rtwn_nop_softc_uint32;
@@ -233,6 +242,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_set_pwrmode		= r88e_set_pwrmode;
 	sc->sc_set_rssi			= r92c_set_rssi;
 #endif
+						// tap
 	sc->sc_beacon_init		= r92c_beacon_init;
 	sc->sc_beacon_enable		= r88e_beacon_enable;
 	sc->sc_beacon_set_rate		= rtwn_nop_void_int;
@@ -241,12 +251,16 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_temp_read		= r88e_temp_read;
 	sc->sc_init_tx_agg		= rtwn_nop_softc;
 	sc->sc_init_rx_agg		= rtwn_nop_softc;
+						// tap
 	sc->sc_init_ampdu		= r92ce_init_ampdu;
-	sc->sc_init_intr		= r92ce_init_intr;
+						// tap
+	sc->sc_init_intr		= r88ee_init_intr; // Was r92c_init_intr, changed
+						// tap
 	sc->sc_init_edca		= r92ce_init_edca;
 	sc->sc_init_bb			= r88e_init_bb;
 	sc->sc_init_rf			= r92c_init_rf;
 	sc->sc_init_antsel		= rtwn_nop_softc;
+						// tap
 	sc->sc_post_init		= r92ce_post_init;
 	sc->sc_init_bcnq1_boundary	= rtwn_nop_int_softc;
 

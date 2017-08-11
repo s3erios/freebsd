@@ -64,6 +64,8 @@ r92ce_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 	int *rings = arg;
 	int ret;
 
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
+
 	*rings = 0;
 	status = rtwn_read_4(sc, R92C_HISR);
 	RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: HISR %08X, HISRE %04X\n",
@@ -116,6 +118,8 @@ r92ce_enable_intr(struct rtwn_pci_softc *pc)
 {
 	struct rtwn_softc *sc = &pc->pc_sc;
 
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
+
 	/* Enable interrupts. */
 	rtwn_write_4(sc, R92C_HIMR, R92C_INT_ENABLE);
 }
@@ -123,6 +127,9 @@ r92ce_enable_intr(struct rtwn_pci_softc *pc)
 void
 r92ce_start_xfers(struct rtwn_softc *sc)
 {
+
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
+
 	/* Clear pending interrupts. */
 	rtwn_write_4(sc, R92C_HISR, 0xffffffff);
 

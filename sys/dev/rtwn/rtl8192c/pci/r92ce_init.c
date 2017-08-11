@@ -61,6 +61,7 @@ __FBSDID("$FreeBSD$");
 void
 r92ce_init_intr(struct rtwn_softc *sc)
 {
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	/* Disable interrupts. */
 	rtwn_write_4(sc, R92C_HISR, 0x00000000);
 	rtwn_write_4(sc, R92C_HIMR, 0x00000000);
@@ -69,6 +70,7 @@ r92ce_init_intr(struct rtwn_softc *sc)
 void
 r92ce_init_edca(struct rtwn_softc *sc)
 {
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	/* SIFS */
 	rtwn_write_2(sc, R92C_SPEC_SIFS, 0x1010);
 	rtwn_write_2(sc, R92C_MAC_SPEC_SIFS, 0x1010);
@@ -280,7 +282,7 @@ r92ce_power_off(struct rtwn_softc *sc)
 void
 r92ce_init_ampdu(struct rtwn_softc *sc)
 {
-
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	/* Setup AMPDU aggregation. */
 	rtwn_write_4(sc, R92C_AGGLEN_LMT, 0x99997631);	/* MCS7~0 */
 	rtwn_write_1(sc, R92C_AGGR_BREAK_TIME, 0x16);
@@ -289,6 +291,7 @@ r92ce_init_ampdu(struct rtwn_softc *sc)
 void
 r92ce_post_init(struct rtwn_softc *sc)
 {
+	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	rtwn_write_2(sc, R92C_FWHW_TXQ_CTRL,
 	    0x1f00 | R92C_FWHW_TXQ_CTRL_AMPDU_RTY_NEW);
 
