@@ -56,12 +56,14 @@ r88e_iq_calib(struct rtwn_softc *sc)
 void
 r88e_temp_measure(struct rtwn_softc *sc)
 {
+	// Reviewed, this is valid
 	rtwn_rf_write(sc, 0, R88E_RF_T_METER, R88E_RF_T_METER_START);
 }
 
 uint8_t
 r88e_temp_read(struct rtwn_softc *sc)
 {
+	// Reviewed, this is also valid
 	return (MS(rtwn_rf_read(sc, 0, R88E_RF_T_METER),
 	    R88E_RF_T_METER_VAL));
 }
