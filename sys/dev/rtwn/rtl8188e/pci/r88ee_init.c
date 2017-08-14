@@ -52,7 +52,7 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
-//#include <dev/rtwn/rtl8188e/r88e_var.h>
+#include <dev/rtwn/rtl8192c/r92c.h>
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
@@ -66,15 +66,16 @@ r88ee_init_intr(struct rtwn_softc *sc)
 	rtwn_write_4(sc, R88E_HISR, 0x00000000);
 	rtwn_write_4(sc, R88E_HIMR, 0x00000000);
 #else
-        rtwn_write_4(sc, R88E_HISR, 0xffffffff);
+	rtwn_write_4(sc, R88E_HISR, 0xffffffff);
 	rtwn_write_4(sc, R88E_HIMR, R88E_HIMR_CPWM | R88E_HIMR_CPWM2 |
 		R88E_HIMR_TBDER | R88E_HIMR_PSTIMEOUT);
-//	rtwn_write_4(sc, R88E_HIMRE, R88E_HIMRE_RXFOVW |
-//		R88E_HIMRE_TXFOVW | R88E_HIMRE_RXERR | R88E_HIMRE_TXERR);
-//        rtwn_setbits_1(sc, R92C_USB_SPECIAL_OPTION, 0,
-//		R92C_USB_SPECIAL_OPTION_INT_BULK_SEL);
-
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	rtwn_write_4(sc, R88E_HIMRE, R88E_HIMRE_RXFOVW |
+		R88E_HIMRE_TXFOVW | R88E_HIMRE_RXERR | R88E_HIMRE_TXERR);
+/////////////////////////////////////////////////////////////
+//	rtwn_setbits_1(sc, R92C_USB_SPECIAL_OPTION, 0,     //
+//		R92C_USB_SPECIAL_OPTION_INT_BULK_SEL);     //
+/////////////////////////////////////////////////////////////
+	printf("RTL8188EE:%s:%s Copied from EU\n", __FILE__, __func__);
 #endif
 }
 
@@ -92,35 +93,6 @@ r88ee_init_edca(struct rtwn_softc *sc)
 	rtwn_write_4(sc, R88E_EDCA_BK_PARAM, 0x0000a44f);
 	rtwn_write_4(sc, R88E_EDCA_VI_PARAM, 0x005e4322);
 	rtwn_write_4(sc, R88E_EDCA_VO_PARAM, 0x002f3222);
-#else
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
-#endif
-}
-
-void
-r88ee_init_bb(struct rtwn_softc *sc)
-{
-#if 0
-	/* Enable BB and RF. */
-	rtwn_setbits_2(sc, R88E_SYS_FUNC_EN, 0,
-	    R88E_SYS_FUNC_EN_BBRSTB | R88E_SYS_FUNC_EN_BB_GLB_RST |
-	    R88E_SYS_FUNC_EN_DIO_RF);
-
-	rtwn_write_2(sc, R88E_AFE_PLL_CTRL, 0xdb83);
-
-	rtwn_write_1(sc, R88E_RF_CTRL,
-	    R88E_RF_CTRL_EN | R88E_RF_CTRL_RSTB | R88E_RF_CTRL_SDMRSTB);
-
-	rtwn_write_1(sc, R88E_SYS_FUNC_EN,
-	    R88E_SYS_FUNC_EN_DIO_PCIE | R88E_SYS_FUNC_EN_PCIEA |
-	    R88E_SYS_FUNC_EN_PPLL | R88E_SYS_FUNC_EN_BB_GLB_RST |
-	    R88E_SYS_FUNC_EN_BBRSTB);
-
-	rtwn_write_1(sc, R88E_AFE_XTAL_CTRL + 1, 0x80);
-
-	rtwn_setbits_4(sc, R88E_LEDCFG0, 0, 0x00800000);
-
-	r92c_init_bb_common(sc);
 #else
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif

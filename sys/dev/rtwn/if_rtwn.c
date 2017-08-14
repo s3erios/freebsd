@@ -167,8 +167,6 @@ rtwn_attach(struct rtwn_softc *sc)
 
 	sc->cur_bcnq_id = RTWN_VAP_ID_INVALID;
 
-	printf("6\n");
-
 	RTWN_NT_LOCK_INIT(sc);
 	rtwn_cmdq_init(sc);
 #ifndef D4054
@@ -178,8 +176,6 @@ rtwn_attach(struct rtwn_softc *sc)
 	callout_init(&sc->sc_pwrmode_init, 0);
 	mbufq_init(&sc->sc_snd, ifqmaxlen);
 
-	printf("7\n");
-
 	RTWN_LOCK(sc);
 	error = rtwn_read_chipid(sc);
 	RTWN_UNLOCK(sc);
@@ -188,8 +184,6 @@ rtwn_attach(struct rtwn_softc *sc)
 		goto detach;
 	}
 
-	printf("8\n");
-
 	error = rtwn_read_rom(sc);
 	if (error != 0) {
 		device_printf(sc->sc_dev, "%s: cannot read rom, error %d\n",
@@ -197,8 +191,6 @@ rtwn_attach(struct rtwn_softc *sc)
 		goto detach;
 	}
 	
-	printf("9\n");
-
 	if (sc->macid_limit > RTWN_MACID_LIMIT) {
 		device_printf(sc->sc_dev,
 		    "macid limit will be reduced from %d to %d\n",
@@ -1811,7 +1803,6 @@ rtwn_init(struct rtwn_softc *sc)
 	/* Init firmware commands ring. */
 	sc->fwcur = 0;
 #endif
-
 	/* Initialize MAC block. */
 	error = rtwn_mac_init(sc);
 	if (error != 0) {
@@ -1881,7 +1872,7 @@ rtwn_init(struct rtwn_softc *sc)
 	/* Initialize BB/RF blocks. */
 	rtwn_init_bb(sc);
 	rtwn_init_rf(sc);
-
+#if 1
 	/* Initialize wireless band. */
 	rtwn_set_chan(sc, ic->ic_curchan);
 
@@ -1928,6 +1919,7 @@ rtwn_init(struct rtwn_softc *sc)
 #endif
 
 	sc->sc_flags |= RTWN_RUNNING;
+#endif 
 fail:
 	RTWN_UNLOCK(sc);
 

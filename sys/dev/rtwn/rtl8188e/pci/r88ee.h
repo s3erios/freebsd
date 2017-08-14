@@ -50,7 +50,6 @@ void	r88ee_fw_reset(struct rtwn_softc *, int);
 /* r88ee_init.c */
 void	r88ee_init_intr(struct rtwn_softc *);
 void	r88ee_init_edca(struct rtwn_softc *);
-void	r88ee_init_bb(struct rtwn_softc *);
 int	r88ee_power_on(struct rtwn_softc *);
 void	r88ee_power_off(struct rtwn_softc *);
 void	r88ee_init_ampdu(struct rtwn_softc *);

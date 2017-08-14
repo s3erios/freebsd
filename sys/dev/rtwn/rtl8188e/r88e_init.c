@@ -93,6 +93,37 @@ r88e_init_bb(struct rtwn_softc *sc)
 	r88e_crystalcap_write(sc);
 }
 
+void
+r88ee_init_bb(struct rtwn_softc *sc)
+{
+	#include <sys/param.h>
+	#include <sys/stack.h>
+	struct stack *ptr;
+
+	printf("AAAA RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	printf("This is executed\n");
+	ptr = stack_create();
+	stack_save(ptr);
+	stack_print(ptr);
+	stack_destroy(ptr);
+	printf("End of execution\n");
+	/* Enable BB and RF. */
+	rtwn_setbits_2(sc, R92C_SYS_FUNC_EN, 0,
+	    R92C_SYS_FUNC_EN_BBRSTB | R92C_SYS_FUNC_EN_BB_GLB_RST |
+	    R92C_SYS_FUNC_EN_DIO_RF);
+	// Good, lines 263-265
+
+			 // 0x01f, this seems good, 267
+	rtwn_write_1(sc, R92C_RF_CTRL, 0x1 | 0x2 | 0x4);
+			// line 268
+	rtwn_write_1(sc, R92C_SYS_FUNC_EN, 0x80 | 0x40 | 0x20 | 0x2 | 0x1);
+			// line 271-272
+	rtwn_setbits_4(sc, R92C_LEDCFG0, 0, 0x00800000);
+
+	r92c_init_bb_common(sc);
+}
+
+
 int
 r88e_power_on(struct rtwn_softc *sc)
 {

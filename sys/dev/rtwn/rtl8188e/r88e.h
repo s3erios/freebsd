@@ -68,6 +68,7 @@ int	r88e_set_pwrmode(struct rtwn_softc *, struct ieee80211vap *, int);
 
 /* r88e_init.c */
 void	r88e_init_bb(struct rtwn_softc *);
+void	r88ee_init_bb(struct rtwn_softc *);
 void	r88e_init_rf(struct rtwn_softc *);
 int	r88e_power_on(struct rtwn_softc *);
 

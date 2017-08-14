@@ -127,7 +127,16 @@ r92ce_enable_intr(struct rtwn_pci_softc *pc)
 void
 r92ce_start_xfers(struct rtwn_softc *sc)
 {
+/*
+	#include <sys/param.h>
+	#include <sys/stack.h>
 
+	struct stack *ptr;
+	ptr = stack_create();
+	stack_save(ptr);
+	stack_print(ptr);
+	stack_destroy(ptr);
+*/
 	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 
 	/* Clear pending interrupts. */
