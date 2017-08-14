@@ -1,6 +1,7 @@
 #!/bin/sh
 
 sudo sh -c "echo > /var/log/messages"
+#sudo sysctl kern.msgbuf_clear=1
 sudo kldunload if_rtwn_pci
 sudo kldunload rtwn
 sudo kldunload rtwn-rtl8188eefw
