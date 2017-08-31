@@ -88,4 +88,7 @@
 #define R88E_RF_T_METER_VAL_S	10
 #define R88E_RF_T_METER_START	0x30000
 
+/* My custom code */
+#define	R88EE_TRXDMA_CTRL	0x010C
+
 #endif	/* R88E_REG_H */

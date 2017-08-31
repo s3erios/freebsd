@@ -54,6 +54,7 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/rtl8188e/r88e.h>
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
+#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h> // Added due to R92C_INT_MIG
 
 static void
 r88e_crystalcap_write(struct rtwn_softc *sc)
@@ -123,6 +124,100 @@ r88ee_init_bb(struct rtwn_softc *sc)
 	r92c_init_bb_common(sc);
 }
 
+
+int
+r88ee_power_on(struct rtwn_softc *sc)
+{
+// I believe this is the code from _rtl88ee_init_mac()
+
+#define RTWN_CHECK(res) do {    \
+	if (res != 0)           \
+		return (EIO);   \
+} while(0)
+	int ntries;
+
+	/* Wait for power ready bit. */
+	for (ntries = 0; ntries < 5000; ntries++) {
+		if (rtwn_read_4(sc, R92C_APS_FSMCO) & R92C_APS_FSMCO_SUS_HOST)
+			break;
+		rtwn_delay(sc, 10);
+	}
+	if (ntries == 5000) {
+		device_printf(sc->sc_dev,
+		    "timeout_waiting for chip power up\n");
+		return (ETIMEDOUT);
+	}
+
+#define REG_APS_FSMCO 0x0004
+
+//    bytetmp = rtl_read_byte(rtlpriv, REG_APS_FSMCO) | BIT(4);
+//    rtl_write_byte(rtlpriv, REG_APS_FSMCO, bytetmp);
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_APS_FSMCO, 0,
+		0x10)); //BIT(4)));
+
+#define REG_PCIE_CTRL_REG 0x0300
+
+//    bytetmp = rtl_read_byte(rtlpriv, REG_PCIE_CTRL_REG+2);
+//    rtl_write_byte(rtlpriv, REG_PCIE_CTRL_REG+2, bytetmp|BIT(2));
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_PCIE_CTRL_REG+2, 0,
+		0x04)); //BIT(2)));
+
+#define REG_WATCH_DOG 0x0368
+
+//    bytetmp = rtl_read_byte(rtlpriv, REG_WATCH_DOG+1);
+//    rtl_write_byte(rtlpriv, REG_WATCH_DOG+1, bytetmp|BIT(7));
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_WATCH_DOG+1, 0,
+		0x80)); //BIT(7)));
+
+#define REG_AFE_XTAL_CTRL_EXT 0x0078
+
+//    bytetmp = rtl_read_byte(rtlpriv, REG_AFE_XTAL_CTRL_EXT+1);
+//    rtl_write_byte(rtlpriv, REG_AFE_XTAL_CTRL_EXT+1, bytetmp|BIT(1));
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_AFE_XTAL_CTRL_EXT+1, 0,
+		0x02)); //BIT(1)));
+
+#define REG_TX_RPT_CTRL	0x04EC
+
+//    bytetmp = rtl_read_byte(rtlpriv, REG_TX_RPT_CTRL);
+//    rtl_write_byte(rtlpriv, REG_TX_RPT_CTRL, bytetmp|BIT(1)|BIT(0));
+//    rtl_write_byte(rtlpriv, REG_TX_RPT_CTRL+1, 2);
+//    rtl_write_word(rtlpriv, REG_TX_RPT_TIME, 0xcdf0);
+
+#define REG_TX_RPT_CTRL 0x04EC
+#define REG_TX_RPT_TIME 0x04F0
+#define REG_SYS_CLKR	0x0008
+#define REG_GPIO_MUXCFG	0x0040
+
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_TX_RPT_CTRL, 0, 0x02 | 0x01 ));
+	rtwn_write_1(sc, REG_TX_RPT_CTRL+1, 2);
+	rtwn_write_2(sc, REG_TX_RPT_TIME, 0xcdf0);
+
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_SYS_CLKR, 0, 0x08)); //BIT(3))); // hw.c 882
+
+	RTWN_CHECK(rtwn_setbits_1(sc, REG_GPIO_MUXCFG+1, 0,
+		~(0x10))); //BIT(4) ));
+
+	rtwn_write_1(sc, 0x367, 0x80);
+
+#define REG_CR	0x0100
+#define MSR	(REG_CR + 2)
+
+	rtwn_write_2(sc, REG_CR, 0x2ff);
+	rtwn_write_1(sc, REG_CR+1, 0x06);
+	rtwn_write_1(sc, MSR, 0x00);
+
+	// Linux driver Does the REG_HISR 0xfffffff crap here	
+	// This seems to take place in init_intr() code
+
+#define R88E_MCUTST_1	0x01c0
+
+	rtwn_write_4(sc, R92C_INT_MIG, 0); // same from _rtl88ee_init_mac
+					   // same value of INT_MIG
+	rtwn_write_4(sc, R88E_MCUTST_1, 0x0);
+	rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0);
+
+	return(0);
+}
 
 int
 r88e_power_on(struct rtwn_softc *sc)

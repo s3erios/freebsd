@@ -71,6 +71,7 @@ void	r88e_init_bb(struct rtwn_softc *);
 void	r88ee_init_bb(struct rtwn_softc *);
 void	r88e_init_rf(struct rtwn_softc *);
 int	r88e_power_on(struct rtwn_softc *);
+int	r88ee_power_on(struct rtwn_softc *);
 
 /* r88e_led.c */
 void	r88e_set_led(struct rtwn_softc *, int, int);

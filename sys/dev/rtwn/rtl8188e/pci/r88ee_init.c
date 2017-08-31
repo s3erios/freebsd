@@ -53,6 +53,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
 #include <dev/rtwn/rtl8192c/r92c.h>
+#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h> // Temporary until the R88EE values are added
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
@@ -67,10 +68,15 @@ r88ee_init_intr(struct rtwn_softc *sc)
 	rtwn_write_4(sc, R88E_HIMR, 0x00000000);
 #else
 	rtwn_write_4(sc, R88E_HISR, 0xffffffff);
-	rtwn_write_4(sc, R88E_HIMR, R88E_HIMR_CPWM | R88E_HIMR_CPWM2 |
-		R88E_HIMR_TBDER | R88E_HIMR_PSTIMEOUT);
-	rtwn_write_4(sc, R88E_HIMRE, R88E_HIMRE_RXFOVW |
-		R88E_HIMRE_TXFOVW | R88E_HIMRE_RXERR | R88E_HIMRE_TXERR);
+	rtwn_write_4(sc, R88E_HISRE, 0xffffffff);
+/////////////////////
+//	rtwn_write_4(sc, R88E_HIMR, R88E_HIMR_CPWM | R88E_HIMR_CPWM2 |
+//		R88E_HIMR_TBDER | R88E_HIMR_PSTIMEOUT);
+//	rtwn_write_4(sc, R88E_HIMRE, R88E_HIMRE_RXFOVW |
+//		R88E_HIMRE_TXFOVW | R88E_HIMRE_RXERR | R88E_HIMRE_TXERR);
+////////////////////// New stuff that seemed to work
+
+///// Below this is the old stuff that doesn't work
 /////////////////////////////////////////////////////////////
 //	rtwn_setbits_1(sc, R92C_USB_SPECIAL_OPTION, 0,     //
 //		R92C_USB_SPECIAL_OPTION_INT_BULK_SEL);     //
@@ -98,6 +104,7 @@ r88ee_init_edca(struct rtwn_softc *sc)
 #endif
 }
 
+#if 0
 int
 r88ee_power_on(struct rtwn_softc *sc)
 {
@@ -222,6 +229,7 @@ r88ee_power_on(struct rtwn_softc *sc)
 	return (0);
 #endif
 }
+#endif
 
 void
 r88ee_power_off(struct rtwn_softc *sc)
@@ -329,4 +337,32 @@ r88ee_post_init(struct rtwn_softc *sc)
 #else
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
+}
+
+void
+r88ee_init_rx_agg(struct rtwn_softc *sc) {
+//	struct r92c_softc *rs = sc->sc_priv;
+	struct rtwn_pci_softc *pc = sc->sc_priv;
+//	sc->sc_priv->tcr
+
+	unsigned short wordtmp;
+
+	wordtmp = rtwn_read_2(sc, R88EE_TRXDMA_CTRL);
+	wordtmp &= 0xf;
+	wordtmp |= 0xE771;
+	rtwn_write_2(sc, R88EE_TRXDMA_CTRL, wordtmp);
+
+	rtwn_write_4(sc, R92C_RCR, sc->rcr); //rtlpci->receive_config); // same value
+	rtwn_write_2(sc, R92C_RXFLTMAP2, 0xffff); // Same R92C value
+	rtwn_write_4(sc, R92C_TCR, pc->tcr); //rtlpci->receive_config); // same value
+
+	// Seems to come from rtl_init_mac, line 945
+//	rtl_write_byte(rtlpriv, REG_PCIE_CTRL_REG+1, 0);
+
+	rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0);
+
+//////////////////////////////////////////////////////
+// Seems like we should include the code beforehand //
+// _rtl88ee_gen_refresh_led_state from Linux        //
+//////////////////////////////////////////////////////
 }

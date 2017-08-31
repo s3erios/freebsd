@@ -515,6 +515,7 @@ rtwn_pci_get_qmap(struct rtwn_softc *sc)
 static void
 rtwn_pci_set_desc_addr(struct rtwn_softc *sc)
 {
+//////// Same as hw.c 916 to 936
 	struct rtwn_pci_softc *pc = RTWN_PCI_SOFTC(sc);
 
 	RTWN_DPRINTF(sc, RTWN_DEBUG_RESET, "%s: addresses:\n"
