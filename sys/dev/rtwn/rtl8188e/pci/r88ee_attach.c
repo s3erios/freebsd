@@ -220,8 +220,8 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_efuse_postread		= r92c_efuse_postread;
 	sc->sc_parse_rom		= r88ee_parse_rom;
 	sc->sc_set_led			= r88e_set_led;
-	sc->sc_power_on			= r88e_power_on;
-	sc->sc_power_off		= r92ce_power_off;
+	sc->sc_power_on			= r88ee_power_on;
+	sc->sc_power_off		= r88ee_power_off;
 #ifndef RTWN_WITHOUT_UCODE
 	sc->sc_fw_reset			= r88e_fw_reset;
 	sc->sc_fw_download_enable	= r88e_fw_download_enable;

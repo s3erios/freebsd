@@ -1790,6 +1790,7 @@ rtwn_init(struct rtwn_softc *sc)
 	sc->sc_flags |= RTWN_STARTED;
 
 	/* Power on adapter. */
+
 	error = rtwn_power_on(sc);
 	if (error != 0)
 		goto fail;
@@ -1803,6 +1804,7 @@ rtwn_init(struct rtwn_softc *sc)
 	/* Init firmware commands ring. */
 	sc->fwcur = 0;
 #endif
+
 	/* Initialize MAC block. */
 	error = rtwn_mac_init(sc);
 	if (error != 0) {
@@ -1823,7 +1825,7 @@ rtwn_init(struct rtwn_softc *sc)
 	rtwn_write_1(sc, R92C_RX_DRVINFO_SZ, R92C_RX_DRVINFO_SZ_DEF);
 
 	/* Init interrupts. */
-	rtwn_init_intr(sc);
+	rtwn_init_intr(sc); // Done by Farhan
 
 	for (i = 0; i < nitems(sc->vaps); i++) {
 		struct rtwn_vap *uvp = sc->vaps[i];
@@ -1920,6 +1922,7 @@ rtwn_init(struct rtwn_softc *sc)
 
 	sc->sc_flags |= RTWN_RUNNING;
 #endif 
+
 fail:
 	RTWN_UNLOCK(sc);
 
