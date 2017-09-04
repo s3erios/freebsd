@@ -136,6 +136,8 @@ r88ee_power_on(struct rtwn_softc *sc)
 } while(0)
 	int ntries;
 
+	printf("Beginning of Power On\n");
+
 	/* Wait for power ready bit. */
 	for (ntries = 0; ntries < 5000; ntries++) {
 		if (rtwn_read_4(sc, R92C_APS_FSMCO) & R92C_APS_FSMCO_SUS_HOST)
@@ -215,6 +217,8 @@ r88ee_power_on(struct rtwn_softc *sc)
 					   // same value of INT_MIG
 	rtwn_write_4(sc, R88E_MCUTST_1, 0x0);
 	rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0);
+
+	printf("End of power on\n");
 
 	return(0);
 }
