@@ -223,8 +223,8 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_power_on			= r88ee_power_on;
 	sc->sc_power_off		= r88ee_power_off;
 #ifndef RTWN_WITHOUT_UCODE
-	sc->sc_fw_reset			= r88e_fw_reset;
-	sc->sc_fw_download_enable	= r88e_fw_download_enable;
+	sc->sc_fw_reset			= r88ee_fw_reset;
+	sc->sc_fw_download_enable	= r88ee_fw_download_enable;
 #endif
 						// tap
 	sc->sc_set_page_size		= r92c_set_page_size;

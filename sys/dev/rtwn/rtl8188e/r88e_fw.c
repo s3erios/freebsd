@@ -130,6 +130,29 @@ r88e_fw_download_enable(struct rtwn_softc *sc, int enable)
 }
 #endif
 
+#define REG_SYS_FUNC_EN	0x002
+#define REG_MCUFWDL	0x0080
+void
+r88ee_fw_download_enable(struct rtwn_softc *sc, int enable)
+{
+	uint8_t tmp;
+	if (enable) {
+		tmp = rtwn_read_1(sc, REG_SYS_FUNC_EN+1);
+		rtwn_write_1(sc, REG_SYS_FUNC_EN+1, tmp | 0x04);
+
+		tmp = rtwn_read_1(sc, REG_MCUFWDL);
+		rtwn_write_1(sc, REG_MCUFWDL, tmp | 0x01);
+
+		tmp = rtwn_read_1(sc, REG_MCUFWDL + 2);
+		rtwn_write_1(sc, REG_MCUFWDL + 2, tmp & 0xf7);
+	} else {
+		tmp = rtwn_read_1(sc, REG_MCUFWDL);
+		rtwn_write_1(sc, REG_MCUFWDL, tmp & 0xfe);
+
+		rtwn_write_1(sc, REG_MCUFWDL + 1, 0x00);
+	}
+}
+
 void
 r88e_macid_enable_link(struct rtwn_softc *sc, int id, int enable)
 {

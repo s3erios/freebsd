@@ -56,6 +56,102 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
 #include <dev/rtwn/rtl8192c/pci/r92ce_reg.h> // Added due to R92C_INT_MIG
 
+#define BIT(nr)     (1 << (nr))
+
+enum pwrseq_delay_unit {
+	PWRSEQ_DELAY_US,
+	PWRSEQ_DELAY_MS,
+};
+
+
+struct wlan_pwr_cfg {
+    uint16_t offset;
+    uint8_t cut_msk;
+    uint8_t fab_msk:4;
+    uint8_t interface_msk:4;
+    uint8_t base:4;
+    uint8_t cmd:4;
+    uint8_t msk;
+    uint8_t value;
+};
+
+#define PWR_CUT_ALL_MSK     0xFF
+#define PWR_FAB_ALL_MSK     (BIT(0)|BIT(1)|BIT(2)|BIT(3))
+#define PWR_INTF_SDIO_MSK   BIT(0)
+#define PWR_BASEADDR_SDIO   0x03
+#define PWR_CMD_READ        0x00
+#define PWR_CMD_WRITE       0x01
+#define PWR_CMD_POLLING     0x02
+#define PWR_CMD_DELAY       0x03
+#define PWR_CMD_END         0x04
+#define PWR_INTF_ALL_MSK    (BIT(0)|BIT(1)|BIT(2)|BIT(3))
+#define PWR_BASEADDR_MAC    0x00
+#define PWR_INTF_PCI_MSK    BIT(2)
+
+#define RTL8188EE_TRANS_CARDDIS_TO_CARDEMU              \
+    {0x0086, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK,   \
+    PWR_BASEADDR_SDIO, PWR_CMD_WRITE, BIT(0), 0         \
+    /*Set SDIO suspend local register*/},               \
+    {0x0086, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK,   \
+    PWR_BASEADDR_SDIO, PWR_CMD_POLLING, BIT(1), BIT(1)      \
+    /*wait power state to suspend*/},               \
+    {0x0005, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(3)|BIT(4), 0       \
+    /*0x04[12:11] = 2b'01enable WL suspend*/},
+
+
+#define RTL8188EE_TRANS_CARDEMU_TO_ACT                  \
+    {0x0006, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_POLLING, BIT(1), BIT(1)       \
+    /* wait till 0x04[17] = 1    power ready*/},            \
+    {0x0002, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(0)|BIT(1), 0       \
+    /* 0x02[1:0] = 0    reset BB*/},                \
+    {0x0026, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(7), BIT(7)         \
+    /*0x24[23] = 2b'01 schmit trigger */},              \
+    {0x0005, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(7), 0          \
+    /* 0x04[15] = 0 disable HWPDN (control by DRV)*/},      \
+    {0x0005, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(4)|BIT(3), 0       \
+    /*0x04[12:11] = 2b'00 disable WL suspend*/},            \
+    {0x0005, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(0), BIT(0)         \
+    /*0x04[8] = 1 polling until return 0*/},            \
+    {0x0005, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_POLLING, BIT(0), 0            \
+    /*wait till 0x04[8] = 0*/},                 \
+    {0x0023, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,    \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(4), 0          \
+    /*LDO normal mode*/},                       \
+    {0x0074, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_SDIO_MSK,   \
+    PWR_BASEADDR_MAC, PWR_CMD_WRITE, BIT(4), BIT(4)         \
+    /*SDIO Driving*/},
+
+#define RTL8188EE_TRANS_END     \
+    {0xFFFF, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK, PWR_INTF_ALL_MSK,\
+    0, PWR_CMD_END, 0, 0}
+
+#define RTL8188EE_TRANS_ACT_TO_CARDEMU_STEPS    10
+#define RTL8188EE_TRANS_CARDEMU_TO_PDN_STEPS    10
+#define RTL8188EE_TRANS_END_STEPS               1
+
+struct wlan_pwr_cfg rtl8188ee_card_enable_flow
+        [RTL8188EE_TRANS_ACT_TO_CARDEMU_STEPS +
+         RTL8188EE_TRANS_CARDEMU_TO_PDN_STEPS +
+         RTL8188EE_TRANS_END_STEPS] = {
+    RTL8188EE_TRANS_CARDDIS_TO_CARDEMU
+    RTL8188EE_TRANS_CARDEMU_TO_ACT
+    RTL8188EE_TRANS_END
+};
+
+#define RTL8188EE_NIC_ENABLE_FLOW rtl8188ee_card_enable_flow
+
+bool pwrseqcmdparsing(struct rtwn_softc *sc, uint8_t cut_version,
+	      uint8_t faversion, uint8_t interface_type,
+	      struct wlan_pwr_cfg pwrcfgcmd[]);
+
 static void
 r88e_crystalcap_write(struct rtwn_softc *sc)
 {
@@ -124,6 +220,77 @@ r88ee_init_bb(struct rtwn_softc *sc)
 	r92c_init_bb_common(sc);
 }
 
+bool pwrseqcmdparsing(struct rtwn_softc *sc, uint8_t cut_version,
+                              uint8_t faversion, uint8_t interface_type,
+                              struct wlan_pwr_cfg pwrcfgcmd[]) {
+
+    struct wlan_pwr_cfg cfg_cmd = {0};
+    bool polling_bit = false;
+    uint32_t ary_idx = 0;
+    uint8_t value = 0;
+    uint32_t offset = 0;
+    uint32_t polling_count = 0;
+    uint32_t max_polling_cnt = 5000;
+
+    do {
+        cfg_cmd = pwrcfgcmd[ary_idx];
+
+        if ((cfg_cmd.fab_msk & faversion) &&
+            (cfg_cmd.cut_msk & cut_version) &&
+            (cfg_cmd.interface_msk & interface_type)) {
+            switch(cfg_cmd.cmd) {
+                case PWR_CMD_READ:
+                    printf("Read\n");
+                    break;
+
+                case PWR_CMD_WRITE:
+                    printf("Write\n");
+
+                    offset = cfg_cmd.offset;
+                    value = rtwn_read_1(sc, offset);
+                    value &= (~(cfg_cmd.msk));
+                    value |= cfg_cmd.value & cfg_cmd.msk;
+
+                    rtwn_write_1(sc, offset, value);
+
+                    break;
+                case PWR_CMD_POLLING:
+                    printf("Polling\n");
+                    polling_bit = false;
+                    offset = cfg_cmd.offset;
+                    do {
+                        value = rtwn_read_1(sc, offset);
+                        value &= cfg_cmd.msk;
+                        if (value == (cfg_cmd.value & cfg_cmd.msk))
+                            polling_bit = true;
+                        else {
+				rtwn_delay(sc, 10);
+                        }
+
+                        if (polling_count++ > max_polling_cnt)
+                            return false;
+                    } while (!polling_bit);
+                    break;
+                case PWR_CMD_DELAY:
+		    if(cfg_cmd.value == PWRSEQ_DELAY_US)
+                        rtwn_delay(sc, cfg_cmd.offset * offset);
+                    else
+                        rtwn_delay(sc, cfg_cmd.offset * 1000);
+                    break;
+                case PWR_CMD_END:
+                    printf("End\n");
+                    return true;
+                default:
+                    printf("This should not happen\n");
+                    break;
+            }
+        }
+        ary_idx++;
+    } while(1);
+
+    return true;
+}
+
 
 int
 r88ee_power_on(struct rtwn_softc *sc)
@@ -134,19 +301,42 @@ r88ee_power_on(struct rtwn_softc *sc)
 	if (res != 0)           \
 		return (EIO);   \
 } while(0)
-	int ntries;
+//	int ntries;
 
-	/* Wait for power ready bit. */
-	for (ntries = 0; ntries < 5000; ntries++) {
-		if (rtwn_read_4(sc, R92C_APS_FSMCO) & R92C_APS_FSMCO_SUS_HOST)
-			break;
-		rtwn_delay(sc, 10);
+/////// FreeBSD code
+//	/* Wait for power ready bit. */
+//	for (ntries = 0; ntries < 5000; ntries++) {
+//		if (rtwn_read_4(sc, R92C_APS_FSMCO) & R92C_APS_FSMCO_SUS_HOST)
+//			break;
+//		rtwn_delay(sc, 10);
+//	}
+//	if (ntries == 5000) {
+//		device_printf(sc->sc_dev,
+//		    "timeout_waiting for chip power up\n");
+//		return (ETIMEDOUT);
+//	}
+//
+#define REG_XCK_OUT_CTRL	0x07c
+#define REG_APS_FSMCO		0x0004
+#define REG_RSV_CTRL		0x001C
+
+	uint8_t bytetmp;
+
+	bytetmp = rtwn_read_1(sc, REG_XCK_OUT_CTRL) & (~0x10);
+	rtwn_write_1(sc, REG_XCK_OUT_CTRL, bytetmp);
+
+	bytetmp = rtwn_read_1(sc, REG_APS_FSMCO + 1) & (~0x80);
+	rtwn_write_1(sc, REG_APS_FSMCO + 1, bytetmp);
+
+	rtwn_write_1(sc, REG_RSV_CTRL, 0x00);
+
+	printf("Complex power on here\n");
+	if (!pwrseqcmdparsing(sc, PWR_CUT_ALL_MSK,
+		PWR_FAB_ALL_MSK, PWR_INTF_PCI_MSK,
+		RTL8188EE_NIC_ENABLE_FLOW)) {
+		uprintf("pwrseqcmdparsing failed\n");
 	}
-	if (ntries == 5000) {
-		device_printf(sc->sc_dev,
-		    "timeout_waiting for chip power up\n");
-		return (ETIMEDOUT);
-	}
+
 
 #define REG_APS_FSMCO 0x0004
 

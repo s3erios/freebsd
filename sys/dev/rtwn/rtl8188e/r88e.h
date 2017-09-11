@@ -58,6 +58,7 @@ void	r88e_set_gain(struct rtwn_softc *, uint8_t);
 int	r88e_fw_cmd(struct rtwn_softc *, uint8_t, const void *, int);
 void	r88e_fw_reset(struct rtwn_softc *, int);
 void	r88e_fw_download_enable(struct rtwn_softc *, int);
+void	r88ee_fw_download_enable(struct rtwn_softc *, int);
 #endif
 void	r88e_macid_enable_link(struct rtwn_softc *, int, int);
 void	r88e_set_media_status(struct rtwn_softc *, int);

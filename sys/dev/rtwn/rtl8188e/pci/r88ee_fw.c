@@ -59,7 +59,7 @@ __FBSDID("$FreeBSD$");
 void
 r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 {
-#if 1
+#if 0
 
 	if (reason == RTWN_FW_RESET_CHECKSUM)
 		return;
@@ -75,6 +75,14 @@ r88ee_fw_reset(struct rtwn_softc *sc, int reason)
 
 	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 #else
+	uint8_t u1b_tmp;
+#define REG_SYS_FUNC_EN		0x0002
+	u1b_tmp = rtwn_read_1(sc, REG_SYS_FUNC_EN+1);
+	rtwn_write_1(sc, REG_SYS_FUNC_EN+1, (u1b_tmp & (~0x04)));
+						// BIT(2) is 0x04
+	rtwn_write_1(sc, REG_SYS_FUNC_EN+1, (u1b_tmp | 0x04));
+						// BIT(2) is 0x04
+
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
 }
