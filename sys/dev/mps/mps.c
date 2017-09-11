@@ -50,6 +50,7 @@ __FBSDID("$FreeBSD$");
 #include <sys/malloc.h>
 #include <sys/uio.h>
 #include <sys/sysctl.h>
+#include <sys/smp.h>
 #include <sys/queue.h>
 #include <sys/kthread.h>
 #include <sys/taskqueue.h>
@@ -86,6 +87,7 @@ static void mps_iocfacts_free(struct mps_softc *sc);
 static void mps_startup(void *arg);
 static int mps_send_iocinit(struct mps_softc *sc);
 static int mps_alloc_queues(struct mps_softc *sc);
+static int mps_alloc_hw_queues(struct mps_softc *sc);
 static int mps_alloc_replies(struct mps_softc *sc);
 static int mps_alloc_requests(struct mps_softc *sc);
 static int mps_attach_log(struct mps_softc *sc);
@@ -111,7 +113,7 @@ static char mpt2_reset_magic[] = { 0x00, 0x0f, 0x04, 0x0b, 0x02, 0x07, 0x0d };
 
 /* Added this union to smoothly convert le64toh cm->cm_desc.Words.
  * Compiler only support unint64_t to be passed as argument.
- * Otherwise it will through below error
+ * Otherwise it will throw below error
  * "aggregate value used where an integer was expected"
  */
 
@@ -143,16 +145,19 @@ mps_diag_reset(struct mps_softc *sc,int sleep_flag)
 	int i, error, tries = 0;
 	uint8_t first_wait_done = FALSE;
 
-	mps_dprint(sc, MPS_TRACE, "%s\n", __func__);
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
 
 	/* Clear any pending interrupts */
 	mps_regwrite(sc, MPI2_HOST_INTERRUPT_STATUS_OFFSET, 0x0);
 
-	/*Force NO_SLEEP for threads prohibited to sleep
- 	* e.a Thread from interrupt handler are prohibited to sleep.
- 	*/
+	/*
+	 * Force NO_SLEEP for threads prohibited to sleep
+ 	 * e.a Thread from interrupt handler are prohibited to sleep.
+ 	 */
 	if (curthread->td_no_sleeping != 0)
 		sleep_flag = NO_SLEEP;
+
+	mps_dprint(sc, MPS_INIT, "sequence start, sleep_flag= %d\n", sleep_flag);
  
 	/* Push the magic sequence */
 	error = ETIMEDOUT;
@@ -175,12 +180,17 @@ mps_diag_reset(struct mps_softc *sc,int sleep_flag)
 			break;
 		}
 	}
-	if (error)
+	if (error) {
+		mps_dprint(sc, MPS_INIT, "sequence failed, error=%d, exit\n",
+		    error);
 		return (error);
+	}
 
 	/* Send the actual reset.  XXX need to refresh the reg? */
-	mps_regwrite(sc, MPI2_HOST_DIAGNOSTIC_OFFSET,
-	    reg | MPI2_DIAG_RESET_ADAPTER);
+	reg |= MPI2_DIAG_RESET_ADAPTER;
+	mps_dprint(sc, MPS_INIT, "sequence success, sending reset, reg= 0x%x\n",
+		reg);
+	mps_regwrite(sc, MPI2_HOST_DIAGNOSTIC_OFFSET, reg);
 
 	/* Wait up to 300 seconds in 50ms intervals */
 	error = ETIMEDOUT;
@@ -216,10 +226,14 @@ mps_diag_reset(struct mps_softc *sc,int sleep_flag)
 			break;
 		}
 	}
-	if (error)
+	if (error) {
+		mps_dprint(sc, MPS_INIT, "reset failed, error= %d, exit\n",
+		    error);
 		return (error);
+	}
 
 	mps_regwrite(sc, MPI2_WRITE_SEQUENCE_OFFSET, 0x0);
+	mps_dprint(sc, MPS_INIT, "diag reset success, exit\n");
 
 	return (0);
 }
@@ -227,20 +241,25 @@ mps_diag_reset(struct mps_softc *sc,int sleep_flag)
 static int
 mps_message_unit_reset(struct mps_softc *sc, int sleep_flag)
 {
+	int error;
 
 	MPS_FUNCTRACE(sc);
 
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
+
+	error = 0;
 	mps_regwrite(sc, MPI2_DOORBELL_OFFSET,
 	    MPI2_FUNCTION_IOC_MESSAGE_UNIT_RESET <<
 	    MPI2_DOORBELL_FUNCTION_SHIFT);
 
 	if (mps_wait_db_ack(sc, 5, sleep_flag) != 0) {
-		mps_dprint(sc, MPS_FAULT, "Doorbell handshake failed : <%s>\n",
-				__func__);
-		return (ETIMEDOUT);
+		mps_dprint(sc, MPS_INIT|MPS_FAULT,
+		    "Doorbell handshake failed\n");
+		error = ETIMEDOUT;
 	}
 
-	return (0);
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
+	return (error);
 }
 
 static int
@@ -255,15 +274,21 @@ mps_transition_ready(struct mps_softc *sc)
 	sleep_flags = (sc->mps_flags & MPS_FLAGS_ATTACH_DONE)
 					? CAN_SLEEP:NO_SLEEP;
 	error = 0;
+
+	mps_dprint(sc, MPS_INIT, "%s entered, sleep_flags= %d\n",
+	   __func__, sleep_flags);
+
 	while (tries++ < 1200) {
 		reg = mps_regread(sc, MPI2_DOORBELL_OFFSET);
-		mps_dprint(sc, MPS_INIT, "Doorbell= 0x%x\n", reg);
+		mps_dprint(sc, MPS_INIT, "  Doorbell= 0x%x\n", reg);
 
 		/*
 		 * Ensure the IOC is ready to talk.  If it's not, try
 		 * resetting it.
 		 */
 		if (reg & MPI2_DOORBELL_USED) {
+			mps_dprint(sc, MPS_INIT, "  Not ready, sending diag "
+			    "reset\n");
 			mps_diag_reset(sc, sleep_flags);
 			DELAY(50000);
 			continue;
@@ -272,9 +297,11 @@ mps_transition_ready(struct mps_softc *sc)
 		/* Is the adapter owned by another peer? */
 		if ((reg & MPI2_DOORBELL_WHO_INIT_MASK) ==
 		    (MPI2_WHOINIT_PCI_PEER << MPI2_DOORBELL_WHO_INIT_SHIFT)) {
-			device_printf(sc->mps_dev, "IOC is under the control "
-			    "of another peer host, aborting initialization.\n");
-			return (ENXIO);
+			mps_dprint(sc, MPS_INIT|MPS_FAULT, "IOC is under the "
+			    "control of another peer host, aborting "
+			    "initialization.\n");
+			error = ENXIO;
+			break;
 		}
 		
 		state = reg & MPI2_IOC_STATE_MASK;
@@ -283,7 +310,8 @@ mps_transition_ready(struct mps_softc *sc)
 			error = 0;
 			break;
 		} else if (state == MPI2_IOC_STATE_FAULT) {
-			mps_dprint(sc, MPS_FAULT, "IOC in fault state 0x%x, resetting\n",
+			mps_dprint(sc, MPS_INIT|MPS_FAULT, "IOC in fault "
+			    "state 0x%x, resetting\n",
 			    state & MPI2_DOORBELL_FAULT_CODE_MASK);
 			mps_diag_reset(sc, sleep_flags);
 		} else if (state == MPI2_IOC_STATE_OPERATIONAL) {
@@ -291,10 +319,10 @@ mps_transition_ready(struct mps_softc *sc)
 			mps_message_unit_reset(sc, sleep_flags);
 		} else if (state == MPI2_IOC_STATE_RESET) {
 			/* Wait a bit, IOC might be in transition */
-			mps_dprint(sc, MPS_FAULT,
+			mps_dprint(sc, MPS_INIT|MPS_FAULT,
 			    "IOC in unexpected reset state\n");
 		} else {
-			mps_dprint(sc, MPS_FAULT,
+			mps_dprint(sc, MPS_INIT|MPS_FAULT,
 			    "IOC in unknown state 0x%x\n", state);
 			error = EINVAL;
 			break;
@@ -305,7 +333,9 @@ mps_transition_ready(struct mps_softc *sc)
 	}
 
 	if (error)
-		device_printf(sc->mps_dev, "Cannot transition IOC to ready\n");
+		mps_dprint(sc, MPS_INIT|MPS_FAULT,
+		    "Cannot transition IOC to ready\n");
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
 
 	return (error);
 }
@@ -320,18 +350,21 @@ mps_transition_operational(struct mps_softc *sc)
 
 	error = 0;
 	reg = mps_regread(sc, MPI2_DOORBELL_OFFSET);
-	mps_dprint(sc, MPS_INIT, "Doorbell= 0x%x\n", reg);
+	mps_dprint(sc, MPS_INIT, "%s entered, Doorbell= 0x%x\n", __func__, reg);
 
 	state = reg & MPI2_IOC_STATE_MASK;
 	if (state != MPI2_IOC_STATE_READY) {
+		mps_dprint(sc, MPS_INIT, "IOC not ready\n");
 		if ((error = mps_transition_ready(sc)) != 0) {
-			mps_dprint(sc, MPS_FAULT, 
-			    "%s failed to transition ready\n", __func__);
+			mps_dprint(sc, MPS_INIT|MPS_FAULT, 
+			    "failed to transition ready, exit\n");
 			return (error);
 		}
 	}
 
 	error = mps_send_iocinit(sc);
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
+
 	return (error);
 }
 
@@ -350,7 +383,7 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	Mpi2IOCFactsReply_t saved_facts;
 	uint8_t saved_mode, reallocating;
 
-	mps_dprint(sc, MPS_TRACE, "%s\n", __func__);
+	mps_dprint(sc, MPS_INIT|MPS_TRACE, "%s entered\n", __func__);
 
 	/* Save old IOC Facts and then only reallocate if Facts have changed */
 	if (!attaching) {
@@ -364,8 +397,8 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	 */
 	if ((error = mps_get_iocfacts(sc, sc->facts)) != 0) {
 		if (attaching) {
-			mps_dprint(sc, MPS_FAULT, "%s failed to get IOC Facts "
-			    "with error %d\n", __func__, error);
+			mps_dprint(sc, MPS_INIT|MPS_FAULT, "Failed to get "
+			    "IOC Facts with error %d, exit\n", error);
 			return (error);
 		} else {
 			panic("%s failed to get IOC Facts with error %d\n",
@@ -382,9 +415,10 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	    sc->facts->FWVersion.Struct.Unit,
 	    sc->facts->FWVersion.Struct.Dev);
 
-	mps_printf(sc, "Firmware: %s, Driver: %s\n", sc->fw_version,
+	mps_dprint(sc, MPS_INFO, "Firmware: %s, Driver: %s\n", sc->fw_version,
 	    MPS_DRIVER_VERSION);
-	mps_printf(sc, "IOCCapabilities: %b\n", sc->facts->IOCCapabilities,
+	mps_dprint(sc, MPS_INFO, "IOCCapabilities: %b\n",
+	     sc->facts->IOCCapabilities,
 	    "\20" "\3ScsiTaskFull" "\4DiagTrace" "\5SnapBuf" "\6ExtBuf"
 	    "\7EEDP" "\10BiDirTarg" "\11Multicast" "\14TransRetry" "\15IR"
 	    "\16EventReplay" "\17RaidAccel" "\20MSIXIndex" "\21HostDisc");
@@ -396,16 +430,15 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	 * but it doesn't hurt to do it again.  Only do this if attaching, not
 	 * for a Diag Reset.
 	 */
-	if (attaching) {
-		if ((sc->facts->IOCCapabilities &
-		    MPI2_IOCFACTS_CAPABILITY_EVENT_REPLAY) == 0) {
-			mps_diag_reset(sc, NO_SLEEP);
-			if ((error = mps_transition_ready(sc)) != 0) {
-				mps_dprint(sc, MPS_FAULT, "%s failed to "
-				    "transition to ready with error %d\n",
-				    __func__, error);
-				return (error);
-			}
+	if (attaching && ((sc->facts->IOCCapabilities &
+	    MPI2_IOCFACTS_CAPABILITY_EVENT_REPLAY) == 0)) {
+		mps_dprint(sc, MPS_INIT, "No event replay, reseting\n");
+		mps_diag_reset(sc, NO_SLEEP);
+		if ((error = mps_transition_ready(sc)) != 0) {
+			mps_dprint(sc, MPS_INIT|MPS_FAULT, "Failed to "
+			    "transition to ready with error %d, exit\n",
+			    error);
+			return (error);
 		}
 	}
 
@@ -420,13 +453,15 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 		sc->ir_firmware = 1;
 	if (!attaching) {
 		if (sc->ir_firmware != saved_mode) {
-			mps_dprint(sc, MPS_FAULT, "%s new IR/IT mode in IOC "
-			    "Facts does not match previous mode\n", __func__);
+			mps_dprint(sc, MPS_INIT|MPS_FAULT, "new IR/IT mode "
+			    "in IOC Facts does not match previous mode\n");
 		}
 	}
 
 	/* Only deallocate and reallocate if relevant IOC Facts have changed */
 	reallocating = FALSE;
+	sc->mps_flags &= ~MPS_FLAGS_REALLOCATED;
+
 	if ((!attaching) &&
 	    ((saved_facts.MsgVersion != sc->facts->MsgVersion) ||
 	    (saved_facts.HeaderVersion != sc->facts->HeaderVersion) ||
@@ -447,6 +482,9 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	    (saved_facts.MaxPersistentEntries !=
 	    sc->facts->MaxPersistentEntries))) {
 		reallocating = TRUE;
+
+		/* Record that we reallocated everything */
+		sc->mps_flags |= MPS_FLAGS_REALLOCATED;
 	}
 
 	/*
@@ -515,20 +553,24 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	 * IOC Facts are different from the previous IOC Facts after a Diag
 	 * Reset. Targets have already been allocated above if needed.
 	 */
-	if (attaching || reallocating) {
-		if (((error = mps_alloc_queues(sc)) != 0) ||
-		    ((error = mps_alloc_replies(sc)) != 0) ||
-		    ((error = mps_alloc_requests(sc)) != 0)) {
-			if (attaching ) {
-				mps_dprint(sc, MPS_FAULT, "%s failed to alloc "
-				    "queues with error %d\n", __func__, error);
-				mps_free(sc);
-				return (error);
-			} else {
-				panic("%s failed to alloc queues with error "
-				    "%d\n", __func__, error);
-			}
-		}
+	error = 0;
+	while (attaching || reallocating) {
+		if ((error = mps_alloc_hw_queues(sc)) != 0)
+			break;
+		if ((error = mps_alloc_replies(sc)) != 0)
+			break;
+		if ((error = mps_alloc_requests(sc)) != 0)
+			break;
+		if ((error = mps_alloc_queues(sc)) != 0)
+			break;
+
+		break;
+	}
+	if (error) {
+		mps_dprint(sc, MPS_INIT|MPS_FAULT,
+		    "Failed to alloc queues with error %d\n", error);
+		mps_free(sc);
+		return (error);
 	}
 
 	/* Always initialize the queues */
@@ -542,15 +584,10 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 	 */
 	error = mps_transition_operational(sc);
 	if (error != 0) {
-		if (attaching) {
-			mps_printf(sc, "%s failed to transition to operational "
-			    "with error %d\n", __func__, error);
-			mps_free(sc);
-			return (error);
-		} else {
-			panic("%s failed to transition to operational with "
-			    "error %d\n", __func__, error);
-		}
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "Failed to "
+		    "transition to operational with error %d\n", error);
+		mps_free(sc);
+		return (error);
 	}
 
 	/*
@@ -569,24 +606,31 @@ mps_iocfacts_allocate(struct mps_softc *sc, uint8_t attaching)
 
 	/*
 	 * Attach the subsystems so they can prepare their event masks.
+	 * XXX Should be dynamic so that IM/IR and user modules can attach
 	 */
-	/* XXX Should be dynamic so that IM/IR and user modules can attach */
-	if (attaching) {
-		if (((error = mps_attach_log(sc)) != 0) ||
-		    ((error = mps_attach_sas(sc)) != 0) ||
-		    ((error = mps_attach_user(sc)) != 0)) {
-			mps_printf(sc, "%s failed to attach all subsystems: "
-			    "error %d\n", __func__, error);
-			mps_free(sc);
-			return (error);
-		}
+	error = 0;
+	while (attaching) {
+		mps_dprint(sc, MPS_INIT, "Attaching subsystems\n");
+		if ((error = mps_attach_log(sc)) != 0)
+			break;
+		if ((error = mps_attach_sas(sc)) != 0)
+			break;
+		if ((error = mps_attach_user(sc)) != 0)
+			break;
+		break;
+	}
+	if (error) {
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "Failed to attach all "
+		    "subsystems: error %d\n", error);
+		mps_free(sc);
+		return (error);
+	}
 
-		if ((error = mps_pci_setup_interrupts(sc)) != 0) {
-			mps_printf(sc, "%s failed to setup interrupts\n",
-			    __func__);
-			mps_free(sc);
-			return (error);
-		}
+	if ((error = mps_pci_setup_interrupts(sc)) != 0) {
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "Failed to setup "
+		    "interrupts\n");
+		mps_free(sc);
+		return (error);
 	}
 
 	/*
@@ -662,6 +706,10 @@ mps_iocfacts_free(struct mps_softc *sc)
 	}
 	if (sc->buffer_dmat != NULL)
 		bus_dma_tag_destroy(sc->buffer_dmat);
+
+	mps_pci_free_interrupts(sc);
+	free(sc->queues, M_MPT2);
+	sc->queues = NULL;
 }
 
 /* 
@@ -684,13 +732,12 @@ mps_reinit(struct mps_softc *sc)
 
 	mtx_assert(&sc->mps_mtx, MA_OWNED);
 
+	mps_dprint(sc, MPS_INIT|MPS_INFO, "Reinitializing controller\n");
 	if (sc->mps_flags & MPS_FLAGS_DIAGRESET) {
-		mps_dprint(sc, MPS_INIT, "%s reset already in progress\n",
-			   __func__);
+		mps_dprint(sc, MPS_INIT, "Reset already in progress\n");
 		return 0;
 	}
 
-	mps_dprint(sc, MPS_INFO, "Reinitializing controller,\n");
 	/* make sure the completion callbacks can recognize they're getting
 	 * a NULL cm_reply due to a reset.
 	 */
@@ -699,7 +746,7 @@ mps_reinit(struct mps_softc *sc)
 	/*
 	 * Mask interrupts here.
 	 */
-	mps_dprint(sc, MPS_INIT, "%s mask interrupts\n", __func__);
+	mps_dprint(sc, MPS_INIT, "masking interrupts and resetting\n");
 	mps_mask_intr(sc);
 
 	error = mps_diag_reset(sc, CAN_SLEEP);
@@ -756,10 +803,11 @@ mps_reinit(struct mps_softc *sc)
 	mps_reregister_events(sc);
 
 	/* the end of discovery will release the simq, so we're done. */
-	mps_dprint(sc, MPS_INFO, "%s finished sc %p post %u free %u\n", 
-	    __func__, sc, sc->replypostindex, sc->replyfreeindex);
+	mps_dprint(sc, MPS_INIT|MPS_XINFO, "Finished sc %p post %u free %u\n", 
+	    sc, sc->replypostindex, sc->replyfreeindex);
 
 	mpssas_release_simq_reinit(sassc);
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
 
 	return 0;
 }
@@ -782,7 +830,7 @@ mps_wait_db_ack(struct mps_softc *sc, int timeout, int sleep_flag)
 	do {
 		int_status = mps_regread(sc, MPI2_HOST_INTERRUPT_STATUS_OFFSET);
 		if (!(int_status & MPI2_HIS_SYS2IOC_DB_STATUS)) {
-			mps_dprint(sc, MPS_INIT, 
+			mps_dprint(sc, MPS_TRACE, 
 			"%s: successful count(%d), timeout(%d)\n",
 			__func__, count, timeout);
 		return 0;
@@ -993,6 +1041,7 @@ mps_get_iocfacts(struct mps_softc *sc, MPI2_IOC_FACTS_REPLY *facts)
 	int error, req_sz, reply_sz;
 
 	MPS_FUNCTRACE(sc);
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
 
 	req_sz = sizeof(MPI2_IOC_FACTS_REQUEST);
 	reply_sz = sizeof(MPI2_IOC_FACTS_REPLY);
@@ -1001,6 +1050,7 @@ mps_get_iocfacts(struct mps_softc *sc, MPI2_IOC_FACTS_REPLY *facts)
 	bzero(&request, req_sz);
 	request.Function = MPI2_FUNCTION_IOC_FACTS;
 	error = mps_request_sync(sc, &request, reply, req_sz, reply_sz, 5);
+	mps_dprint(sc, MPS_INIT, "%s exit error= %d\n", __func__, error);
 
 	return (error);
 }
@@ -1015,6 +1065,7 @@ mps_send_iocinit(struct mps_softc *sc)
 	uint64_t time_in_msec;
 
 	MPS_FUNCTRACE(sc);
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
 
 	req_sz = sizeof(MPI2_IOC_INIT_REQUEST);
 	reply_sz = sizeof(MPI2_IOC_INIT_REPLY);
@@ -1051,6 +1102,7 @@ mps_send_iocinit(struct mps_softc *sc)
 		error = ENXIO;
 
 	mps_dprint(sc, MPS_INIT, "IOCInit status= 0x%x\n", reply.IOCStatus);
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
 	return (error);
 }
 
@@ -1065,6 +1117,30 @@ mps_memaddr_cb(void *arg, bus_dma_segment_t *segs, int nsegs, int error)
 
 static int
 mps_alloc_queues(struct mps_softc *sc)
+{
+	struct mps_queue *q;
+	int nq, i;
+
+	nq = MIN(sc->msi_msgs, mp_ncpus);
+	sc->msi_msgs = nq;
+	mps_dprint(sc, MPS_INIT|MPS_XINFO, "Allocating %d I/O queues\n", nq);
+
+	sc->queues = malloc(sizeof(struct mps_queue) * nq, M_MPT2, M_NOWAIT|M_ZERO);
+	if (sc->queues == NULL)
+		return (ENOMEM);
+
+	for (i = 0; i < nq; i++) {
+		q = &sc->queues[i];
+		mps_dprint(sc, MPS_INIT, "Configuring queue %d %p\n", i, q);
+		q->sc = sc;
+		q->qnum = i;
+	}
+
+	return (0);
+}
+
+static int
+mps_alloc_hw_queues(struct mps_softc *sc)
 {
 	bus_addr_t queues_busaddr;
 	uint8_t *queues;
@@ -1098,12 +1174,12 @@ mps_alloc_queues(struct mps_softc *sc)
                                 0,			/* flags */
                                 NULL, NULL,		/* lockfunc, lockarg */
                                 &sc->queues_dmat)) {
-		device_printf(sc->mps_dev, "Cannot allocate queues DMA tag\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate queues DMA tag\n");
 		return (ENOMEM);
         }
         if (bus_dmamem_alloc(sc->queues_dmat, (void **)&queues, BUS_DMA_NOWAIT,
 	    &sc->queues_map)) {
-		device_printf(sc->mps_dev, "Cannot allocate queues memory\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate queues memory\n");
 		return (ENOMEM);
         }
         bzero(queues, qsize);
@@ -1142,12 +1218,12 @@ mps_alloc_replies(struct mps_softc *sc)
                                 0,			/* flags */
                                 NULL, NULL,		/* lockfunc, lockarg */
                                 &sc->reply_dmat)) {
-		device_printf(sc->mps_dev, "Cannot allocate replies DMA tag\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate replies DMA tag\n");
 		return (ENOMEM);
         }
         if (bus_dmamem_alloc(sc->reply_dmat, (void **)&sc->reply_frames,
 	    BUS_DMA_NOWAIT, &sc->reply_map)) {
-		device_printf(sc->mps_dev, "Cannot allocate replies memory\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate replies memory\n");
 		return (ENOMEM);
         }
         bzero(sc->reply_frames, rsize);
@@ -1176,12 +1252,12 @@ mps_alloc_requests(struct mps_softc *sc)
                                 0,			/* flags */
                                 NULL, NULL,		/* lockfunc, lockarg */
                                 &sc->req_dmat)) {
-		device_printf(sc->mps_dev, "Cannot allocate request DMA tag\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate request DMA tag\n");
 		return (ENOMEM);
         }
         if (bus_dmamem_alloc(sc->req_dmat, (void **)&sc->req_frames,
 	    BUS_DMA_NOWAIT, &sc->req_map)) {
-		device_printf(sc->mps_dev, "Cannot allocate request memory\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate request memory\n");
 		return (ENOMEM);
         }
         bzero(sc->req_frames, rsize);
@@ -1200,12 +1276,12 @@ mps_alloc_requests(struct mps_softc *sc)
                                 0,			/* flags */
                                 NULL, NULL,		/* lockfunc, lockarg */
                                 &sc->chain_dmat)) {
-		device_printf(sc->mps_dev, "Cannot allocate chain DMA tag\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate chain DMA tag\n");
 		return (ENOMEM);
         }
         if (bus_dmamem_alloc(sc->chain_dmat, (void **)&sc->chain_frames,
 	    BUS_DMA_NOWAIT, &sc->chain_map)) {
-		device_printf(sc->mps_dev, "Cannot allocate chain memory\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate chain memory\n");
 		return (ENOMEM);
         }
         bzero(sc->chain_frames, rsize);
@@ -1224,12 +1300,12 @@ mps_alloc_requests(struct mps_softc *sc)
                                 0,			/* flags */
                                 NULL, NULL,		/* lockfunc, lockarg */
                                 &sc->sense_dmat)) {
-		device_printf(sc->mps_dev, "Cannot allocate sense DMA tag\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate sense DMA tag\n");
 		return (ENOMEM);
         }
         if (bus_dmamem_alloc(sc->sense_dmat, (void **)&sc->sense_frames,
 	    BUS_DMA_NOWAIT, &sc->sense_map)) {
-		device_printf(sc->mps_dev, "Cannot allocate sense memory\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate sense memory\n");
 		return (ENOMEM);
         }
         bzero(sc->sense_frames, rsize);
@@ -1239,9 +1315,7 @@ mps_alloc_requests(struct mps_softc *sc)
 	sc->chains = malloc(sizeof(struct mps_chain) * sc->max_chains, M_MPT2,
 	    M_WAITOK | M_ZERO);
 	if(!sc->chains) {
-		device_printf(sc->mps_dev, 
-		"Cannot allocate chains memory %s %d\n",
-		 __func__, __LINE__);
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate chains memory\n");
 		return (ENOMEM);
 	}
 	for (i = 0; i < sc->max_chains; i++) {
@@ -1268,7 +1342,7 @@ mps_alloc_requests(struct mps_softc *sc)
                                 busdma_lock_mutex,	/* lockfunc */
 				&sc->mps_mtx,		/* lockarg */
                                 &sc->buffer_dmat)) {
-		device_printf(sc->mps_dev, "Cannot allocate buffer DMA tag\n");
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate buffer DMA tag\n");
 		return (ENOMEM);
         }
 
@@ -1279,8 +1353,7 @@ mps_alloc_requests(struct mps_softc *sc)
 	sc->commands = malloc(sizeof(struct mps_command) * sc->num_reqs,
 	    M_MPT2, M_WAITOK | M_ZERO);
 	if(!sc->commands) {
-		device_printf(sc->mps_dev, "Cannot allocate memory %s %d\n",
-		 __func__, __LINE__);
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate command memory\n");
 		return (ENOMEM);
 	}
 	for (i = 1; i < sc->num_reqs; i++) {
@@ -1514,6 +1587,7 @@ mps_attach(struct mps_softc *sc)
 	int error;
 
 	MPS_FUNCTRACE(sc);
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
 
 	mtx_init(&sc->mps_mtx, "MPT2SAS lock", NULL, MTX_DEF);
 	callout_init_mtx(&sc->periodic, &sc->mps_mtx, 0);
@@ -1522,15 +1596,16 @@ mps_attach(struct mps_softc *sc)
 	timevalclear(&sc->lastfail);
 
 	if ((error = mps_transition_ready(sc)) != 0) {
-		mps_printf(sc, "%s failed to transition ready\n", __func__);
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "failed to transition "
+		    "ready\n");
 		return (error);
 	}
 
 	sc->facts = malloc(sizeof(MPI2_IOC_FACTS_REPLY), M_MPT2,
 	    M_ZERO|M_NOWAIT);
 	if(!sc->facts) {
-		device_printf(sc->mps_dev, "Cannot allocate memory %s %d\n",
-		 __func__, __LINE__);
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "Cannot allocate memory, "
+		    "exit\n");
 		return (ENOMEM);
 	}
 
@@ -1542,8 +1617,8 @@ mps_attach(struct mps_softc *sc)
 	 * memory.  If this fails, any allocated memory should already be freed.
 	 */
 	if ((error = mps_iocfacts_allocate(sc, TRUE)) != 0) {
-		mps_dprint(sc, MPS_FAULT, "%s IOC Facts based allocation "
-		    "failed with error %d\n", __func__, error);
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "IOC Facts based allocation "
+		    "failed with error %d, exit\n", error);
 		return (error);
 	}
 
@@ -1558,7 +1633,8 @@ mps_attach(struct mps_softc *sc)
 	sc->mps_ich.ich_func = mps_startup;
 	sc->mps_ich.ich_arg = sc;
 	if (config_intrhook_establish(&sc->mps_ich) != 0) {
-		mps_dprint(sc, MPS_ERROR, "Cannot establish MPS config hook\n");
+		mps_dprint(sc, MPS_INIT|MPS_ERROR,
+		    "Cannot establish MPS config hook\n");
 		error = EINVAL;
 	}
 
@@ -1569,12 +1645,13 @@ mps_attach(struct mps_softc *sc)
 	    mpssas_ir_shutdown, sc, SHUTDOWN_PRI_DEFAULT);
 
 	if (sc->shutdown_eh == NULL)
-		mps_dprint(sc, MPS_ERROR, "shutdown event registration "
-		    "failed\n");
+		mps_dprint(sc, MPS_INIT|MPS_ERROR,
+		    "shutdown event registration failed\n");
 
 	mps_setup_sysctl(sc);
 
 	sc->mps_flags |= MPS_FLAGS_ATTACH_DONE;
+	mps_dprint(sc, MPS_INIT, "%s exit error= %d\n", __func__, error);
 
 	return (error);
 }
@@ -1586,6 +1663,7 @@ mps_startup(void *arg)
 	struct mps_softc *sc;
 
 	sc = (struct mps_softc *)arg;
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
 
 	mps_lock(sc);
 	mps_unmask_intr(sc);
@@ -1595,6 +1673,12 @@ mps_startup(void *arg)
 	mps_mapping_initialize(sc);
 	mpssas_startup(sc);
 	mps_unlock(sc);
+
+	mps_dprint(sc, MPS_INIT, "disestablish config intrhook\n");
+	config_intrhook_disestablish(&sc->mps_ich);
+	sc->mps_ich.ich_arg = NULL;
+
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
 }
 
 /* Periodic watchdog.  Is called with the driver lock already held. */
@@ -1676,6 +1760,7 @@ mps_free(struct mps_softc *sc)
 {
 	int error;
 
+	mps_dprint(sc, MPS_INIT, "%s entered\n", __func__);
 	/* Turn off the watchdog */
 	mps_lock(sc);
 	sc->mps_flags |= MPS_FLAGS_SHUTDOWN;
@@ -1685,8 +1770,11 @@ mps_free(struct mps_softc *sc)
 	callout_drain(&sc->device_check_callout);
 
 	if (((error = mps_detach_log(sc)) != 0) ||
-	    ((error = mps_detach_sas(sc)) != 0))
+	    ((error = mps_detach_sas(sc)) != 0)) {
+		mps_dprint(sc, MPS_INIT|MPS_FAULT, "failed to detach "
+		    "subsystems, exit\n");
 		return (error);
+	}
 
 	mps_detach_user(sc);
 
@@ -1715,6 +1803,7 @@ mps_free(struct mps_softc *sc)
 		EVENTHANDLER_DEREGISTER(shutdown_final, sc->shutdown_eh);
 
 	mtx_destroy(&sc->mps_mtx);
+	mps_dprint(sc, MPS_INIT, "%s exit\n", __func__);
 
 	return (0);
 }
@@ -2056,8 +2145,7 @@ mps_register_events(struct mps_softc *sc, u32 *mask,
 
 	eh = malloc(sizeof(struct mps_event_handle), M_MPT2, M_WAITOK|M_ZERO);
 	if(!eh) {
-		device_printf(sc->mps_dev, "Cannot allocate memory %s %d\n",
-		 __func__, __LINE__);
+		mps_dprint(sc, MPS_ERROR, "Cannot allocate event memory\n");
 		return (ENOMEM);
 	}
 	eh->callback = cb;
@@ -2075,7 +2163,7 @@ mps_update_events(struct mps_softc *sc, struct mps_event_handle *handle,
     u32 *mask)
 {
 	MPI2_EVENT_NOTIFICATION_REQUEST *evtreq;
-	MPI2_EVENT_NOTIFICATION_REPLY *reply;
+	MPI2_EVENT_NOTIFICATION_REPLY *reply = NULL;
 	struct mps_command *cm;
 	int error, i;
 
@@ -2113,8 +2201,9 @@ mps_update_events(struct mps_softc *sc, struct mps_event_handle *handle,
 	cm->cm_desc.Default.RequestFlags = MPI2_REQ_DESCRIPT_FLAGS_DEFAULT_TYPE;
 	cm->cm_data = NULL;
 
-	error = mps_wait_command(sc, cm, 60, 0);
-	reply = (MPI2_EVENT_NOTIFICATION_REPLY *)cm->cm_reply;
+	error = mps_wait_command(sc, &cm, 60, 0);
+	if (cm != NULL)
+		reply = (MPI2_EVENT_NOTIFICATION_REPLY *)cm->cm_reply;
 	if ((reply == NULL) ||
 	    (reply->IOCStatus & MPI2_IOCSTATUS_MASK) != MPI2_IOCSTATUS_SUCCESS)
 		error = ENXIO;
@@ -2124,7 +2213,8 @@ mps_update_events(struct mps_softc *sc, struct mps_event_handle *handle,
 
 	mps_dprint(sc, MPS_TRACE, "%s finished error %d\n", __func__, error);
 
-	mps_free_command(sc, cm);
+	if (cm != NULL)
+		mps_free_command(sc, cm);
 	return (error);
 }
 
@@ -2530,11 +2620,12 @@ mps_map_command(struct mps_softc *sc, struct mps_command *cm)
  * be executed and enqueued automatically.  Other errors come from msleep().
  */
 int
-mps_wait_command(struct mps_softc *sc, struct mps_command *cm, int timeout,
+mps_wait_command(struct mps_softc *sc, struct mps_command **cmp, int timeout,
     int sleep_flag)
 {
 	int error, rc;
 	struct timeval cur_time, start_time;
+	struct mps_command *cm = *cmp;
 
 	if (sc->mps_flags & MPS_FLAGS_DIAGRESET) 
 		return  EBUSY;
@@ -2588,6 +2679,13 @@ mps_wait_command(struct mps_softc *sc, struct mps_command *cm, int timeout,
 		rc = mps_reinit(sc);
 		mps_dprint(sc, MPS_FAULT, "Reinit %s\n", (rc == 0) ? "success" :
 		    "failed");
+		if (sc->mps_flags & MPS_FLAGS_REALLOCATED) {
+			/*
+			 * Tell the caller that we freed the command in a
+			 * reinit.
+			 */
+			*cmp = NULL;
+		}
 		error = ETIMEDOUT;
 	}
 	return (error);
@@ -2654,11 +2752,12 @@ mps_read_config_page(struct mps_softc *sc, struct mps_config_params *params)
 		cm->cm_complete = mps_config_complete;
 		return (mps_map_command(sc, cm));
 	} else {
-		error = mps_wait_command(sc, cm, 0, CAN_SLEEP);
+		error = mps_wait_command(sc, &cm, 0, CAN_SLEEP);
 		if (error) {
 			mps_dprint(sc, MPS_FAULT,
 			    "Error %d reading config page\n", error);
-			mps_free_command(sc, cm);
+			if (cm != NULL)
+				mps_free_command(sc, cm);
 			return (error);
 		}
 		mps_config_complete(sc, cm);

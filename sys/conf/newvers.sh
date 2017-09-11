@@ -62,7 +62,7 @@ findvcs()
 	savedir=$(pwd)
 	cd ${SYSDIR}/..
 	while [ $(pwd) != "/" ]; do
-		if [ -d "./$1" ]; then
+		if [ -e "./$1" ]; then
 			VCSDIR=$(pwd)"/$1"
 			cd ${savedir}
 			return 0
@@ -218,7 +218,7 @@ if [ -n "$git_cmd" ] ; then
 		svn=" r${svn}"
 		git="=${git}"
 	else
-		svn=`$git_cmd log | fgrep 'git-svn-id:' | head -1 | \
+		svn=`$git_cmd log | grep '^    git-svn-id:' | head -1 | \
 		     sed -n 's/^.*@\([0-9][0-9]*\).*$/\1/p'`
 		if [ -z "$svn" ] ; then
 			svn=`$git_cmd log --format='format:%N' | \

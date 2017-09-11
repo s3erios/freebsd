@@ -33,6 +33,7 @@
  * Copyright (c) 2014 Integros [integros.com]
  * Copyright 2016 Toomas Soome <tsoome@me.com>
  * Copyright 2017 RackTop Systems.
+ * Copyright (c) 2017 Datto Inc.
  */
 
 /*
@@ -1727,6 +1728,7 @@ zfs_ioc_pool_tryimport(zfs_cmd_t *zc)
  * inputs:
  * zc_name              name of the pool
  * zc_cookie            scan func (pool_scan_func_t)
+ * zc_flags             scrub pause/resume flag (pool_scrub_cmd_t)
  */
 static int
 zfs_ioc_pool_scan(zfs_cmd_t *zc)
@@ -1737,7 +1739,12 @@ zfs_ioc_pool_scan(zfs_cmd_t *zc)
 	if ((error = spa_open(zc->zc_name, &spa, FTAG)) != 0)
 		return (error);
 
-	if (zc->zc_cookie == POOL_SCAN_NONE)
+	if (zc->zc_flags >= POOL_SCRUB_FLAGS_END)
+		return (SET_ERROR(EINVAL));
+
+	if (zc->zc_flags == POOL_SCRUB_PAUSE)
+		error = spa_scrub_pause_resume(spa, POOL_SCRUB_PAUSE);
+	else if (zc->zc_cookie == POOL_SCAN_NONE)
 		error = spa_scan_stop(spa);
 	else
 		error = spa_scan(spa, zc->zc_cookie);
@@ -3780,17 +3787,28 @@ zfs_ioc_destroy(zfs_cmd_t *zc)
 /*
  * fsname is name of dataset to rollback (to most recent snapshot)
  *
- * innvl is not used.
+ * innvl may contain name of expected target snapshot
  *
  * outnvl: "target" -> name of most recent snapshot
  * }
  */
 /* ARGSUSED */
 static int
-zfs_ioc_rollback(const char *fsname, nvlist_t *args, nvlist_t *outnvl)
+zfs_ioc_rollback(const char *fsname, nvlist_t *innvl, nvlist_t *outnvl)
 {
 	zfsvfs_t *zfsvfs;
+	char *target = NULL;
 	int error;
+
+	(void) nvlist_lookup_string(innvl, "target", &target);
+	if (target != NULL) {
+		int fslen = strlen(fsname);
+
+		if (strncmp(fsname, target, fslen) != 0)
+			return (SET_ERROR(EINVAL));
+		if (target[fslen] != '@')
+			return (SET_ERROR(EINVAL));
+	}
 
 	if (getzfsvfs(fsname, &zfsvfs) == 0) {
 		dsl_dataset_t *ds;
@@ -3800,7 +3818,8 @@ zfs_ioc_rollback(const char *fsname, nvlist_t *args, nvlist_t *outnvl)
 		if (error == 0) {
 			int resume_err;
 
-			error = dsl_dataset_rollback(fsname, zfsvfs, outnvl);
+			error = dsl_dataset_rollback(fsname, target, zfsvfs,
+			    outnvl);
 			resume_err = zfs_resume_fs(zfsvfs, ds);
 			error = error ? error : resume_err;
 		}
@@ -3810,7 +3829,7 @@ zfs_ioc_rollback(const char *fsname, nvlist_t *args, nvlist_t *outnvl)
 		vfs_unbusy(zfsvfs->z_vfs);
 #endif
 	} else {
-		error = dsl_dataset_rollback(fsname, NULL, outnvl);
+		error = dsl_dataset_rollback(fsname, target, NULL, outnvl);
 	}
 	return (error);
 }

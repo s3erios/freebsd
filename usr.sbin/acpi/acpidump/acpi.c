@@ -1236,6 +1236,7 @@ acpi_print_nfit(ACPI_NFIT_HEADER *nfit)
 		    (uintmax_t)mmap->RegionOffset);
 		printf("\tAddress=0x%016jx\n", (uintmax_t)mmap->Address);
 		printf("\tInterleaveIndex=%u\n", (u_int)mmap->InterleaveIndex);
+		printf("\tInterleaveWays=%u\n", (u_int)mmap->InterleaveWays);
 
 #define PRINTFLAG(var, flag)	printflag((var), ACPI_NFIT_MEM_## flag, #flag)
 
@@ -1276,13 +1277,14 @@ acpi_print_nfit(ACPI_NFIT_HEADER *nfit)
 		    (u_int)ctlreg->SubsystemDeviceId);
 		printf("\tSubsystemRevisionId=%u\n",
 		    (u_int)ctlreg->SubsystemRevisionId);
-		printf("\tValidFields=%u\n", (u_int)ctlreg->ValidFields);
+		printf("\tValidFields=0x%02x\n", (u_int)ctlreg->ValidFields);
 		printf("\tManufacturingLocation=%u\n",
 		    (u_int)ctlreg->ManufacturingLocation);
 		printf("\tManufacturingDate=%u\n",
 		    (u_int)ctlreg->ManufacturingDate);
 		printf("\tSerialNumber=%u\n",
 		    (u_int)ctlreg->SerialNumber);
+		printf("\tCode=0x%04x\n", (u_int)ctlreg->Code);
 		printf("\tWindows=%u\n", (u_int)ctlreg->Windows);
 		printf("\tWindowSize=0x%016jx\n",
 		    (uintmax_t)ctlreg->WindowSize);
@@ -1298,8 +1300,7 @@ acpi_print_nfit(ACPI_NFIT_HEADER *nfit)
 #define PRINTFLAG(var, flag)	printflag((var), ACPI_NFIT_## flag, #flag)
 
 		printf("\tFlags=");
-		PRINTFLAG(mmap->Flags, ADD_ONLINE_ONLY);
-		PRINTFLAG(mmap->Flags, PROXIMITY_VALID);
+		PRINTFLAG(ctlreg->Flags, CONTROL_BUFFERED);
 		PRINTFLAG_END();
 
 #undef PRINTFLAG

@@ -571,7 +571,7 @@ _rtld(Elf_Addr *sp, func_ptr_type *exit_proc, Obj_Entry **objp)
 	close(fd);
 	if (obj_main == NULL)
 	    rtld_die();
-	max_stack_flags = obj->stack_flags;
+	max_stack_flags = obj_main->stack_flags;
     } else {				/* Main program already loaded. */
 	dbg("processing main program's program header");
 	assert(aux_info[AT_PHDR] != NULL);
@@ -4662,7 +4662,7 @@ tls_get_addr_common(Elf_Addr **dtvp, int index, size_t offset)
 }
 
 #if defined(__aarch64__) || defined(__arm__) || defined(__mips__) || \
-    defined(__powerpc__) || defined(__riscv__)
+    defined(__powerpc__) || defined(__riscv)
 
 /*
  * Allocate Static TLS using the Variant I method.
