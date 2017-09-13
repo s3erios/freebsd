@@ -250,7 +250,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_temp_measure		= r88e_temp_measure;
 	sc->sc_temp_read		= r88e_temp_read;
 	sc->sc_init_tx_agg		= rtwn_nop_softc;
-	sc->sc_init_rx_agg		= r88ee_init_rx_agg;
+	sc->sc_init_rx_agg		= rtwn_nop_softc; //r88ee_init_rx_agg;
 						// tap
 	sc->sc_init_ampdu		= r92ce_init_ampdu;
 						// tap
