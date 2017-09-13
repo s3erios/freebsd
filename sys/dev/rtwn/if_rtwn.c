@@ -1807,6 +1807,8 @@ rtwn_init(struct rtwn_softc *sc)
 
 	/* Initialize MAC block. */
 	error = rtwn_mac_init(sc);
+	// Complete, but there were other bits written in the Linux code
+	// rtwn_write_1(sc, 0x04CA, 0x0B); // Comes from rtl8188e/phy.c:251
 	if (error != 0) {
 		device_printf(sc->sc_dev,
 		    "%s: error while initializing MAC block\n", __func__);

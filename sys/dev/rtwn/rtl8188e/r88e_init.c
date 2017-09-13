@@ -193,17 +193,7 @@ r88e_init_bb(struct rtwn_softc *sc)
 void
 r88ee_init_bb(struct rtwn_softc *sc)
 {
-	#include <sys/param.h>
-	#include <sys/stack.h>
-	struct stack *ptr;
-
 	printf("AAAA RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
-	printf("This is executed\n");
-	ptr = stack_create();
-	stack_save(ptr);
-	stack_print(ptr);
-	stack_destroy(ptr);
-	printf("End of execution\n");
 	/* Enable BB and RF. */
 	rtwn_setbits_2(sc, R92C_SYS_FUNC_EN, 0,
 	    R92C_SYS_FUNC_EN_BBRSTB | R92C_SYS_FUNC_EN_BB_GLB_RST |

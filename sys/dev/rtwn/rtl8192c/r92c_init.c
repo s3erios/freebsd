@@ -118,7 +118,6 @@ r92c_llt_init(struct rtwn_softc *sc)
 int
 r92c_set_page_size(struct rtwn_softc *sc)
 {
-	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
 	return (rtwn_write_1(sc, R92C_PBP, SM(R92C_PBP_PSRX, R92C_PBP_128) |
 	    SM(R92C_PBP_PSTX, R92C_PBP_128)) == 0);
 }
