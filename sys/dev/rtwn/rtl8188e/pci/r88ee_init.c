@@ -88,6 +88,22 @@ r88ee_init_intr(struct rtwn_softc *sc)
 void
 r88ee_init_edca(struct rtwn_softc *sc)
 {
+
+#define REG_SIFS_CTX		0x0514
+#define REG_SIFS_TRX		0x0516
+#define REG_SPEC_SIFS		0x0428
+#define REG_MAC_SPEC_SIFS	0x063A
+#define REG_RESP_SIFS_OFDM	0x063E
+
+	rtwn_write_1(sc, REG_SIFS_CTX + 1, 0x0a);
+	rtwn_write_1(sc, REG_SIFS_TRX + 1, 0x0a);
+	rtwn_write_1(sc, REG_SPEC_SIFS + 1, 0x0a);
+	rtwn_write_1(sc, REG_MAC_SPEC_SIFS + 1, 0x0a);
+
+	// Linux has an if-condition here for ht_enable rtl8188ee/hw.c
+
+	rtwn_write_2(sc, REG_RESP_SIFS_OFDM, 0x0e0e);
+
 #if 0
 	/* SIFS */
 	rtwn_write_2(sc, R88E_SPEC_SIFS, 0x1010);
