@@ -67,8 +67,8 @@ r88ee_init_intr(struct rtwn_softc *sc)
 	rtwn_write_4(sc, R88E_HISR, 0x00000000);
 	rtwn_write_4(sc, R88E_HIMR, 0x00000000);
 #else
-	rtwn_write_4(sc, R88E_HISR, 0xffffffff);
-	rtwn_write_4(sc, R88E_HISRE, 0xffffffff);
+	rtwn_write_4(sc, R92C_HISR, 0xffffffff);
+	rtwn_write_4(sc, R92C_HISRE, 0xffffffff);
 /////////////////////
 //	rtwn_write_4(sc, R88E_HIMR, R88E_HIMR_CPWM | R88E_HIMR_CPWM2 |
 //		R88E_HIMR_TBDER | R88E_HIMR_PSTIMEOUT);
