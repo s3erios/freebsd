@@ -22,7 +22,8 @@ SRCS	+= r92c_attach.c r92c_beacon.c r92c_calib.c r92c_chan.c r92c_fw.c \
 
 .PATH:	   ${SRCTOP}/sys/dev/rtwn/rtl8188e
 SRCS	+= r88e_beacon.c r88e_calib.c r88e_chan.c r88e_fw.c r88e_init.c \
-	   r88e_led.c r88e_rf.c r88e_rom.c r88e_rx.c r88e_tx.c r88e.h \
+	   r88e_led.c r88e_rf.c r88e_rom.c r88e_rx.c r88e_tx.c r88e_pwrseq.c \
+	   r88e_pwrseq.h r88e.h \
 	   r88e_priv.h r88e_reg.h r88e_rom_defs.h r88e_rom_image.h \
 	   r88e_fw_cmd.h r88e_rx_desc.h r88e_tx_desc.h
 

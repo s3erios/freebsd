@@ -56,11 +56,11 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
 #include <dev/rtwn/rtl8192c/r92c.h>
-#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h> // Temporary until the R88EE values are added
+#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
+#include <dev/rtwn/rtl8188e/r88e_pwrseq.h>
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
-#include <dev/rtwn/rtl8188e/pci/r88ee_pwr.h>
 
 
 void

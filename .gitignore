@@ -1,1 +1,5 @@
 *.swp
+*.ko
+*.o
+x86
+machine

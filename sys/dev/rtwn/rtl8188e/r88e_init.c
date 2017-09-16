@@ -54,7 +54,7 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/rtl8188e/r88e.h>
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
-#include <dev/rtwn/rtl8188e/pci/r88ee_pwr.h>
+#include <dev/rtwn/rtl8188e/r88e_pwrseq.h>
 #include <dev/rtwn/rtl8192c/pci/r92ce_reg.h> // Added due to R92C_INT_MIG
 
 static void
