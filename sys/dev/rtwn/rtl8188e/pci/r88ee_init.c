@@ -57,7 +57,11 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_pwrseq.h>
 
+bool pwrseqcmdparsing(struct rtwn_softc *sc, uint8_t cut_version,
+              uint8_t faversion, uint8_t interface_type,
+              struct wlan_pwr_cfg pwrcfgcmd[]);
 
 void
 r88ee_init_intr(struct rtwn_softc *sc)
@@ -120,132 +124,123 @@ r88ee_init_edca(struct rtwn_softc *sc)
 #endif
 }
 
-#if 0
 int
 r88ee_power_on(struct rtwn_softc *sc)
 {
-#if 0
-	struct r92c_softc *rs = sc->sc_priv;
-	uint32_t reg;
-	int ntries;
+// I believe this is the code from _rtl88ee_init_mac()
 
-	/* Wait for autoload done bit. */
-	for (ntries = 0; ntries < 1000; ntries++) {
-		if (rtwn_read_1(sc, R88E_APS_FSMCO) & R88E_APS_FSMCO_PFM_ALDN)
-			break;
-		DELAY(5);
-	}
-	if (ntries == 1000) {
-		device_printf(sc->sc_dev,
-		    "timeout waiting for chip autoload\n");
-		return (ETIMEDOUT);
-	}
+#define RTWN_CHECK(res) do {    \
+        if (res != 0)           \
+                return (EIO);   \
+} while(0)
+//      int ntries;
 
-	/* Unlock ISO/CLK/Power control register. */
-	rtwn_write_1(sc, R88E_RSV_CTRL, 0);
+/////// FreeBSD code
+//      /* Wait for power ready bit. */
+//      for (ntries = 0; ntries < 5000; ntries++) {
+//              if (rtwn_read_4(sc, R92C_APS_FSMCO) & R92C_APS_FSMCO_SUS_HOST)
+//                      break;
+//              rtwn_delay(sc, 10);
+//      }
+//      if (ntries == 5000) {
+//              device_printf(sc->sc_dev,
+//                  "timeout_waiting for chip power up\n");
+//              return (ETIMEDOUT);
+//      }
+//
+#define REG_XCK_OUT_CTRL        0x07c
+#define REG_APS_FSMCO           0x0004
+#define REG_RSV_CTRL            0x001C
 
-	if (rs->board_type != R88E_BOARD_TYPE_DONGLE) {
-		/* bt coex */
-		rtwn_setbits_4(sc, R88E_APS_FSMCO, 0,
-		    R88E_APS_FSMCO_SOP_ABG |
-		    R88E_APS_FSMCO_SOP_AMB |
-		    R88E_APS_FSMCO_XOP_BTCK);
-	}
+        uint8_t bytetmp;
 
-	/* Move SPS into PWM mode. */
-	rtwn_write_1(sc, R88E_SPS0_CTRL, 0x2b);
+        bytetmp = rtwn_read_1(sc, REG_XCK_OUT_CTRL) & (~0x10);
+        rtwn_write_1(sc, REG_XCK_OUT_CTRL, bytetmp);
 
-	/* Set low byte to 0x0f, leave others unchanged. */
-	rtwn_write_1(sc, R88E_AFE_XTAL_CTRL, 0x0f);
+        bytetmp = rtwn_read_1(sc, REG_APS_FSMCO + 1) & (~0x80);
+        rtwn_write_1(sc, REG_APS_FSMCO + 1, bytetmp);
 
-	/* TODO: check if we need this for 8188CE */
-	if (rs->board_type != R88E_BOARD_TYPE_DONGLE) {
-		/* bt coex */
-		/* XXX magic from linux */
-		rtwn_setbits_4(sc, R88E_AFE_XTAL_CTRL, 0x024800, 0);
-	}
+        rtwn_write_1(sc, REG_RSV_CTRL, 0x00);
 
-	rtwn_setbits_2(sc, R88E_SYS_ISO_CTRL, 0xff00,
-	    R88E_SYS_ISO_CTRL_PWC_EV12V | R88E_SYS_ISO_CTRL_DIOR);
+        printf("Complex power on here\n");
+        if (!pwrseqcmdparsing(sc, PWR_CUT_ALL_MSK,
+                PWR_FAB_ALL_MSK, PWR_INTF_PCI_MSK,
+                RTL8188EE_NIC_ENABLE_FLOW)) {
+                uprintf("pwrseqcmdparsing failed\n");
+        }
 
-	DELAY(200);
 
-	/* TODO: linux does additional btcoex stuff here */
+#define REG_APS_FSMCO 0x0004
 
-	/* Auto enable WLAN. */
-	rtwn_setbits_2(sc, R88E_APS_FSMCO, 0, R88E_APS_FSMCO_APFM_ONMAC);
-	for (ntries = 0; ntries < 1000; ntries++) {
-		if (!(rtwn_read_2(sc, R88E_APS_FSMCO) &
-		    R88E_APS_FSMCO_APFM_ONMAC))
-			break;
-		DELAY(5);
-	}
-	if (ntries == 1000) {
-		device_printf(sc->sc_dev, "timeout waiting for MAC auto ON\n");
-		return (ETIMEDOUT);
-	}
+//    bytetmp = rtl_read_byte(rtlpriv, REG_APS_FSMCO) | BIT(4);
+//    rtl_write_byte(rtlpriv, REG_APS_FSMCO, bytetmp);
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_APS_FSMCO, 0,
+                0x10)); //BIT(4)));
 
-	/* Enable radio, GPIO and LED functions. */
-	rtwn_write_2(sc, R88E_APS_FSMCO,
-	    R88E_APS_FSMCO_AFSM_PCIE |
-	    R88E_APS_FSMCO_PDN_EN |
-	    R88E_APS_FSMCO_PFM_ALDN);
-	/* Release RF digital isolation. */
-	rtwn_setbits_2(sc, R88E_SYS_ISO_CTRL, R88E_SYS_ISO_CTRL_DIOR, 0);
+#define REG_PCIE_CTRL_REG 0x0300
 
-	if (rs->chip & R88E_CHIP_92C)
-		rtwn_write_1(sc, R88E_PCIE_CTRL_REG + 3, 0x77);
-	else
-		rtwn_write_1(sc, R88E_PCIE_CTRL_REG + 3, 0x22);
+//    bytetmp = rtl_read_byte(rtlpriv, REG_PCIE_CTRL_REG+2);
+//    rtl_write_byte(rtlpriv, REG_PCIE_CTRL_REG+2, bytetmp|BIT(2));
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_PCIE_CTRL_REG+2, 0,
+                0x04)); //BIT(2)));
 
-	rtwn_write_4(sc, R88E_INT_MIG, 0);
+#define REG_WATCH_DOG 0x0368
 
-	if (rs->board_type != R88E_BOARD_TYPE_DONGLE) {
-		/* bt coex */
-		/* XXX magic from linux */
-		rtwn_setbits_1(sc, R88E_AFE_XTAL_CTRL + 2, 0x02, 0);
-	}
+//    bytetmp = rtl_read_byte(rtlpriv, REG_WATCH_DOG+1);
+//    rtl_write_byte(rtlpriv, REG_WATCH_DOG+1, bytetmp|BIT(7));
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_WATCH_DOG+1, 0,
+                0x80)); //BIT(7)));
 
-	rtwn_setbits_1(sc, R88E_GPIO_MUXCFG, R88E_GPIO_MUXCFG_RFKILL, 0);
+#define REG_AFE_XTAL_CTRL_EXT 0x0078
 
-	reg = rtwn_read_1(sc, R88E_GPIO_IO_SEL);
-	if (!(reg & R88E_GPIO_IO_SEL_RFKILL)) {
-		device_printf(sc->sc_dev,
-		    "radio is disabled by hardware switch\n");
-		/* XXX how driver will know when radio will be enabled? */
-		return (EPERM);
-	}
+//    bytetmp = rtl_read_byte(rtlpriv, REG_AFE_XTAL_CTRL_EXT+1);
+//    rtl_write_byte(rtlpriv, REG_AFE_XTAL_CTRL_EXT+1, bytetmp|BIT(1));
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_AFE_XTAL_CTRL_EXT+1, 0,
+                0x02)); //BIT(1)));
 
-	/* Initialize MAC. */
-	rtwn_setbits_1(sc, R88E_APSD_CTRL, R88E_APSD_CTRL_OFF, 0);
-	for (ntries = 0; ntries < 200; ntries++) {
-		if (!(rtwn_read_1(sc, R88E_APSD_CTRL) &
-		    R88E_APSD_CTRL_OFF_STATUS))
-			break;
-		DELAY(500);
-	}
-	if (ntries == 200) {
-		device_printf(sc->sc_dev,
-		    "timeout waiting for MAC initialization\n");
-		return (ETIMEDOUT);
-	}
+#define REG_TX_RPT_CTRL 0x04EC
 
-	/* Enable MAC DMA/WMAC/SCHEDULE/SEC blocks. */
-	rtwn_setbits_2(sc, R88E_CR, 0,
-	    R88E_CR_HCI_TXDMA_EN | R88E_CR_HCI_RXDMA_EN |
-	    R88E_CR_TXDMA_EN | R88E_CR_RXDMA_EN | R88E_CR_PROTOCOL_EN |
-	    R88E_CR_SCHEDULE_EN | R88E_CR_MACTXEN | R88E_CR_MACRXEN |
-	    ((sc->sc_hwcrypto != RTWN_CRYPTO_SW) ? R88E_CR_ENSEC : 0));
+//    bytetmp = rtl_read_byte(rtlpriv, REG_TX_RPT_CTRL);
+//    rtl_write_byte(rtlpriv, REG_TX_RPT_CTRL, bytetmp|BIT(1)|BIT(0));
+//    rtl_write_byte(rtlpriv, REG_TX_RPT_CTRL+1, 2);
+//    rtl_write_word(rtlpriv, REG_TX_RPT_TIME, 0xcdf0);
 
-	rtwn_write_4(sc, R88E_MCUTST_1, 0x0);
+#define REG_TX_RPT_CTRL 0x04EC
+#define REG_TX_RPT_TIME 0x04F0
+#define REG_SYS_CLKR    0x0008
+#define REG_GPIO_MUXCFG 0x0040
 
-	return (0);
-#else
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
-	return (0);
-#endif
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_TX_RPT_CTRL, 0, 0x02 | 0x01 ));
+        rtwn_write_1(sc, REG_TX_RPT_CTRL+1, 2);
+        rtwn_write_2(sc, REG_TX_RPT_TIME, 0xcdf0);
+
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_SYS_CLKR, 0, 0x08)); //BIT(3))); // hw.c 882
+
+        RTWN_CHECK(rtwn_setbits_1(sc, REG_GPIO_MUXCFG+1, 0,
+                ~(0x10))); //BIT(4) ));
+
+        rtwn_write_1(sc, 0x367, 0x80);
+
+#define REG_CR  0x0100
+#define MSR     (REG_CR + 2)
+
+        rtwn_write_2(sc, REG_CR, 0x2ff);
+        rtwn_write_1(sc, REG_CR+1, 0x06);
+        rtwn_write_1(sc, MSR, 0x00);
+
+        // Linux driver Does the REG_HISR 0xfffffff crap here   
+        // This seems to take place in init_intr() code
+
+#define R88E_MCUTST_1   0x01c0
+
+        rtwn_write_4(sc, R92C_INT_MIG, 0); // same from _rtl88ee_init_mac
+                                           // same value of INT_MIG
+        rtwn_write_4(sc, R88E_MCUTST_1, 0x0);
+        rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0);
+
+        return(0);
+
 }
-#endif
 
 void
 r88ee_power_off(struct rtwn_softc *sc)
