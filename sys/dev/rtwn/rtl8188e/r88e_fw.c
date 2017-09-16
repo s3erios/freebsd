@@ -173,6 +173,9 @@ r88e_macid_enable_link(struct rtwn_softc *sc, int id, int enable)
 void
 r88e_set_media_status(struct rtwn_softc *sc, int macid)
 {
+
+	printf("RTL8188EE:%s:%s What happens here? %d\n", __FILE__, __func__, macid);
+
 	struct r88e_fw_cmd_msrrpt status;
 
 	if (macid & RTWN_MACID_VALID)

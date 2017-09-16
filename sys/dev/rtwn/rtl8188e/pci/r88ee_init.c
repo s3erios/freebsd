@@ -45,6 +45,9 @@ __FBSDID("$FreeBSD$");
 #include <net/ethernet.h>
 #include <net/if_media.h>
 
+#include <dev/pci/pcireg.h>
+#include <dev/pci/pcivar.h>
+
 #include <net80211/ieee80211_var.h>
 #include <net80211/ieee80211_radiotap.h>
 
@@ -57,6 +60,7 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_pwr.h>
 
 
 void
@@ -297,6 +301,98 @@ r88ee_power_off(struct rtwn_softc *sc)
 	rtwn_write_1(sc, R88E_RSV_CTRL, 0x0e);
 	rtwn_write_1(sc, R88E_APS_FSMCO, R88E_APS_FSMCO_PDN_EN);
 #else
+	uint32_t count = 0;
+	uint8_t u1b_tmp;
+//	int error;
+
+	/////////////// Copied from rtwn_pci_attach.c, I am trying to enable ASPM.
+/*
+	error = pci_find_cap(dev, PCIY_EXPRESS, &cap_off);
+	if (error != 0) {
+		device_printf(dev, "PCIe capability structure not found!\n");
+		return (error);
+	}
+	lcsr = pci_read_config(dev, cap_off + PCIER_LINK_CTL, 4);
+	lcsr &= ~PCIEM_LINK_CTL_ASPMC;
+	pci_write_config(dev, cap_off + PCIER_LINK_CTRL, lcsr, 4);
+*/
+	//sc->intf_ops->enable_aspm(hw);
+	/////////////// Trying to disable
+
+#define REG_TX_RPT_CTRL		0x04EC
+	u1b_tmp = rtwn_read_1(sc, REG_TX_RPT_CTRL);
+	rtwn_write_1(sc, REG_TX_RPT_CTRL, u1b_tmp & (~0x02));
+
+#define REG_RXDMA_CONTROL	0x0286
+	u1b_tmp = rtwn_read_1(sc, REG_RXDMA_CONTROL);
+	while (!(u1b_tmp & 0x02) && (count++ < 100)) {
+		rtwn_delay(sc, 10); //udelay(10);
+		u1b_tmp = rtwn_read_1(sc, REG_RXDMA_CONTROL);
+		count++;
+	}
+#define REG_PCIE_CTRL_REG	0x0300
+	rtwn_write_1(sc, REG_PCIE_CTRL_REG+1, 0xFF);
+
+	pwrseqcmdparsing(sc, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+			 PWR_INTF_PCI_MSK, RTL8188EE_NIC_LPS_ENTER_FLOW);
+
+#define REG_RF_CTRL 0x001f
+	rtwn_write_1(sc, REG_RF_CTRL, 0x00);
+
+#define REG_MCUFWDL 0x0080
+//
+//	if ((rtwn_read_1(sc, REG_MCUFWDL) & 0x80) && rtlhal->fw_ready)
+//		rtl88e_firmware_selfreset(hw);
+	// This should be changed to "If there is firmware loaded, then do this"
+#define REG_SYS_FUNC_EN		0x0002
+
+	u1b_tmp = rtwn_read_1(sc, REG_SYS_FUNC_EN+1);
+	rtwn_write_1(sc, REG_SYS_FUNC_EN+1, (u1b_tmp & (~BIT(2))));
+	rtwn_write_1(sc, REG_SYS_FUNC_EN+1, (u1b_tmp | BIT(2)));
+
+	u1b_tmp = rtwn_read_1(sc, REG_SYS_FUNC_EN+1);
+	rtwn_write_1(sc, REG_SYS_FUNC_EN + 1, (u1b_tmp & (~0x04)));
+	rtwn_write_1(sc, REG_MCUFWDL, 0x00);
+
+#define REG_32K_CTRL		0x0194
+	u1b_tmp = rtwn_read_1(sc, REG_32K_CTRL);
+	rtwn_write_1(sc, REG_32K_CTRL, (u1b_tmp & (~0x01)));
+
+	pwrseqcmdparsing(sc, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+			 PWR_INTF_PCI_MSK, RTL8188EE_NIC_DISABLE_FLOW);
+#define REG_RSV_CTRL		0x001C
+
+	u1b_tmp = rtwn_read_1(sc, REG_RSV_CTRL+1);
+	rtwn_write_1(sc, REG_RSV_CTRL+1, (u1b_tmp & (~0x08)));
+	u1b_tmp = rtwn_read_1(sc, REG_RSV_CTRL+1);
+	rtwn_write_1(sc, REG_RSV_CTRL+1, (u1b_tmp | 0x08));
+
+	rtwn_write_1(sc, REG_RSV_CTRL, 0x0E);
+
+#define REG_GPIO_PIN_CTRL	0x0044
+#define	GPIO_IO_SEL		(REG_GPIO_PIN_CTRL+2)
+#define REG_GPIO_IO_SEL		0x0042
+#define GPIO_IN			REG_GPIO_PIN_CTRL
+#define GPIO_OUT		(REG_GPIO_PIN_CTRL+1)
+
+	u1b_tmp = rtwn_read_1(sc, GPIO_IN);
+	rtwn_write_1(sc, GPIO_OUT, u1b_tmp);
+	rtwn_write_1(sc, GPIO_IO_SEL, 0x7F);
+
+	u1b_tmp = rtwn_read_1(sc, REG_GPIO_IO_SEL);
+	rtwn_write_1(sc, REG_GPIO_IO_SEL, (u1b_tmp << 4) | u1b_tmp);
+	u1b_tmp = rtwn_read_1(sc, REG_GPIO_IO_SEL+1);
+	rtwn_write_1(sc, REG_GPIO_IO_SEL+1, u1b_tmp | 0x0F);
+
+#define REG_GPIO_IO_SEL_2	0x0062
+	rtwn_write_4(sc, REG_GPIO_IO_SEL_2+2, 0x00080808);
+
+
+
+
+
+
+
 	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 
 #endif
@@ -373,7 +469,7 @@ r88ee_init_rx_agg(struct rtwn_softc *sc) {
 	rtwn_write_4(sc, R92C_TCR, pc->tcr); //rtlpci->receive_config); // same value
 
 	// Seems to come from rtl_init_mac, line 945
-//	rtl_write_byte(rtlpriv, REG_PCIE_CTRL_REG+1, 0);
+//	rtl_write_byte(sc, REG_PCIE_CTRL_REG+1, 0);
 
 	rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0);
 
