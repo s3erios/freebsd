@@ -185,6 +185,29 @@ r88ee_init_bb(struct rtwn_softc *sc)
 
 	printf("Figure out what rtl_get_bbreg does, it happens here\n");
 
+	// This is the same as rtl_get_bbreg()
+
+//	rtl_get_bbreg(sc, R92C_HSSI_PARAM(0), 0x200);
+	uint32_t returnvalue, originalvalue, bitshift;
+	uint32_t q;
+
+	uint32_t bitmask;
+
+		// The second argument is R92C_HSSI_PARAM(0) aka RFPGA0_XA_HSSIPARAMETER2
+	originalvalue = rtwn_read_4(sc, 0x824);
+
+	// _rtl88e_phy_calculate_bit_shift(mask) which is 0x200
+	bitmask = 0x200;
+	for(q=0;q<=32;q++) {
+		if (((bitmask >> q) & 0x1) == 1)
+			break;
+	}
+	bitshift = q;
+	returnvalue = (originalvalue & bitmask) >> bitshift;
+
+	printf("The return value is %x\n", returnvalue);
+///////////
+
 	rtstatus = true;
 
 
