@@ -97,21 +97,98 @@ r88e_init_bb(struct rtwn_softc *sc)
 void
 r88ee_init_bb(struct rtwn_softc *sc)
 {
+// This code should mirror Linux's rtl8188ee/phy.c rtl88e_phy_bb_config()
+	bool rtstatus;
+	uint16_t regval;
+	uint32_t tmp;
+	int i, j;
+
+	// I have no idea what this does
+	//_rtl88e_phy_init_bb_rf_register_definition(hw);
+#define REG_SYS_FUNC_EN		0x002
+#define REG_RF_CTRL		0x001f
+#define RF_EN			0x01
+#define RF_RSTB			0x02
+#define RF_SDMRSTB		0x04
+#define FEN_PCIEA		0x40
+#define FEN_PPLL		0x80
+#define FEN_BB_GLB_RSTN		0x02
+#define FEN_BBRSTB		0x01
+#define BIT(nr)			(1 << (nr))
+#define FEN_DIO_PCIE		BIT(5)
+
+	regval = rtwn_read_2(sc, REG_SYS_FUNC_EN);
+	rtwn_write_2(sc, REG_SYS_FUNC_EN, regval | BIT(13) | BIT(0) | BIT(1));
+
+	rtwn_write_1(sc, REG_RF_CTRL, RF_EN | RF_RSTB | RF_SDMRSTB);
+	rtwn_write_1(sc, REG_SYS_FUNC_EN, FEN_PPLL | FEN_PCIEA | FEN_DIO_PCIE |
+					  FEN_BB_GLB_RSTN | FEN_BBRSTB);
+	tmp = rtwn_read_4(sc, 0x4c);
+	rtwn_write_4(sc, 0x4c, tmp | BIT(23));
+//	rtstatus = _rtl88e_phy_bb8188e_config_parafile(sc);
+	// comes from rtl8188ee/phy.c : 367
+
+///////////////////////////////////////////////////
+//	handle_branch1(sc, RTL8188EEPHY_REG_1TARRAYLEN, RTL8188EEPHY_REG_1TARRAY); 
+
+	// I do not know what autoload_failflag does.
+
+//	handle_branch2(sc, RTL8188EEAGCTAB_1TARRAYLEN, RTL8188EEAGCTAB_1TARRAY);
+///////////////////////////////////////////////////
+
+	// Aftert his is rtl8188ee/phy.c 367
+	// Below this should mirror rtl8192c/r92c_init r92c_init_bb_common
+	// But should send new RTL8188EE BB and AGC tables
+	for (i = 0; i < sc->bb_size; i++) {
+		const struct rtwn_bb_prog *bb_prog = &sc->bb_prog[i];
+
+		while(!rtwn_check_condition(sc, bb_prog->cond)) {
+			KASSERT(bb_prog->next != NULL,
+			    ("%s: wrong condition value (i %d)\n",
+			    __func__, i));
+			bb_prog = bb_prog->next;
+		}
+
+		for (j = 0; j < bb_prog->count; j++) {
+			RTWN_DPRINTF(sc, RTWN_DEBUG_RESET,
+			    "BB: reg 0x%03x, val 0x%08x\n",
+			    bb_prog->reg[j], bb_prog->val[j]);
+
+			rtwn_bb_write(sc, bb_prog->reg[j], bb_prog->val[j]);
+			rtwn_delay(sc, 1);
+		}
+	}
+	// Some Chipset stuff, not specific to R92C_CHIP_02C_LT2R)
+
+	for (i = 0; i < sc->agc_size; i++) {
+		const struct rtwn_agc_prog *agc_prog = &sc->agc_prog[i];
+
+		while(!rtwn_check_condition(sc, agc_prog->cond)) {
+			KASSERT(agc_prog->next != NULL,
+			    ("%s: wrong condition value (2) (i %d)\n",
+			    __func__, i));
+			agc_prog = agc_prog->next;
+		}
+
+		for(j = 0; j < agc_prog->count; j++) {
+			RTWN_DPRINTF(sc, RTWN_DEBUG_RESET,
+			    "AGC: val 0x%08x\n", agc_prog->val[j]);
+
+			rtwn_bb_write(sc, R92C_OFDM0_AGCRSSITABLE,
+			    agc_prog->val[j]);
+			rtwn_delay(sc, 1);
+		}
+	}
+
+	if (rtwn_bb_read(sc, R92C_HSSI_PARAM2(0)) & R92C_HSSI_PARAM2_CCK_HIPWR)
+		sc->sc_flags |= RTWN_FLAG_CCK_HIPWR;
+
+	printf("Figure out what rtl_get_bbreg does, it happens here\n");
+
+	rtstatus = true;
+
+
 	printf("AAAA RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
-	/* Enable BB and RF. */
-	rtwn_setbits_2(sc, R92C_SYS_FUNC_EN, 0,
-	    R92C_SYS_FUNC_EN_BBRSTB | R92C_SYS_FUNC_EN_BB_GLB_RST |
-	    R92C_SYS_FUNC_EN_DIO_RF);
-	// Good, lines 263-265
-
-			 // 0x01f, this seems good, 267
-	rtwn_write_1(sc, R92C_RF_CTRL, 0x1 | 0x2 | 0x4);
-			// line 268
-	rtwn_write_1(sc, R92C_SYS_FUNC_EN, 0x80 | 0x40 | 0x20 | 0x2 | 0x1);
-			// line 271-272
-	rtwn_setbits_4(sc, R92C_LEDCFG0, 0, 0x00800000);
-
-	r92c_init_bb_common(sc);
 }
 
 int

@@ -245,56 +245,63 @@ r88ee_power_on(struct rtwn_softc *sc)
 void
 r88ee_power_off(struct rtwn_softc *sc)
 {
-#if 0
-#ifndef RTWN_WITHOUT_UCODE
-	struct r92c_softc *rs = sc->sc_priv;
+// There was some code here around RTWN_WITHOUT_UCODE
+// Should be explored before committing
 
-	/* Deinit C2H event handler. */
-	callout_stop(&rs->rs_c2h_report);
-	rs->rs_c2h_paused = 0;
-	rs->rs_c2h_pending = 0;
-	rs->rs_c2h_timeout = hz;
-#endif
+	uint32_t count = 0;
+	uint8_t u1b_tmp;
 
-	/* Stop hardware. */
-	/* Disable interrupts. */
-	rtwn_write_4(sc, R88E_HISR, 0);
-	rtwn_write_4(sc, R88E_HIMR, 0);
+	u1b_tmp = rtwn_read_1(sc, REG_TX_RPT_CTRL);
+	rtwn_write_1(sc, REG_TX_RPT_CTRL, u1b_tmp & (~0x02));
 
-	/* Stop hardware. */
-	rtwn_write_1(sc, R88E_TXPAUSE, R88E_TX_QUEUE_ALL);
+	u1b_tmp = rtwn_read_1(sc, REG_RXDMA_CONTROL);
 
-	/* Turn off RF. */
-	rtwn_write_1(sc, R88E_RF_CTRL, 0);
+	while (!(u1b_tmp & 0x02) && (count++ < 100)) {
+		rtwn_delay(sc, 10); //udelay(10);
+		u1b_tmp = rtwn_read_1(sc, REG_RXDMA_CONTROL);
+		count++;
+	}
 
-	/* Reset BB state machine */
-	rtwn_setbits_1(sc, R88E_SYS_FUNC_EN, 0, R88E_SYS_FUNC_EN_BB_GLB_RST);
-	rtwn_setbits_1(sc, R88E_SYS_FUNC_EN, R88E_SYS_FUNC_EN_BB_GLB_RST, 0);
+	rtwn_write_1(sc, REG_PCIE_CTRL_REG+1, 0xFF);
 
-	/* Disable MAC DMA/WMAC/SCHEDULE/SEC blocks. */
-	rtwn_setbits_2(sc, R88E_CR,
-	    R88E_CR_HCI_TXDMA_EN | R88E_CR_HCI_RXDMA_EN |
-	    R88E_CR_TXDMA_EN | R88E_CR_RXDMA_EN | R88E_CR_PROTOCOL_EN |
-	    R88E_CR_SCHEDULE_EN | R88E_CR_MACTXEN | R88E_CR_MACRXEN |
-	    R88E_CR_ENSEC,
-	    0);
+	pwrseqcmdparsing(sc, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+			 PWR_INTF_PCI_MSK, RTL8188EE_NIC_LPS_ENTER_FLOW);
 
-	/* If firmware in ram code, do reset. */
-#ifndef RTWN_WITHOUT_UCODE
-	if (rtwn_read_1(sc, R88E_MCUFWDL) & R88E_MCUFWDL_RAM_DL_SEL)
-		r88ee_fw_reset(sc, RTWN_FW_RESET_SHUTDOWN);
-#endif
+	rtwn_write_1(sc, REG_RF_CTRL, 0x00);
 
-	/* TODO: linux does additional btcoex stuff here */
-	rtwn_write_2(sc, R88E_AFE_PLL_CTRL, 0x80); /* linux magic number */
-	rtwn_write_1(sc, R88E_SPS0_CTRL, 0x23); /* ditto */
-	rtwn_write_1(sc, R88E_AFE_XTAL_CTRL, 0x0e); /* different with btcoex */
-	rtwn_write_1(sc, R88E_RSV_CTRL, 0x0e);
-	rtwn_write_1(sc, R88E_APS_FSMCO, R88E_APS_FSMCO_PDN_EN);
-#else
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
+	u1b_tmp = rtwn_read_1(sc, REG_SYS_FUNC_EN+1);
+	rtwn_write_1(sc, REG_SYS_FUNC_EN+1, (u1b_tmp & (~BIT(2))));
+	rtwn_write_1(sc, REG_SYS_FUNC_EN+1, (u1b_tmp | BIT(2)));
 
-#endif
+	u1b_tmp = rtwn_read_1(sc, REG_SYS_FUNC_EN+1);
+	rtwn_write_1(sc, REG_SYS_FUNC_EN + 1, (u1b_tmp & (~0x04)));
+	rtwn_write_1(sc, REG_MCUFWDL, 0x00);
+
+	u1b_tmp = rtwn_read_1(sc, REG_32K_CTRL);
+	rtwn_write_1(sc, REG_32K_CTRL, (u1b_tmp & (~0x01)));
+
+	pwrseqcmdparsing(sc, PWR_CUT_ALL_MSK, PWR_FAB_ALL_MSK,
+			 PWR_INTF_PCI_MSK, RTL8188EE_NIC_DISABLE_FLOW);
+
+	u1b_tmp = rtwn_read_1(sc, REG_RSV_CTRL+1);
+	rtwn_write_1(sc, REG_RSV_CTRL+1, (u1b_tmp & (~0x08)));
+	u1b_tmp = rtwn_read_1(sc, REG_RSV_CTRL+1);
+	rtwn_write_1(sc, REG_RSV_CTRL+1, (u1b_tmp | 0x08));
+
+	rtwn_write_1(sc, REG_RSV_CTRL, 0x0E);
+
+	u1b_tmp = rtwn_read_1(sc, GPIO_IN);
+	rtwn_write_1(sc, GPIO_OUT, u1b_tmp);
+	rtwn_write_1(sc, GPIO_IO_SEL, 0x7F);
+
+	u1b_tmp = rtwn_read_1(sc, REG_GPIO_IO_SEL);
+	rtwn_write_1(sc, REG_GPIO_IO_SEL, (u1b_tmp << 4) | u1b_tmp);
+	u1b_tmp = rtwn_read_1(sc, REG_GPIO_IO_SEL+1);
+	rtwn_write_1(sc, REG_GPIO_IO_SEL+1, u1b_tmp | 0x0F);
+
+	rtwn_write_4(sc, REG_GPIO_IO_SEL_2+2, 0x00080808);
+
+	printf("RTL8188EE:%s:%s End of power off\n", __FILE__, __func__);
 }
 
 void

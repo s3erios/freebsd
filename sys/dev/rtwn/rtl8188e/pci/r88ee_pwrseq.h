@@ -33,6 +33,25 @@
 // This should be removed, because it is Linux-specific
 #define BIT(nr)     (1 << (nr))
 
+
+// Taken from drivers/net/wireless/realtek/rtlwifi/rtl8188ee/pwrseq.h
+
+#define REG_TX_RPT_CTRL		0x04EC
+#define REG_RXDMA_CONTROL	0x0286
+#define REG_PCIE_CTRL_REG	0x0300
+#define REG_RF_CTRL		0x001f
+#define REG_MCUFWDL		0x0080
+#define REG_SYS_FUNC_EN		0x0002
+#define REG_32K_CTRL		0x0194
+#define REG_RSV_CTRL		0x001C
+#define REG_GPIO_PIN_CTRL	0x0044
+#define	GPIO_IO_SEL		(REG_GPIO_PIN_CTRL+2)
+#define REG_GPIO_IO_SEL		0x0042
+#define GPIO_IN			REG_GPIO_PIN_CTRL
+#define GPIO_OUT		(REG_GPIO_PIN_CTRL+1)
+#define REG_GPIO_IO_SEL_2	0x0062
+
+
 // pwrseqcmd.h from root RTL directory
 /*---------------------------------------------
  * 3 The value of cmd: 4 bits

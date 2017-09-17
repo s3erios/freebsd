@@ -173,71 +173,19 @@ static const struct rtwn_bb_prog rtl8188ee_bb[] = {
 		nitems(rtl8188ee_bb_phy_regs0),
 		rtl8188ee_bb_phy_regs0,
 		rtl8188ee_bb_phy_vals0,
-		{ 0xff },
+		{ (0x01 | 0x02) },
 		NULL
-	},
+	}
+};
+
+static const struct rtwn_agc_prog rtl8188ee_agc[] = {
 	{
-		nitems(rtl8188ee_bb_agc_regs0),
-		rtl8188ee_bb_agc_regs0,
+		nitems(rtl8188ee_bb_agc_vals0),
 		rtl8188ee_bb_agc_vals0,
-		{ 0xff },
-		NULL
-	}
-#if 0
-	{
-		nitems(rtl8192ce_bb_regs0),
-		rtl8192ce_bb_regs0,
-		rtl8192ce_bb_vals0_2t,
-		{ R92C_COND_RTL8192C },
-		&(const struct rtwn_bb_prog){
-			nitems(rtl8192ce_bb_regs0),
-			rtl8192ce_bb_regs0,
-			rtl8192ce_bb_vals0_1t,
-			{ 0 },
-			NULL
-		}
-	},
-	{
-		nitems(rtl8192ce_bb_regs1),
-		rtl8192ce_bb_regs1,
-		rtl8192ce_bb_vals1,
 		{ 0 },
 		NULL
-	},
-	{
-		nitems(rtl8192c_bb_regs3),
-		rtl8192c_bb_regs3,
-		rtl8192c_bb_vals3_92ce_92cu,
-		{ R92C_COND_RTL8192C },
-		&(const struct rtwn_bb_prog){
-			nitems(rtl8192c_bb_regs3),
-			rtl8192c_bb_regs3,
-			rtl8192c_bb_vals3_88cu_88ru,
-			{ 0 },
-			NULL
-		}
-	},
-	{
-		nitems(rtl8192c_bb_regs4),
-		rtl8192c_bb_regs4,
-		rtl8192c_bb_vals4,
-		{ 0 },
-		NULL
-	},
-	{
-		nitems(rtl8192c_bb_regs5),
-		rtl8192c_bb_regs5,
-		rtl8192c_bb_vals5_92ce_92cu,
-		{ R92C_COND_RTL8192C },
-		&(const struct rtwn_bb_prog){
-			nitems(rtl8192c_bb_regs5),
-			rtl8192c_bb_regs5,
-			rtl8192ce_bb_vals4_1t,
-			{ 0 },
-			NULL
-		}
 	}
-#endif
+	//{ 0, NULL, NULL, { 0 }, NULL }
 };
 
 #endif	/* R88EE_PRIV_H */

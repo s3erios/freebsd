@@ -268,8 +268,8 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->mac_size			= nitems(rtl8188ee_mac);
 	sc->bb_prog			= &rtl8188ee_bb[0];
 	sc->bb_size			= nitems(rtl8188ee_bb);
-	sc->agc_prog			= &rtl8192ce_agc[0];
-	sc->agc_size			= nitems(rtl8192ce_agc);
+	sc->agc_prog			= &rtl8188ee_agc[0];
+	sc->agc_size			= nitems(rtl8188ee_agc);
 	sc->rf_prog			= &rtl8192c_rf[0];
 
 	sc->page_count			= R92CE_TX_PAGE_COUNT;
