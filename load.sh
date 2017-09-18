@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Unloading the driver without bringing down the interface will cause a panic
+sudo ifconfig wlan0 down
+
 #sudo kldunload if_rtwn_pci
 #sudo kldunload if_rtwn_usb
 #sudo kldunload rtwn
