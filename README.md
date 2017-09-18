@@ -92,6 +92,7 @@ If the BIT(5)/REG_SYS_CLKR is not set OR BIT(1)/ANA8M is not set, set those bits
 ##### Power Up Phase
 
 The RTL8188ee card does not need to do the second phase of the bootup
+Check if r88e_set_pwrmode() is the same as the r88ee_pwrseq.[c|h]
 
 
 ##### Read the Efuse Proces
