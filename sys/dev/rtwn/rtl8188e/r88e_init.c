@@ -98,7 +98,6 @@ void
 r88ee_init_bb(struct rtwn_softc *sc)
 {
 // This code should mirror Linux's rtl8188ee/phy.c rtl88e_phy_bb_config()
-	bool rtstatus;
 	uint16_t regval;
 	uint32_t tmp;
 	int i, j;
@@ -188,28 +187,10 @@ r88ee_init_bb(struct rtwn_softc *sc)
 	// This is the same as rtl_get_bbreg()
 
 //	rtl_get_bbreg(sc, R92C_HSSI_PARAM(0), 0x200);
-	uint32_t returnvalue, originalvalue, bitshift;
-	uint32_t q;
-
-	uint32_t bitmask;
-
-		// The second argument is R92C_HSSI_PARAM(0) aka RFPGA0_XA_HSSIPARAMETER2
-	originalvalue = rtwn_read_4(sc, 0x824);
-
-	// _rtl88e_phy_calculate_bit_shift(mask) which is 0x200
-	bitmask = 0x200;
-	for(q=0;q<=32;q++) {
-		if (((bitmask >> q) & 0x1) == 1)
-			break;
-	}
-	bitshift = q;
-	returnvalue = (originalvalue & bitmask) >> bitshift;
-
-	printf("The return value is %x\n", returnvalue);
-///////////
-
-	rtstatus = true;
-
+	// This value should be assigned somewhere
+#define RFPGA0_XA_HSSIPARAMETER2	0x824
+// Linux RFPGA0_XA_HSSIPARAMETER2 == FreeBSD R92C_HSSI_PARAM(0)
+	rtl88e_phy_get_bb_reg(sc, RFPGA0_XA_HSSIPARAMETER2, 0x200);
 
 	printf("AAAA RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 }

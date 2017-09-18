@@ -246,3 +246,43 @@ r88e_set_pwrmode(struct rtwn_softc *sc, struct ieee80211vap *vap,
 	return (error);
 }
 #endif
+
+// Not certain if this is the right place for this code
+void
+rtl88e_phy_set_bb_reg(struct rtwn_softc *sc, uint32_t regaddr, uint32_t bitmask, uint32_t data)
+{
+        uint32_t originalvalue, bitshift;
+
+#define MASKDWORD 0xffffffff
+
+        if (bitmask != MASKDWORD) {
+                originalvalue = rtwn_read_4(sc, regaddr);
+
+                for (bitshift = 0; bitshift <= 31; bitshift++) {
+                        if (((bitmask >> bitshift) & 0x1) == 1)
+                                break;
+                }
+
+                data = ((originalvalue & (~bitmask)) | (data << bitshift));
+        }
+
+        rtwn_write_4(sc, regaddr, data);
+}
+
+uint32_t
+rtl88e_phy_get_bb_reg(struct rtwn_softc *sc, uint32_t regaddr, uint32_t bitmask)
+{
+        uint32_t returnvalue, originalvalue, bitshift;
+
+        originalvalue = rtwn_read_4(sc, regaddr);
+
+        for (bitshift = 0; bitshift <= 31; bitshift++) {
+                if (((bitmask >> bitshift) & 0x1) == 1)
+                        break;
+        }
+
+        returnvalue = (originalvalue & bitmask) >> bitshift;
+
+        return returnvalue;
+}
+
