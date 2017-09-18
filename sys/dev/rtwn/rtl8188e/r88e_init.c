@@ -192,6 +192,13 @@ r88ee_init_bb(struct rtwn_softc *sc)
 // Linux RFPGA0_XA_HSSIPARAMETER2 == FreeBSD R92C_HSSI_PARAM(0)
 	rtl88e_phy_get_bb_reg(sc, RFPGA0_XA_HSSIPARAMETER2, 0x200);
 
+		 // This value was RFPGA0_RFMOD
+
+#define BCCKEN	0x1000000
+#define BOFDMEN	0x2000000
+	rtl88e_phy_set_bb_reg(sc, R92C_FPGA0_RFMOD, BCCKEN, 0x1);
+	rtl88e_phy_set_bb_reg(sc, R92C_FPGA0_RFMOD, BOFDMEN, 0x1);
+
 	printf("AAAA RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 }
 
