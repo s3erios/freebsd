@@ -1,5 +1,6 @@
 #!/usr/sbin/dtrace -s
-# Run with sudo ./readwrite.d -q
+
+/* Run with sudo ./readwrite.d -q */
 
 fbt::rtwn_pci_read_*:entry
 {
