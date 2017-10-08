@@ -126,6 +126,8 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	printf("did:\t\t\t%x\n", rom->did);
 	printf("svid:\t\t\t%x\n", rom->svid);
 	printf("smid:\t\t\t%x\n", rom->smid);
+	printf("nrxchains (hardcoded):\t%d\n", sc->nrxchains);
+	printf("ntxchains (hardcoded):\t%d\n", sc->ntxchains);
 
 
 //	printf("Board type: %x\n", rs->board_type);

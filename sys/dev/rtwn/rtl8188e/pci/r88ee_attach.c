@@ -266,11 +266,11 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 
 	sc->mac_prog			= &rtl8188ee_mac[0];
 	sc->mac_size			= nitems(rtl8188ee_mac);
-	sc->bb_prog			= &rtl8188ee_bb[0];
-	sc->bb_size			= nitems(rtl8188ee_bb);
+	sc->bb_prog				= &rtl8188ee_bb[0];
+	sc->bb_size				= nitems(rtl8188ee_bb);
 	sc->agc_prog			= &rtl8188ee_agc[0];
 	sc->agc_size			= nitems(rtl8188ee_agc);
-	sc->rf_prog			= &rtl8192c_rf[0];
+	sc->rf_prog				= &rtl8188ee_rf[0];
 
 	sc->page_count			= R92CE_TX_PAGE_COUNT;
 	sc->pktbuf_count		= R92C_TXPKTBUF_COUNT;
@@ -305,6 +305,9 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->rcr				= 0;
 
 	sc->sc_llt_init =		r92c_llt_init;
+
+	sc->ntxchains				= 1; // This is a guess
+	sc->nrxchains				= 1; // This is a guess also
 
 	printf("RTL8188EE:%s:%s Function Trace\n", __FILE__, __func__);
 	printf("Is this called now?\n");

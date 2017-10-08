@@ -1817,8 +1817,10 @@ rtwn_init(struct rtwn_softc *sc)
 
 	/* Initialize DMA. */
 	error = rtwn_dma_init(sc);
-	if (error != 0)
+	if (error != 0) {
+		printf("DMA failed\n");
 		goto fail;
+	}
 
 	/* Drop incorrect TX (USB). */
 	rtwn_drop_incorrect_tx(sc);
@@ -1840,8 +1842,10 @@ rtwn_init(struct rtwn_softc *sc)
 
 		/* Set MAC address. */
 		error = rtwn_set_macaddr(sc, uvp->vap.iv_myaddr, uvp->id);
-		if (error != 0)
+		if (error != 0) {
+			printf("Mac address fail\n");
 			goto fail;
+		}
 	}
 
 	/* Initialize Rx filter. */
@@ -1874,7 +1878,9 @@ rtwn_init(struct rtwn_softc *sc)
 	rtwn_setbits_1(sc, R92C_CR, 0, R92C_CR_MACTXEN | R92C_CR_MACRXEN);
 
 	/* Initialize BB/RF blocks. */
+	printf("rtwn_init_bb\n");
 	rtwn_init_bb(sc);
+	printf("rtwn_init_rf\n");
 	rtwn_init_rf(sc);
 #if 1
 	/* Initialize wireless band. */
