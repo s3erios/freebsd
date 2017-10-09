@@ -259,7 +259,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_init_edca		= r92ce_init_edca;
 	sc->sc_init_bb			= r88ee_init_bb;
 	sc->sc_init_rf			= r92c_init_rf;
-	sc->sc_init_antsel		= rtwn_nop_softc;
+	sc->sc_init_antsel	= rtwn_nop_softc; // Might be r92c_init_antsel
 						// tap
 	sc->sc_post_init		= r92ce_post_init;
 	sc->sc_init_bcnq1_boundary	= rtwn_nop_int_softc;
