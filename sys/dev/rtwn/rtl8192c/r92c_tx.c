@@ -353,6 +353,7 @@ r92c_fill_tx_desc_raw(struct rtwn_softc *sc, struct ieee80211_node *ni,
 
 	/* XXX TODO: 11n checks, matching r92c_fill_tx_desc() */
 
+	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
 	wh = mtod(m, struct ieee80211_frame *);
 	ismcast = IEEE80211_IS_MULTICAST(wh->i_addr1);
 	ridx = rate2ridx(params->ibp_rate0);
@@ -399,6 +400,7 @@ r92c_fill_tx_desc_null(struct rtwn_softc *sc, void *buf, int is11b,
 {
 	struct r92c_tx_desc *txd = (struct r92c_tx_desc *)buf;
 
+	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
 	txd->flags0 = R92C_FLAGS0_FSG | R92C_FLAGS0_LSG | R92C_FLAGS0_OWN;
 	txd->txdw1 = htole32(
 	    SM(R92C_TXDW1_QSEL, R92C_TXDW1_QSEL_MGNT));
@@ -425,6 +427,7 @@ r92c_tx_radiotap_flags(const void *buf)
 	const struct r92c_tx_desc *txd = buf;
 	uint8_t flags;
 
+	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
 	flags = 0;
 	if (txd->txdw4 & htole32(R92C_TXDW4_DATA_SHPRE))
 		flags |= IEEE80211_RADIOTAP_F_SHORTPRE;

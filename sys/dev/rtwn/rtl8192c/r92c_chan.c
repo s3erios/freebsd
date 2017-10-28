@@ -297,6 +297,7 @@ r92c_set_chan(struct rtwn_softc *sc, struct ieee80211_channel *c)
 	u_int chan;
 	int i;
 
+	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
 	chan = rtwn_chan2centieee(c);
 
 	/* Set Tx power for this new channel. */
@@ -316,6 +317,7 @@ void
 r92c_set_gain(struct rtwn_softc *sc, uint8_t gain)
 {
 
+	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
 	rtwn_bb_setbits(sc, R92C_OFDM0_AGCCORE1(0),
 	    R92C_OFDM0_AGCCORE1_GAIN_M, gain);
 	rtwn_bb_setbits(sc, R92C_OFDM0_AGCCORE1(1),

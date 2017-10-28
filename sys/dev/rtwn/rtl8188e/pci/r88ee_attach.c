@@ -192,7 +192,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_flags			= RTWN_FLAG_EXT_HDR; //RTWN_FLAG_CAM_FIXED;
 
 						// tap
-	sc->sc_start_xfers		= r92ce_start_xfers;
+	sc->sc_start_xfers		= r88ee_start_xfers;
 						// tap
 	sc->sc_set_chan			= r92c_set_chan;
 						// tap
@@ -207,7 +207,9 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_tx_radiotap_flags	= r92c_tx_radiotap_flags;
 						// tap
 	sc->sc_rx_radiotap_flags	= r92c_rx_radiotap_flags;
+						// tap
 	sc->sc_get_rssi_cck		= r88e_get_rssi_cck;
+						// 
 	sc->sc_get_rssi_ofdm		= r88e_get_rssi_ofdm;
 						// tap
 	sc->sc_classify_intr		= r92ce_classify_intr;
@@ -216,11 +218,12 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_check_frame		= rtwn_nop_int_softc_mbuf;
 	sc->sc_rf_read			= r92c_rf_read;
 	sc->sc_rf_write			= r88e_rf_write;
+						// tap
 	sc->sc_check_condition		= r92c_check_condition;
 	sc->sc_efuse_postread		= r92c_efuse_postread;
 	sc->sc_parse_rom		= r88ee_parse_rom;
 	sc->sc_set_led			= r88e_set_led;
-	sc->sc_power_on			= r88ee_power_on;
+	sc->sc_power_on		= r88ee_power_on;
 	sc->sc_power_off		= r88ee_power_off;
 #ifndef RTWN_WITHOUT_UCODE
 	sc->sc_fw_reset			= r88ee_fw_reset;
@@ -253,11 +256,11 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_init_rx_agg		= rtwn_nop_softc; //r88ee_init_rx_agg;
 						// tap
 	sc->sc_init_ampdu		= r92ce_init_ampdu;
-						// tap
 	sc->sc_init_intr		= r88ee_init_intr; // Was r92c_init_intr, changed
 						// tap
 	sc->sc_init_edca		= r92ce_init_edca;
 	sc->sc_init_bb			= r88ee_init_bb;
+						// tap
 	sc->sc_init_rf			= r92c_init_rf;
 	sc->sc_init_antsel	= rtwn_nop_softc; // Might be r92c_init_antsel
 						// tap
@@ -272,13 +275,14 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->agc_size			= nitems(rtl8188ee_agc);
 	sc->rf_prog				= &rtl8188ee_rf[0];
 
-	sc->page_count			= R92CE_TX_PAGE_COUNT;
+	sc->page_count			= 0xAB - 1;// This came from the Linux driver, previous R92CE_TX_PAGE_COUNT;
+									// This came from rtl8188ee/hw.c 794
 	sc->pktbuf_count		= R92C_TXPKTBUF_COUNT;
 
 	sc->ackto			= 0x40;
 	sc->npubqpages			= R92CE_PUBQ_NPAGES;
 	sc->nhqpages			= R92CE_HPQ_NPAGES;
-	sc->nnqpages			= 0;
+	sc->nnqpages			= 1; // Changed to one per Linux
 	sc->nlqpages			= R92CE_LPQ_NPAGES;
 	sc->page_size			= R92C_TX_PAGE_SIZE;
 

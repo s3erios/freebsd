@@ -90,7 +90,7 @@ r92c_rx_radiotap_flags(const void *buf)
 	const struct r92c_rx_stat *stat = buf;
 	uint8_t flags, rate;
 
-	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
+	printf("RTL8192CE:%s:%s Tap\n", __FILE__, __func__);
 
 	if (!(stat->rxdw3 & htole32(R92C_RXDW3_SPLCP)))
 		return (0);

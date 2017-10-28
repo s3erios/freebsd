@@ -233,10 +233,12 @@ r88ee_power_on(struct rtwn_softc *sc)
 
 #define R88E_MCUTST_1   0x01c0
 
-        rtwn_write_4(sc, R92C_INT_MIG, 0); // same from _rtl88ee_init_mac
+	// Linux's _rtl88ee_llt_table_init goes here (from rtl8188ee/hw.c 890)
+
+        rtwn_write_4(sc, R92C_INT_MIG, 0); // same from _rtl88ee_init_mac 0x304
                                            // same value of INT_MIG
         rtwn_write_4(sc, R88E_MCUTST_1, 0x0);
-        rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0);
+        rtwn_write_1(sc, R92C_PCIE_CTRL_REG+1, 0); // 0x301
 
         return(0);
 

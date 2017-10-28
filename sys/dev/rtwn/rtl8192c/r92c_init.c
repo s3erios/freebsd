@@ -61,6 +61,7 @@ r92c_check_condition(struct rtwn_softc *sc, const uint8_t cond[])
 	uint8_t mask;
 	int i;
 
+	printf("RTL8188E:%s:%s Check\n", __FILE__, __func__);
 	if (cond[0] == 0)
 		return (1);
 
@@ -118,6 +119,7 @@ r92c_llt_init(struct rtwn_softc *sc)
 int
 r92c_set_page_size(struct rtwn_softc *sc)
 {
+	printf("RTL8188E:%s:%s Check\n", __FILE__, __func__);
 	return (rtwn_write_1(sc, R92C_PBP, SM(R92C_PBP_PSRX, R92C_PBP_128) |
 	    SM(R92C_PBP_PSTX, R92C_PBP_128)) == 0);
 }
@@ -238,6 +240,8 @@ r92c_init_rf(struct rtwn_softc *sc)
 	struct r92c_softc *rs = sc->sc_priv;
 	uint32_t reg, type;
 	int i, chain, idx, off;
+
+	printf("RTL8188E:%s:%s Check\n", __FILE__, __func__);
 
 	for (chain = 0, i = 0; chain < sc->nrxchains; chain++, i++) {
 		/* Save RF_ENV control type. */
