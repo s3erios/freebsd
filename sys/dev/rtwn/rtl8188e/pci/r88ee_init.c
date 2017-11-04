@@ -54,6 +54,7 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/rtl8188e/r88e_reg.h>
 #include <dev/rtwn/rtl8192c/r92c.h>
 #include <dev/rtwn/rtl8192c/pci/r92ce_reg.h> // Temporary until the R88EE values are added
+#include <dev/rtwn/rtl8192c/pci/r92ce.h>
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
 #include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
@@ -322,41 +323,40 @@ r88ee_init_ampdu(struct rtwn_softc *sc)
 void
 r88ee_post_init(struct rtwn_softc *sc)
 {
+     printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
+     rtwn_write_2(sc, R92C_FWHW_TXQ_CTRL,
+         0x1f00 | R92C_FWHW_TXQ_CTRL_AMPDU_RTY_NEW);
+
+     rtwn_write_1(sc, R92C_BCN_MAX_ERR, 0xff);
+
+     /* Perform LO and IQ calibrations. */
+     r92ce_iq_calib(sc);
+     /* Perform LC calibration. */
+     r92c_lc_calib(sc);
+
+     r92c_pa_bias_init(sc);
+
+     /* Fix for lower temperature. */
+     rtwn_write_1(sc, 0x15, 0xe9);
+
 #if 0
-	rtwn_write_2(sc, R88E_FWHW_TXQ_CTRL,
-	    0x1f00 | R88E_FWHW_TXQ_CTRL_AMPDU_RTY_NEW);
-
-	rtwn_write_1(sc, R88E_BCN_MAX_ERR, 0xff);
-
-	/* Perform LO and IQ calibrations. */
-	r88ee_iq_calib(sc);
-	/* Perform LC calibration. */
-	r92c_lc_calib(sc);
-
-	r92c_pa_bias_init(sc);
-
-	/* Fix for lower temperature. */
-	rtwn_write_1(sc, 0x15, 0xe9);
-
 #ifndef RTWN_WITHOUT_UCODE
-	if (sc->sc_flags & RTWN_FW_LOADED) {
-		struct r92c_softc *rs = sc->sc_priv;
+     if (sc->sc_flags & RTWN_FW_LOADED) {
+          struct r92c_softc *rs = sc->sc_priv;
 
-		if (sc->sc_ratectl_sysctl == RTWN_RATECTL_FW) {
-			/* XXX TODO: fix (see comment in r92cu_init.c) */
-			sc->sc_ratectl = RTWN_RATECTL_NET80211;
-		} else
-			sc->sc_ratectl = sc->sc_ratectl_sysctl;
+          if (sc->sc_ratectl_sysctl == RTWN_RATECTL_FW) {
+               /* XXX TODO: fix (see comment in r92cu_init.c) */
+               sc->sc_ratectl = RTWN_RATECTL_NET80211;
+          } else
+               sc->sc_ratectl = sc->sc_ratectl_sysctl;
 
-		/* Start C2H event handling. */
-		callout_reset(&rs->rs_c2h_report, rs->rs_c2h_timeout,
-		    r92c_handle_c2h_report, sc);
-	} else
+          /* Start C2H event handling. */
+          callout_reset(&rs->rs_c2h_report, rs->rs_c2h_timeout,
+              r92c_handle_c2h_report, sc);
+     } else
 #endif
-		sc->sc_ratectl = RTWN_RATECTL_NONE;
-#else
-	printf("RTL8188EE:%s:%s not fully implemented\n", __FILE__, __func__);
 #endif
+          sc->sc_ratectl = RTWN_RATECTL_NONE;
 }
 
 void

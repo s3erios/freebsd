@@ -58,7 +58,7 @@ __FBSDID("$FreeBSD$");
 
 
 int
-r988ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
+r88ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 {
 	uint32_t status;
 	int *rings = arg;
@@ -112,7 +112,7 @@ r988ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 			R88E_IMR_HIGHDOK | R88E_IMR_BDOK | R88E_IMR_RDU | \
 			R88E_IMR_RXFOVW)
 void
-r988ee_enable_intr(struct rtwn_pci_softc *pc)
+r88ee_enable_intr(struct rtwn_pci_softc *pc)
 {
 	struct rtwn_softc *sc = &pc->pc_sc;
 
@@ -121,7 +121,7 @@ r988ee_enable_intr(struct rtwn_pci_softc *pc)
 }
 
 void
-r988ee_start_xfers(struct rtwn_softc *sc)
+r88ee_start_xfers(struct rtwn_softc *sc)
 {
 	/* Clear pending interrupts. */
 	rtwn_write_4(sc, R88E_HISR, 0xffffffff);

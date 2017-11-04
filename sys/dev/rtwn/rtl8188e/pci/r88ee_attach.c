@@ -181,7 +181,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	pc->pc_tx_postsetup		= r88ee_tx_postsetup;
 	pc->pc_copy_tx_desc		= r88ee_copy_tx_desc;
 						// tap
-	pc->pc_enable_intr		= r92ce_enable_intr;
+	pc->pc_enable_intr		= r88ee_enable_intr; //r92ce_enable_intr;
 
 	pc->pc_qmap			= 0xf771;
 	pc->tcr				=
@@ -264,7 +264,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->sc_init_rf			= r92c_init_rf;
 	sc->sc_init_antsel	= rtwn_nop_softc; // Might be r92c_init_antsel
 						// tap
-	sc->sc_post_init		= r92ce_post_init;
+	sc->sc_post_init		= r88ee_post_init; //r92ce_post_init;
 	sc->sc_init_bcnq1_boundary	= rtwn_nop_int_softc;
 
 	sc->mac_prog			= &rtl8188ee_mac[0];

@@ -56,6 +56,32 @@ __FBSDID("$FreeBSD$");
 //#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
 
 void
+r88ee_enable_intr(struct rtwn_pci_softc *pc)
+{
+	struct rtwn_softc *sc = &pc->pc_sc;
+
+	/* Enable interrupts */
+	rtwn_write_4(sc, R88E_HIMR, 0xFFFFFFFF); //R88E_INT_ENABLE);
+
+	rtwn_write_4(sc, R88E_HIMRE, 0xFFFFFFFF);
+
+
+        /* there are some C2H CMDs have been sent
+         * before system interrupt is enabled, e.g., C2H, CPWM.
+         * So we need to clear all C2H events that FW has notified,
+         * otherwise FW won't schedule any commands anymore.
+         */
+//        rtl_write_byte(rtlpriv, REG_C2HEVT_CLEAR, 0);
+	rtwn_write_1(sc, 0x01AF, 0);
+        /*enable system interrupt*/
+//        rtl_write_dword(rtlpriv, REG_HSIMR,
+//                        rtlpci->sys_irq_mask & 0xFFFFFFFF);
+	rtwn_write_4(sc, 0x0058, 0xFFFFFFFF);
+
+
+}
+
+void
 r88ee_start_xfers(struct rtwn_softc *sc)
 {
 	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
