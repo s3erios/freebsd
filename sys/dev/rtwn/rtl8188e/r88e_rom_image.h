@@ -101,7 +101,9 @@ struct r88ee_rom {
 
 	uint8_t				unknown3[16];
 	uint16_t				channel_plan;
-	uint8_t				unknown4[7];
+	uint8_t				xtal;
+	uint8_t				thermal_meter;
+	uint8_t				unknown4[5];
 	uint8_t				rf_board_option;
 	uint8_t				rf_feature_option;
 	uint8_t				rf_bt_setting;
