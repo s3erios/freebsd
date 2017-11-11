@@ -99,7 +99,9 @@ struct r88ee_rom {
 
 	struct _r88ee_rf_path		rfpath[4]; //R88EE [MAX_RF_PATH]; // MAX_RF_PATH is 4 [16-168]
 
-	uint8_t				unknown3[25];
+	uint8_t				unknown3[16];
+	uint16_t				channel_plan;
+	uint8_t				unknown4[7];
 	uint8_t				rf_board_option;
 	uint8_t				rf_feature_option;
 	uint8_t				rf_bt_setting;
@@ -115,7 +117,7 @@ struct r88ee_rom {
 	uint16_t			svid;
 	uint16_t			smid;
 
-	uint8_t				unknown4[290];
+	uint8_t				unknown5[290];
 }; // Should be 512 byte
 
 _Static_assert(sizeof(struct r88ee_rom) == R88E_EFUSE_MAP_LEN,

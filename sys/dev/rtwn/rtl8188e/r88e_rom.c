@@ -109,6 +109,7 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	printf("hpon:\t\t\tRender How?\n");
 	printf("clk:\t\t\t%x\n", rom->clk);
 
+	printf("channel_plan:\t\t%x\n", rom->channel_plan);
 	printf("rf_board_option:\t%x\n", rom->rf_board_option);
 	printf("rf_feature_option:\t%x\n", rom->rf_feature_option);
 	printf("rf_bt_setting:\t\t%x\n", rom->rf_bt_setting);
@@ -129,6 +130,13 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	printf("nrxchains (hardcoded):\t%d\n", sc->nrxchains);
 	printf("ntxchains (hardcoded):\t%d\n", sc->ntxchains);
 
+	int q;
+
+	for(q=0;q<512;q=q+8) {
+		printf("Searching: %x %x %x %x %x %x %x %x\n",
+			buf[q], buf[q+1], buf[q+2], buf[q+3], buf[q+4], buf[q+5], buf[q+6], buf[q+7]);
+	}
+
 
 //	printf("Board type: %x\n", rs->board_type);
 //	printf("Regulatory: %x\n", rs->regulatory);
@@ -136,7 +144,5 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	
 
 	IEEE80211_ADDR_COPY(sc->sc_ic.ic_macaddr, rom->macaddr);
-	printf("RTL8188EE:%s:%s This function is clearly broken\n", __FILE__, __func__);
-
 }
 
