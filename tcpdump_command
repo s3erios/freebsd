@@ -1,0 +1,3 @@
+sudo tcpdump -y IEEE802_11_RADIO -i wlan0 -e -s 256 type mgt
+
+sudo tcpdump -ni wlan0 -y IEEE802_11_RADIO

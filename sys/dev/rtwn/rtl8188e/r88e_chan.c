@@ -83,6 +83,27 @@ r88e_get_power_group(struct rtwn_softc *sc, struct ieee80211_channel *c)
 	return (group);
 }
 
+/*
+void
+r88ee_get_txpower(struct rtwn_softc *sc, int chain,
+	struct ieee80211_channel *c, uint8_t power[RTWN_RIDX_COUNT])
+{
+	struct r92c_softc *rs = sc->sc_priv;
+	const struct rtwn_r88e_txpwr *rt = rs->rs_txpwr;
+	uint8_t cckpow, ofdmpow, bw20pow, htpow = 0;
+	int max_mcs, ridx, group;
+
+	group = r88e_get_power_group(sc, c);
+	if (group == -1) {
+		device_printf(sc->sc_dev, "%s: incorrect channel\n", __func__);
+		return;
+	}
+
+	cckpow = rom->index_cck_base[];
+
+}
+*/
+
 void
 r88e_get_txpower(struct rtwn_softc *sc, int chain,
     struct ieee80211_channel *c, uint8_t power[RTWN_RIDX_COUNT])
@@ -110,6 +131,7 @@ r88e_get_txpower(struct rtwn_softc *sc, int chain,
 	cckpow = rt->cck_tx_pwr[group];
 	for (ridx = RTWN_RIDX_CCK1; ridx <= RTWN_RIDX_CCK11; ridx++) {
 		power[ridx] = (ridx == RTWN_RIDX_CCK2) ? cckpow - 9 : cckpow;
+		printf("Power[%d] is %x\n", ridx, power[ridx]);
 	}
 
 	if (group < 5)

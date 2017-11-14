@@ -91,13 +91,20 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	struct r92c_softc *rs = sc->sc_priv;
 	struct rtwn_r88e_txpwr *rt = rs->rs_txpwr;
 	struct r88ee_rom *rom = (struct r88ee_rom *)buf;
-
+	int i;
 
 	// Code comes from: https://github.com/lwfinger/rtlwifi_new/blob/dfd58dae0d52f9d2fa6569be51dd739d8d4eafd4/rtl8188ee/hw.c#L1866
 //	rs->board_type = MS(rom->rf_opt1, R88EE_ROM_RF1_BOARD_TYPE);
 //	rs->regulatory = MS(rom->rf_opt1, R88EE_ROM_RF1_REGULATORY);
 
-	// These values should not be 0
+	rt->bw20_tx_pwr_diff = RTWN_SIGN4TO8(MS(rom->rfpath[0].rfpath_24g.bw20_ofdm, HIGH_PART));
+	rt->ofdm_tx_pwr_diff = RTWN_SIGN4TO8(MS(rom->rfpath[0].rfpath_24g.bw20_ofdm, LOW_PART)); 
+
+	for(i = 0; i < R88E_GROUP_2G; i++)
+		rt->cck_tx_pwr[i] = rom->rfpath[0].rfpath_24g.index_cck_base[i]; 
+	for(i = 0; i < R88E_GROUP_2G - 1; i++)
+		rt->ht40_tx_pwr[i] = rom->rfpath[0].rfpath_24g.index_bw40_base[i];
+
 	rt->bw20_tx_pwr_diff = 0; //RTWN_SIGN4TO8(MS(rom->tx_pwr_diff, HIGH_PART));
 	rt->ofdm_tx_pwr_diff = 0; //RTWN_SIGN4TO8(MS(rom->tx_pwr_diff, LOW_PART));
 
@@ -106,10 +113,27 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	// This might not be necessary? Will be left blank for now
 
 	printf("id:\t\t\t%x\n", rom->id);
-	printf("hpon:\t\t\tRender How?\n");
+	printf("hpon:\t\t\t0%02x%02x%02x%02x\n",
+				rom->hpon[0],
+				rom->hpon[1],
+				rom->hpon[2],
+				rom->hpon[3]);
 	printf("clk:\t\t\t%x\n", rom->clk);
 
-	printf("channel_plan:\t\t%x\n", rom->channel_plan);
+	printf("index_cck_base[0]:\t%x\n", rom->rfpath[0].rfpath_24g.index_cck_base[0]);
+	printf("index_cck_base[1]:\t%x\n", rom->rfpath[0].rfpath_24g.index_cck_base[1]);
+	printf("index_cck_base[2]:\t%x\n", rom->rfpath[0].rfpath_24g.index_cck_base[2]);
+	printf("index_cck_base[3]:\t%x\n", rom->rfpath[0].rfpath_24g.index_cck_base[3]);
+	printf("index_cck_base[4]:\t%x\n", rom->rfpath[0].rfpath_24g.index_cck_base[4]);
+	printf("index_cck_base[5]:\t%x\n", rom->rfpath[0].rfpath_24g.index_cck_base[5]);
+
+	printf("index_bw40_base[0]:\t%x\n", rom->rfpath[0].rfpath_24g.index_bw40_base[0]);
+	printf("index_bw40_base[1]:\t%x\n", rom->rfpath[0].rfpath_24g.index_bw40_base[1]);
+	printf("index_bw40_base[2]:\t%x\n", rom->rfpath[0].rfpath_24g.index_bw40_base[2]);
+	printf("index_bw40_base[3]:\t%x\n", rom->rfpath[0].rfpath_24g.index_bw40_base[3]);
+	printf("index_bw40_base[4]:\t%x\n", rom->rfpath[0].rfpath_24g.index_bw40_base[4]);
+
+	printf("channel_plan:\t\t0x%x\n", rom->channel_plan);
 	printf("xtal:        \t\t%x\n", rom->xtal);
 	printf("thermal_meter:\t\t%x\n", rom->thermal_meter);
 	printf("rf_board_option:\t%x\n", rom->rf_board_option);
@@ -119,7 +143,8 @@ r88ee_parse_rom(struct rtwn_softc *sc, uint8_t *buf)
 	printf("customer_id:\t\t%x\n", rom->customer_id);
 	printf("rf_antenna_option:\t%x\n", rom->rf_antenna_option);
 
-	printf("MAC Address:\t\t%x:%x:%x:%x:%x:%x\n", 	rom->macaddr[0],
+	printf("MAC Address:\t\t%02x:%02x:%02x:%02x:%02x:%02x\n",
+							rom->macaddr[0],
 							rom->macaddr[1],
 							rom->macaddr[2],
 							rom->macaddr[3],

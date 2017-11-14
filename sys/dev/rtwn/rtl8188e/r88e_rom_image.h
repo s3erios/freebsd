@@ -63,64 +63,73 @@ _Static_assert(sizeof(struct r88e_rom) == R88E_EFUSE_MAP_LEN,
  * http://src.illumos.org/source/xref/linux-master/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/hw.c#1576
  */
 
+/*
 struct _bw40_bw20_ofdm_cck {
-	uint8_t				bw40_bw20; // Bitshift 07,08 
-	uint8_t				ofdm_cck; // Bitshift 09,10 
+	uint8_t						bw40_bw20; // Bitshift 07,08 
+	uint8_t						ofdm_cck; // Bitshift 09,10 
 };
+*/
+
+struct _bw40_bw20_ofdm_cck {
+	uint8_t						bw40:4; // Bitshift 07
+	uint8_t						bw20:4; // Bitshift 08 
+	uint8_t						ofdm:4; // Bitshift 09
+	uint8_t						cck:4;  // Bitshift 10
+} __packed;
 
 struct _r88ee_rom_24g {
-	uint8_t				index_cck_base[6];//R88EE_GROUP_24G]; // 01 - This value is 6
-	uint8_t				index_bw40_base[6-1];//R88EE_GROUP_24G-1]; // 02 - Number is 5
+	uint8_t						index_cck_base[6];//R88EE_GROUP_24G]; // 01 - This value is 6
+	uint8_t						index_bw40_base[6-1];//R88EE_GROUP_24G-1]; // 02 - Number is 5
 						   // 03 Is not captured anywhere.
-	uint8_t				bw20_ofdm; // 04,05 - bitshift_1;
+	uint8_t						bw20_ofdm; // 04,05 - bitshift_1;
 						   // 06 is also not captured
 	struct _bw40_bw20_ofdm_cck	bw40_bw20_ofdm_cck[4-1];//R88EE_MAX_CHAINS-1]; // 04 This value is 4
-};
+} __packed;
 
 struct _r88ee_rom_5g {
-	uint8_t				index_bw40_base[14];//R88EE_GROUP_5G]; // 11,12,13 This value is 14
-	uint8_t				bw20_ofdm;	// 14,15
-	uint8_t				bw40_bw20[4-1];//R88EE_MAX_TX_COUNT-1]; // 16,17 This value is 4-1=3
-	uint8_t				ofdm_1[2]; // 18,19 and then 20
-//	uint8_t				ofdm_2[MAX_TX_COUNT-1]; // Value is 4-1=3
-};
+	uint8_t						index_bw40_base[14];//R88EE_GROUP_5G]; // 11,12,13 This value is 14
+	uint8_t						bw20_ofdm;	// 14,15
+	uint8_t						bw40_bw20[4-1];//R88EE_MAX_TX_COUNT-1]; // 16,17 This value is 4-1=3
+	uint8_t						ofdm_1[2]; // 18,19 and then 20
+//	uint8_t						ofdm_2[MAX_TX_COUNT-1]; // Value is 4-1=3
+} __packed;
 
 struct _r88ee_rf_path {
-	struct _r88ee_rom_24g		rfpath_24g;
+	struct _r88ee_rom_24g	rfpath_24g;
 	struct _r88ee_rom_5g		rfpath_5g;
-};
+} __packed;
 
 struct r88ee_rom {
-	uint16_t			id; /* Always 0x8129 */
+	uint16_t						id; /* Always 0x8129 */
 
-	uint8_t				hpon[4];
-	uint16_t			clk;
-	uint8_t				testr[8];
+	uint8_t						hpon[4];
+	uint16_t						clk;
+	uint8_t						testr[8];
 
-	struct _r88ee_rf_path		rfpath[4]; //R88EE [MAX_RF_PATH]; // MAX_RF_PATH is 4 [16-168]
+	struct _r88ee_rf_path	rfpath[4]; //R88EE [MAX_RF_PATH]; // MAX_RF_PATH is 4 [16-168]
 
-	uint8_t				unknown3[16];
-	uint16_t				channel_plan;
-	uint8_t				xtal;
-	uint8_t				thermal_meter;
-	uint8_t				unknown4[5];
-	uint8_t				rf_board_option;
-	uint8_t				rf_feature_option;
-	uint8_t				rf_bt_setting;
-	uint8_t				version;
-	uint8_t				customer_id;
-	uint8_t				reserved1[3];
-	uint8_t				rf_antenna_option;
+	uint8_t						unknown3[16];
+	uint16_t						channel_plan;
+	uint8_t						xtal;
+	uint8_t						thermal_meter;
+	uint8_t						unknown4[5];
+	uint8_t						rf_board_option;
+	uint8_t						rf_feature_option;
+	uint8_t						rf_bt_setting;
+	uint8_t						version;
+	uint8_t						customer_id;
+	uint8_t						reserved1[3];
+	uint8_t						rf_antenna_option;
 
-	uint8_t				reserved2[6];
-	uint8_t				macaddr[IEEE80211_ADDR_LEN];
-	uint16_t			vid;
-	uint16_t			did;
-	uint16_t			svid;
-	uint16_t			smid;
+	uint8_t						reserved2[6];
+	uint8_t						macaddr[IEEE80211_ADDR_LEN];
+	uint16_t						vid;
+	uint16_t						did;
+	uint16_t						svid;
+	uint16_t						smid;
 
-	uint8_t				unknown5[290];
-}; // Should be 512 byte
+	uint8_t						unknown5[290];
+} __packed; // Should be 512 byte
 
 _Static_assert(sizeof(struct r88ee_rom) == R88E_EFUSE_MAP_LEN,
     "R88EE_EFUSE_MAP_LEN must be equal to sizeof(struct r88ee_rom)!");

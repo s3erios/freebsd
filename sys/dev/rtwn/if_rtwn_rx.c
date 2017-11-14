@@ -474,6 +474,7 @@ rtwn_rxfilter_set(struct rtwn_softc *sc)
 		rtwn_write_4(sc, R92C_RCR, sc->rcr);
 }
 
+// Linux calls this function rtl88ee_set_check_bssid
 void
 rtwn_set_rx_bssid_all(struct rtwn_softc *sc, int enable)
 {
