@@ -72,8 +72,10 @@ r88ee_init_intr(struct rtwn_softc *sc)
 	rtwn_write_4(sc, R88E_HISR, 0x00000000);
 	rtwn_write_4(sc, R88E_HIMR, 0x00000000);
 #else
-	rtwn_write_4(sc, R92C_HISR, 0xffffffff);
-	rtwn_write_4(sc, R92C_HISRE, 0xffffffff);
+//	rtwn_write_4(sc, R92C_HISR, 0xffffffff);
+//	rtwn_write_4(sc, R92C_HISRE, 0xffffffff);
+	rtwn_write_4(sc, 0xb0, 0x200084ff);
+	rtwn_write_4(sc, 0xb8, 0x100);
 /////////////////////
 //	rtwn_write_4(sc, R88E_HIMR, R88E_HIMR_CPWM | R88E_HIMR_CPWM2 |
 //		R88E_HIMR_TBDER | R88E_HIMR_PSTIMEOUT);
@@ -155,7 +157,7 @@ r88ee_power_on(struct rtwn_softc *sc)
 
         uint8_t bytetmp;
 
-        bytetmp = rtwn_read_1(sc, REG_XCK_OUT_CTRL) & (~0x10);
+        bytetmp = rtwn_read_1(sc, REG_XCK_OUT_CTRL) & (~0x1);
         rtwn_write_1(sc, REG_XCK_OUT_CTRL, bytetmp);
 
         bytetmp = rtwn_read_1(sc, REG_APS_FSMCO + 1) & (~0x80);
@@ -175,29 +177,25 @@ r88ee_power_on(struct rtwn_softc *sc)
 
 //    bytetmp = rtl_read_byte(rtlpriv, REG_APS_FSMCO) | BIT(4);
 //    rtl_write_byte(rtlpriv, REG_APS_FSMCO, bytetmp);
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_APS_FSMCO, 0,
-                0x10)); //BIT(4)));
+        rtwn_setbits_1(sc, REG_APS_FSMCO, 0, 0x10); //BIT(4)));
 
 #define REG_PCIE_CTRL_REG 0x0300
 
 //    bytetmp = rtl_read_byte(rtlpriv, REG_PCIE_CTRL_REG+2);
 //    rtl_write_byte(rtlpriv, REG_PCIE_CTRL_REG+2, bytetmp|BIT(2));
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_PCIE_CTRL_REG+2, 0,
-                0x04)); //BIT(2)));
+        rtwn_setbits_1(sc, REG_PCIE_CTRL_REG+2, 0, 0x04); //BIT(2)));
 
 #define REG_WATCH_DOG 0x0368
 
 //    bytetmp = rtl_read_byte(rtlpriv, REG_WATCH_DOG+1);
 //    rtl_write_byte(rtlpriv, REG_WATCH_DOG+1, bytetmp|BIT(7));
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_WATCH_DOG+1, 0,
-                0x80)); //BIT(7)));
+        rtwn_setbits_1(sc, REG_WATCH_DOG+1, 0, 0x80); //BIT(7)));
 
 #define REG_AFE_XTAL_CTRL_EXT 0x0078
 
 //    bytetmp = rtl_read_byte(rtlpriv, REG_AFE_XTAL_CTRL_EXT+1);
 //    rtl_write_byte(rtlpriv, REG_AFE_XTAL_CTRL_EXT+1, bytetmp|BIT(1));
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_AFE_XTAL_CTRL_EXT+1, 0,
-                0x02)); //BIT(1)));
+        rtwn_setbits_1(sc, REG_AFE_XTAL_CTRL_EXT+1, 0, 0x02); //BIT(1)));
 
 #define REG_TX_RPT_CTRL 0x04EC
 
@@ -211,14 +209,13 @@ r88ee_power_on(struct rtwn_softc *sc)
 #define REG_SYS_CLKR    0x0008
 #define REG_GPIO_MUXCFG 0x0040
 
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_TX_RPT_CTRL, 0, 0x02 | 0x01 ));
+        rtwn_setbits_1(sc, REG_TX_RPT_CTRL, 0, 0x02 | 0x01 );
         rtwn_write_1(sc, REG_TX_RPT_CTRL+1, 2);
         rtwn_write_2(sc, REG_TX_RPT_TIME, 0xcdf0);
 
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_SYS_CLKR, 0, 0x08)); //BIT(3))); // hw.c 882
+        rtwn_setbits_1(sc, REG_SYS_CLKR, 0, 0x08); //BIT(3))); // hw.c 882
 
-        RTWN_CHECK(rtwn_setbits_1(sc, REG_GPIO_MUXCFG+1, 0,
-                ~(0x10))); //BIT(4) ));
+        rtwn_setbits_1(sc, REG_GPIO_MUXCFG+1, 0, ~(0x10)); //BIT(4) ));
 
         rtwn_write_1(sc, 0x367, 0x80);
 
@@ -231,10 +228,65 @@ r88ee_power_on(struct rtwn_softc *sc)
 
         // Linux driver Does the REG_HISR 0xfffffff crap here   
         // This seems to take place in init_intr() code
+	// I think this disables interrupts
 
 #define R88E_MCUTST_1   0x01c0
 
 	// Linux's _rtl88ee_llt_table_init goes here (from rtl8188ee/hw.c 890)
+
+////// Code below was added out of desperation to get the Rx interrupts working, not certain if correct
+
+#define REG_TRXDMA_CTRL 0x10C
+
+	uint16_t wordtmp;
+
+	wordtmp = rtwn_read_2(sc, REG_TRXDMA_CTRL);
+	wordtmp &= 0xf;
+	wordtmp |= 0xE771;
+	rtwn_write_2(sc, REG_TRXDMA_CTRL, wordtmp);
+
+#define REG_RCR 0x608 
+#define REG_RXFLTMAP2 0x6a4
+#define REG_TCR 0x604
+	rtwn_write_4(sc, REG_RCR, 0xf000780e); //rtlpci->receive_config);
+	rtwn_write_2(sc, REG_RXFLTMAP2, 0xffff);
+	rtwn_write_4(sc, REG_TCR, 0x8200); //rtlpci->transmit_config);
+	
+#define REG_BCNQ_DESA 0x308
+#define REG_MGQ_DESA 0x318
+#define REG_VOQ_DESA 0x320
+#define REG_VIQ_DESA 0x328
+#define REG_BEQ_DESA 0x330
+#define REG_BKQ_DESA 0x338
+#define REG_HQ_DESA 0x310
+#define REG_RX_DESA 0x340
+
+	rtwn_write_4(sc, REG_BCNQ_DESA, 0x3f806000);
+			//((u64) rtlpci->tx_ring[BEACON_QUEUE].dma) &
+         		//DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_MGQ_DESA, 0x3f85e000);
+			//(u64) rtlpci->tx_ring[MGNT_QUEUE].dma &
+			//DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_VOQ_DESA, 0x3f85a000);
+			//(u64) rtlpci->tx_ring[VO_QUEUE].dma & DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_VIQ_DESA, 0x3f858000);
+			//(u64) rtlpci->tx_ring[VI_QUEUE].dma & DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_BEQ_DESA, 0x3f854000);
+			//(u64) rtlpci->tx_ring[BE_QUEUE].dma & DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_BKQ_DESA, 0x3f84a000);
+			//(u64) rtlpci->tx_ring[BK_QUEUE].dma & DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_HQ_DESA, 0x3f860000);
+			//(u64) rtlpci->tx_ring[HIGH_QUEUE].dma &
+			//DMA_BIT_MASK(32));
+	rtwn_write_4(sc, REG_RX_DESA, 0x3f84c000);
+		//	(u64) rtlpci->rx_ring[RX_MPDU_QUEUE].dma &
+		//	DMA_BIT_MASK(32));
+
+
+
+
+// End of adding code out of desperation 
+
 
         rtwn_write_4(sc, R92C_INT_MIG, 0); // same from _rtl88ee_init_mac 0x304
                                            // same value of INT_MIG

@@ -53,93 +53,80 @@ __FBSDID("$FreeBSD$");
 
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
-#include <dev/rtwn/rtl8192c/pci/r92ce.h>
-#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee.h>
+#include <dev/rtwn/rtl8188e/pci/r88ee_reg.h>
 
 
 int
-r92ce_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
+r88ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 {
 	uint32_t status;
 	int *rings = arg;
 	int ret;
 
-	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
-	printf("classify_interrupt should trigger\n");
-
 	*rings = 0;
-
-//	status = rtwn_read_4(sc, R92C_HISR);
-	status = rtwn_read_4(sc, 0xb4);
+	status = rtwn_read_4(sc, R88E_HISR);
 	RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: HISR %08X, HISRE %04X\n",
-	    __func__, status, rtwn_read_2(sc, R92C_HISRE));
+	    __func__, status, rtwn_read_2(sc, R88E_HISRE));
 	if (status == 0 || status == 0xffffffff)
 		return (0);
 
 	/* Disable interrupts. */
-//	rtwn_write_4(sc, R92C_HIMR, 0);
-	rtwn_write_4(sc, 0xb0, 0x00); // This is an RTL8188EE thing, not part of the base
+	rtwn_write_4(sc, R88E_HIMR, 0);
 
 	/* Ack interrupts. */
-//	rtwn_write_4(sc, R92C_HISR, status);
-	rtwn_write_4(sc, 0xb4, status);
+	rtwn_write_4(sc, R88E_HISR, status);
 
-	if (status & R92C_IMR_BDOK)
+	if (status & R88E_IMR_BDOK)
 		*rings |= (1 << RTWN_PCI_BEACON_QUEUE);
-	if (status & R92C_IMR_HIGHDOK)
+	if (status & R88E_IMR_HIGHDOK)
 		*rings |= (1 << RTWN_PCI_HIGH_QUEUE);
-	if (status & R92C_IMR_MGNTDOK)
+	if (status & R88E_IMR_MGNTDOK)
 		*rings |= (1 << RTWN_PCI_MGNT_QUEUE);
-	if (status & R92C_IMR_BKDOK)
+	if (status & R88E_IMR_BKDOK)
 		*rings |= (1 << RTWN_PCI_BK_QUEUE);
-	if (status & R92C_IMR_BEDOK)
+	if (status & R88E_IMR_BEDOK)
 		*rings |= (1 << RTWN_PCI_BE_QUEUE);
-	if (status & R92C_IMR_VIDOK)
+	if (status & R88E_IMR_VIDOK)
 		*rings |= (1 << RTWN_PCI_VI_QUEUE);
-	if (status & R92C_IMR_VODOK)
+	if (status & R88E_IMR_VODOK)
 		*rings |= (1 << RTWN_PCI_VO_QUEUE);
 
 	ret = 0;
-	if (status & R92C_IMR_RXFOVW)
+	if (status & R88E_IMR_RXFOVW)
 		ret |= RTWN_PCI_INTR_RX_OVERFLOW;
-	if (status & R92C_IMR_RDU)
+	if (status & R88E_IMR_RDU)
 		ret |= RTWN_PCI_INTR_RX_DESC_UNAVAIL;
-	if (status & R92C_IMR_ROK)
+	if (status & R88E_IMR_ROK)
 		ret |= RTWN_PCI_INTR_RX_DONE;
-	if (status & R92C_IMR_TXFOVW)
+	if (status & R88E_IMR_TXFOVW)
 		ret |= RTWN_PCI_INTR_TX_OVERFLOW;
-	if (status & R92C_IMR_PSTIMEOUT)
+	if (status & R88E_IMR_PSTIMEOUT)
 		ret |= RTWN_PCI_INTR_PS_TIMEOUT;
 
 	return (ret);
 }
 
-#define R92C_INT_ENABLE (R92C_IMR_ROK | R92C_IMR_VODOK | R92C_IMR_VIDOK | \
-			R92C_IMR_BEDOK | R92C_IMR_BKDOK | R92C_IMR_MGNTDOK | \
-			R92C_IMR_HIGHDOK | R92C_IMR_BDOK | R92C_IMR_RDU | \
-			R92C_IMR_RXFOVW)
+#define R88E_INT_ENABLE (R88E_IMR_ROK | R88E_IMR_VODOK | R88E_IMR_VIDOK | \
+			R88E_IMR_BEDOK | R88E_IMR_BKDOK | R88E_IMR_MGNTDOK | \
+			R88E_IMR_HIGHDOK | R88E_IMR_BDOK | R88E_IMR_RDU | \
+			R88E_IMR_RXFOVW)
 void
-r92ce_enable_intr(struct rtwn_pci_softc *pc)
+r88ee_enable_intr(struct rtwn_pci_softc *pc)
 {
 	struct rtwn_softc *sc = &pc->pc_sc;
 
-	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
-
 	/* Enable interrupts. */
-	rtwn_write_4(sc, R92C_HIMR, R92C_INT_ENABLE);
+	rtwn_write_4(sc, R88E_HIMR, R88E_INT_ENABLE);
 }
 
 void
-r92ce_start_xfers(struct rtwn_softc *sc)
+r88ee_start_xfers(struct rtwn_softc *sc)
 {
-	printf("RTL8192CE:%s %s Borrowed function\n", __FILE__, __func__);
-
 	/* Clear pending interrupts. */
-//	rtwn_write_4(sc, R92C_HISR, 0xffffffff);
-	rtwn_write_4(sc, 0xB4,      0x00000000);
+	rtwn_write_4(sc, R88E_HISR, 0xffffffff);
 
 	/* Enable interrupts. */
-//	rtwn_write_4(sc, R92C_HIMR, R92C_INT_ENABLE);
-	rtwn_write_4(sc, 0xb0,      0x00000000);
+	rtwn_write_4(sc, R88E_HIMR, R88E_INT_ENABLE);
 }
-#undef R92C_INT_ENABLE
+#undef R88E_INT_ENABLE

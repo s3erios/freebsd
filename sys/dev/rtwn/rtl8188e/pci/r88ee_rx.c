@@ -61,9 +61,10 @@ r88ee_enable_intr(struct rtwn_pci_softc *pc)
 	struct rtwn_softc *sc = &pc->pc_sc;
 
 	/* Enable interrupts */
-	rtwn_write_4(sc, R88E_HIMR, 0xFFFFFFFF); //R88E_INT_ENABLE);
-
-	rtwn_write_4(sc, R88E_HIMRE, 0xFFFFFFFF);
+#define R88EE_HIMR	0xb0
+#define R88EE_HIMRE	0xb8
+	rtwn_write_4(sc, R88EE_HIMR, 0x200084ff); //R88E_INT_ENABLE);
+	rtwn_write_4(sc, R88EE_HIMRE, 0x100);
 
 
         /* there are some C2H CMDs have been sent
@@ -86,10 +87,18 @@ r88ee_start_xfers(struct rtwn_softc *sc)
 {
 	printf("RTL8188EE:%s:%s\n", __FILE__, __func__);
 	/* Clear pending interrupts */
-	rtwn_write_4(sc, R88E_HISR, 0xffffffff);	
+#define R88EE_HIMR   0xb0
+#define R88EE_HIMRE  0xb8
+	rtwn_write_4(sc, R88EE_HIMR, 0xffffffff);	
 
 	/* Enable interrupts */
-	rtwn_write_4(sc, R88E_HISRE, 0xffffffff);
+//	rtwn_write_4(sc, R88EE_HIMRE, 0xffffffff);
+
+   /* Enable interrupts */
+   rtwn_write_4(sc, R88EE_HIMR, 0x200084ff); //R88E_INT_ENABLE);
+   rtwn_write_4(sc, R88EE_HIMRE, 0x100);
+
+
 }
 
 #undef R88EE_INT_ENABLE
