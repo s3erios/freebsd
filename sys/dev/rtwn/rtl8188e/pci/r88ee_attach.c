@@ -309,6 +309,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 	sc->rcr				= 0;
 
 	sc->sc_llt_init =		r92c_llt_init;
+	sc->sc_get_rx_stats	= r88e_get_rx_stats;
 
 	sc->ntxchains				= 1; // This is a guess
 	sc->nrxchains				= 1; // This is a guess also
