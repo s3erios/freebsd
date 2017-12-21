@@ -77,12 +77,12 @@ r92ce_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 		return (0);
 
 	/* Disable interrupts. */
-//	rtwn_write_4(sc, R92C_HIMR, 0);
-	rtwn_write_4(sc, 0xb0, 0x00); // This is an RTL8188EE thing, not part of the base
+	rtwn_write_4(sc, R92C_HIMR, 0);
+//	rtwn_write_4(sc, 0xb0, 0x00); // This is an RTL8188EE thing, not part of the base
 
 	/* Ack interrupts. */
-//	rtwn_write_4(sc, R92C_HISR, status);
-	rtwn_write_4(sc, 0xb4, status);
+	rtwn_write_4(sc, R92C_HISR, status);
+//	rtwn_write_4(sc, 0xb4, status);
 
 	if (status & R92C_IMR_BDOK)
 		*rings |= (1 << RTWN_PCI_BEACON_QUEUE);

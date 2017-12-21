@@ -53,7 +53,85 @@ __FBSDID("$FreeBSD$");
 #include <dev/rtwn/pci/rtwn_pci_var.h>
 
 #include <dev/rtwn/rtl8188e/pci/r88ee.h>
-//#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
+#include <dev/rtwn/rtl8192c/pci/r92ce_reg.h>
+
+int
+r88ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
+{
+   uint32_t status;
+	uint32_t statusb;
+   int *rings = arg;
+   int ret;
+
+   *rings = 0;
+
+//  status = rtwn_read_4(sc, 0xb4);
+
+//   RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: HISR %08X, HISRE %04X\n",
+//       __func__, status, rtwn_read_2(sc, R92C_HISRE));
+//   if (status == 0 || status == 0xffffffff)
+//      return (0);
+
+   /* Disable interrupts. */
+//   rtwn_write_4(sc, 0xb0, 0x00); // This is an RTL8188EE thing, not part of the base
+#define REG_HIMR 0xb0
+#define REG_HIMRE 0xb8
+#define IMR_DISABLED 0x0
+	rtwn_write_4(sc, REG_HIMR, 	IMR_DISABLED); // Comes from rtl88ee_disable_interrupt
+	rtwn_write_4(sc, REG_HIMRE, 	IMR_DISABLED);
+
+#define ISR_MINE 0xb4
+	status = rtwn_read_4(sc, ISR_MINE) & 0x200084ff;
+	rtwn_write_4(sc, ISR_MINE, status);
+//printf("inta: %d\n", status);
+#define REG_HISRE_MINE 0xbc
+	statusb = rtwn_read_4(sc, REG_HISRE_MINE) & 0x100;
+	rtwn_write_4(sc, REG_HISRE_MINE, statusb);
+//printf("intb: %d\n", statusb);
+
+	printf("Statusb: %x\n", statusb);
+
+	if (!status || statusb == 0xffff) {
+		rtwn_write_4(sc, 0xb0, 0x200084ff);
+		rtwn_write_4(sc, 0xb8, 0x100);
+		return (0);
+	}
+
+   /* Ack interrupts. */
+//   rtwn_write_4(sc, 0xb4, status);
+
+   if (statusb & R92C_IMR_BDOK)
+      *rings |= (1 << RTWN_PCI_BEACON_QUEUE);
+   if (statusb & R92C_IMR_HIGHDOK)
+      *rings |= (1 << RTWN_PCI_HIGH_QUEUE);
+   if (statusb & R92C_IMR_MGNTDOK)
+      *rings |= (1 << RTWN_PCI_MGNT_QUEUE);
+   if (statusb & R92C_IMR_BKDOK)
+      *rings |= (1 << RTWN_PCI_BK_QUEUE);
+   if (statusb & R92C_IMR_BEDOK)
+      *rings |= (1 << RTWN_PCI_BE_QUEUE);
+   if (statusb & R92C_IMR_VIDOK)
+      *rings |= (1 << RTWN_PCI_VI_QUEUE);
+   if (statusb & R92C_IMR_VODOK)
+      *rings |= (1 << RTWN_PCI_VO_QUEUE);
+
+
+	printf("rings: %x\n", *rings);
+
+   ret = 0;
+   if (status & R92C_IMR_RXFOVW)
+      ret |= RTWN_PCI_INTR_RX_OVERFLOW;
+   if (status & R92C_IMR_RDU)
+      ret |= RTWN_PCI_INTR_RX_DESC_UNAVAIL;
+   if (status & R92C_IMR_ROK)
+      ret |= RTWN_PCI_INTR_RX_DONE;
+   if (status & R92C_IMR_TXFOVW)
+      ret |= RTWN_PCI_INTR_TX_OVERFLOW;
+   if (status & R92C_IMR_PSTIMEOUT)
+      ret |= RTWN_PCI_INTR_PS_TIMEOUT;
+
+   return (ret);
+}
 
 void
 r88ee_enable_intr(struct rtwn_pci_softc *pc)
@@ -77,7 +155,7 @@ r88ee_enable_intr(struct rtwn_pci_softc *pc)
         /*enable system interrupt*/
 //        rtl_write_dword(rtlpriv, REG_HSIMR,
 //                        rtlpci->sys_irq_mask & 0xFFFFFFFF);
-	rtwn_write_4(sc, 0x0058, 0xFFFFFFFF);
+	rtwn_write_4(sc, 0x0058, 0xFFFFFFFF && 0xc0 );
 
 
 }

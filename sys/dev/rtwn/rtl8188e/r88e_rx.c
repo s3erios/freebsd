@@ -164,7 +164,6 @@ r88e_get_rssi_cck(struct rtwn_softc *sc, void *physt)
 	vga_idx = (phy->agc_rpt & 0x1f);
 	rssi = 6 - 2 * vga_idx;
 
-	printf("RTL8188E:%s:%s Check\n", __FILE__, __func__);
 	switch (lna_idx) {
 	case 7:
 		if (vga_idx > 27)

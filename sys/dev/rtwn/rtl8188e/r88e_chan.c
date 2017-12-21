@@ -131,7 +131,7 @@ r88e_get_txpower(struct rtwn_softc *sc, int chain,
 	cckpow = rt->cck_tx_pwr[group];
 	for (ridx = RTWN_RIDX_CCK1; ridx <= RTWN_RIDX_CCK11; ridx++) {
 		power[ridx] = (ridx == RTWN_RIDX_CCK2) ? cckpow - 9 : cckpow;
-		printf("Power[%d] is %x\n", ridx, power[ridx]);
+//		printf("Power[%d] is %x\n", ridx, power[ridx]);
 	}
 
 	if (group < 5)

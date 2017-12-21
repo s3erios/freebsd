@@ -218,7 +218,7 @@ rtwn_load_firmware(struct rtwn_softc *sc)
 		goto fail;
 	}
 	else {
-		printf("IT WORKS!!!!!!!!!!!!! OH MY KHUDA!!!!!!!!!!!!!!!!\n");
+		printf("Firmware successfully loaded\n");
 	}
 fail:
 	firmware_put(fw, FIRMWARE_UNLOAD);

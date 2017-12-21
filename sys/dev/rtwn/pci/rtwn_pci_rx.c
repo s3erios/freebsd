@@ -117,6 +117,7 @@ rtwn_pci_rx_frame(struct rtwn_softc *sc, struct rtwn_rx_stat_pci *rx_desc,
 	}
 
 	pktlen = MS(rxdw0, RTWN_RXDW0_PKTLEN);
+
 	if (__predict_false(pktlen < sizeof(struct ieee80211_frame_ack) ||
 	    pktlen > MJUMPAGESIZE)) {
 		RTWN_DPRINTF(sc, RTWN_DEBUG_RECV,
@@ -194,12 +195,20 @@ rtwn_pci_tx_done(struct rtwn_softc *sc, int qid)
 	struct rtwn_tx_desc_common *desc;
 	struct rtwn_tx_data *data;
 
+	int tmpdelme = 0;
+
+	printf("rtwn_pci_tx_done: %d\n", qid);
+
 	RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: qid %d, last %d, cur %d\n",
 	    __func__, qid, ring->last, ring->cur);
 
 	bus_dmamap_sync(ring->desc_dmat, ring->desc_map, BUS_DMASYNC_POSTREAD);
 
+	printf("Last: %x Current: %x\n", ring->last, ring->cur);
+
 	while(ring->last != ring->cur) {
+		printf("Within the loop\n");
+		tmpdelme++;
 		data = &ring->tx_data[ring->last];
 		desc = (struct rtwn_tx_desc_common *)
 		    ((uint8_t *)ring->desc + sc->txdesc_len * ring->last);
@@ -273,8 +282,9 @@ rtwn_pci_rx_done(struct rtwn_softc *sc)
 
 		rtwn_pci_rx_frame(sc, rx_desc, ring->cur);
 
-		if (!(sc->sc_flags & RTWN_RUNNING))
+		if (!(sc->sc_flags & RTWN_RUNNING)) {
 			return;
+		}
 
 		ring->cur = (ring->cur + 1) % RTWN_PCI_RX_LIST_COUNT;
 	}
@@ -291,13 +301,16 @@ rtwn_pci_intr(void *arg)
 	status = rtwn_classify_intr(sc, &tx_rings, 0);
 	RTWN_DPRINTF(sc, RTWN_DEBUG_INTR, "%s: status %08X, tx_rings %08X\n",
 	    __func__, status, tx_rings);
-	if (status == 0 && tx_rings == 0)
+	if (status == 0 && tx_rings == 0) {
+		printf("This triggers, both zero\n");
 		goto unlock;
+	}
 
 	if (status & RTWN_PCI_INTR_RX) {
 		rtwn_pci_rx_done(sc);
-		if (!(sc->sc_flags & RTWN_RUNNING))
+		if (!(sc->sc_flags & RTWN_RUNNING)) {
 			goto unlock;
+		}
 	}
 
 	if (tx_rings != 0)
@@ -305,8 +318,9 @@ rtwn_pci_intr(void *arg)
 			if (tx_rings & (1 << i))
 				rtwn_pci_tx_done(sc, i);
 
-	if (sc->sc_flags & RTWN_RUNNING)
+	if (sc->sc_flags & RTWN_RUNNING) {
 		rtwn_pci_enable_intr(pc);
+	}
 unlock:
 	RTWN_UNLOCK(sc);
 }

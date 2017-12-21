@@ -1928,6 +1928,7 @@ rtwn_init(struct rtwn_softc *sc)
 	callout_reset(&sc->sc_watchdog_to, hz, rtwn_watchdog, sc);
 #endif
 
+	printf("RTWN_RUNNING flag enabled here\n");
 	sc->sc_flags |= RTWN_RUNNING;
 #endif 
 
@@ -1951,6 +1952,7 @@ rtwn_stop(struct rtwn_softc *sc)
 	callout_stop(&sc->sc_watchdog_to);
 	sc->sc_tx_timer = 0;
 #endif
+	printf("Disable for some reason\n");
 	sc->sc_flags &= ~(RTWN_STARTED | RTWN_RUNNING | RTWN_FW_LOADED);
 	sc->sc_flags &= ~RTWN_TEMP_MEASURED;
 	sc->fwver = 0;

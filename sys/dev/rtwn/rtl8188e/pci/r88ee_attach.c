@@ -212,7 +212,7 @@ r88ee_attach(struct rtwn_pci_softc *pc)
 						// 
 	sc->sc_get_rssi_ofdm		= r88e_get_rssi_ofdm;
 						// tap
-	sc->sc_classify_intr		= r92ce_classify_intr;
+	sc->sc_classify_intr		= r88ee_classify_intr;
 	sc->sc_handle_tx_report		= rtwn_nop_softc_uint8_int;
 	sc->sc_handle_c2h_report	= rtwn_nop_softc_uint8_int;
 	sc->sc_check_frame		= rtwn_nop_int_softc_mbuf;
