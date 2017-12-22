@@ -89,6 +89,14 @@ r88ee_classify_intr(struct rtwn_softc *sc, void *arg, int len __unused)
 	rtwn_write_4(sc, REG_HISRE_MINE, statusb);
 //printf("intb: %d\n", statusb);
 
+	printf("Statusb: %x\n", statusb);
+	if (!status || statusb == 0xffff) {
+		rtwn_write_4(sc, 0xb0, 0x200084ff);
+		rtwn_write_4(sc, 0xb8, 0x100);
+		return 0;
+	}
+
+
    /* Ack interrupts. */
 //   rtwn_write_4(sc, 0xb4, status);
 
@@ -143,13 +151,11 @@ r88ee_enable_intr(struct rtwn_pci_softc *pc)
          * otherwise FW won't schedule any commands anymore.
          */
 //        rtl_write_byte(rtlpriv, REG_C2HEVT_CLEAR, 0);
-#define REG_C2HEVT_CLEAR 0x01AF
-	rtwn_write_1(sc, REG_C2HEVT_CLEAR, 0x0);
+	rtwn_write_1(sc, 0x01AF, 0);
         /*enable system interrupt*/
 //        rtl_write_dword(rtlpriv, REG_HSIMR,
 //                        rtlpci->sys_irq_mask & 0xFFFFFFFF);
-#define REG_HSIMR 0x0058
-	rtwn_write_4(sc, REG_HSIMR, 0xFFFFFFFF && 0xc0 );
+	rtwn_write_4(sc, 0x0058, 0xFFFFFFFF && 0xc0 );
 
 
 }
